@@ -1,0 +1,83 @@
+The functions we need to be concerned with are:
+display_submission
+mod_assignment_poodllonline_edit_form
+
+The method will be to record to an area on the server and then attach the files to the assignment.
+
+using something like this:
+ if ($newfilename = $mform->get_new_filename('assignment_file')) {
+                    $file = $mform->save_stored_file('assignment_file', $this->context->id, 'mod_assignment', 'submission',
+                        $submission->id, '/', $newfilename);
+
+
+
+These two functions are probably useful for seeing how to use the file system
+
+ function upload($mform) {
+        $action = required_param('action', PARAM_ALPHA);
+        switch ($action) {
+            case 'uploadresponse':
+                $this->upload_responsefile($mform);
+                break;
+            case 'uploadfile':
+                $this->upload_file($mform);
+        }
+    }
+
+    function upload_file($mform) {
+        global $CFG, $USER, $DB, $OUTPUT;
+        $viewurl = new moodle_url('/mod/assignment/view.php', array('id'=>$this->cm->id));
+        if (!is_enrolled($this->context, $USER, 'mod/assignment:submit')) {
+            redirect($viewurl);
+        }
+
+        $submission = $this->get_submission($USER->id);
+        $filecount = 0;
+        if ($submission) {
+            $filecount = $this->count_user_files($submission->id);
+        }
+        if ($this->isopen() && (!$filecount || $this->assignment->resubmit || !$submission->timemarked)) {
+            if ($submission = $this->get_submission($USER->id)) {
+                //TODO: change later to ">= 0", to prevent resubmission when graded 0
+                if (($submission->grade > 0) and !$this->assignment->resubmit) {
+                    redirect($viewurl, get_string('alreadygraded', 'assignment'));
+                }
+            }
+
+            if ($formdata = $mform->get_data()) {
+                $fs = get_file_storage();
+                $submission = $this->get_submission($USER->id, true); //create new submission if needed
+                $fs->delete_area_files($this->context->id, 'mod_assignment', 'submission', $submission->id);
+
+                if ($newfilename = $mform->get_new_filename('assignment_file')) {
+                    $file = $mform->save_stored_file('assignment_file', $this->context->id, 'mod_assignment', 'submission',
+                        $submission->id, '/', $newfilename);
+
+                    $updates = new stdClass(); //just enough data for updating the submission
+                    $updates->timemodified = time();
+                    $updates->numfiles     = 1;
+                    $updates->id     = $submission->id;
+                    $DB->update_record('assignment_submissions', $updates);
+                    add_to_log($this->course->id, 'assignment', 'upload', 'view.php?a='.$this->assignment->id, $this->assignment->id, $this->cm->id);
+                    $this->update_grade($submission);
+                    $this->email_teachers($submission);
+
+                    // Let Moodle know that an assessable file was uploaded (eg for plagiarism detection)
+                    $eventdata = new stdClass();
+                    $eventdata->modulename   = 'assignment';
+                    $eventdata->cmid         = $this->cm->id;
+                    $eventdata->itemid       = $submission->id;
+                    $eventdata->courseid     = $this->course->id;
+                    $eventdata->userid       = $USER->id;
+                    $eventdata->file         = $file;
+                    events_trigger('assessable_file_uploaded', $eventdata);
+                }
+
+                redirect($viewurl, get_string('uploadedfile'));
+            } else {
+                redirect($viewurl, get_string('uploaderror', 'assignment'));  //submitting not allowed!
+            }
+        }
+
+        redirect($viewurl);
+    }
