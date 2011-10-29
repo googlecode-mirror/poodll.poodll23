@@ -74,7 +74,13 @@ require_once($CFG->libdir . '/filelib.php');
 			echo "<?xml version=\"1.0\"?>\n";
 			$returnxml=instance_copydirin($moduleid, $courseid, $paramone, $paramtwo, $paramthree, $requestid);
 			break;
-			
+		
+		case "fetchrealurl": 
+			header("Content-type: text/xml");
+			echo "<?xml version=\"1.0\"?>\n";
+			$returnxml=fetchrealurl($moduleid,$courseid, $paramone, $paramtwo, $requestid);
+			break;
+		
 		default:
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
@@ -187,7 +193,8 @@ function fetch_instancedir_contents($thedir, &$thecontext, $recursive=false){
 			 if(!array_key_exists('dirfile',$subdir)){return;}
 			$f = $subdir['dirfile'];
 			//$filename =$f->get_filename();
-			$filename=poodllBasename($f->get_filepath());
+			//$filename=poodllBasename($f->get_filepath());
+			$filename=basename($f->get_filepath(),"/");
 			/*
 			if ($filename == "." || $filename == "..") {
 				continue;
@@ -664,6 +671,75 @@ function instance_copydirin($moduleid, $courseid, $filearea, $filepath,$newpath,
 	return $xml_output;
 }
 
+
+//this initialises and returns a results array
+//But I think it may misguided, because we need more info at use time
+//than is available to be passed in
+//function fetchRealUrl($moduleid, $courseid, $filearea, $filepath, $requestid){
+function fetchRealUrl($moduleid,$courseid, $filearea, $filepath, $requestid){
+	global $PAGE, $DB;
+	
+	//new return values array
+	$return = fetchReturnArray(false);
+	
+	//fetch info and ids about the module calling this data
+	$course = $DB->get_record('course', array('id'=>$courseid));
+	$modinfo = get_fast_modinfo($course);
+	
+	//get component info
+	//may be able to avoid useing moduleid, by using PAGE global
+	$cm = $modinfo->get_cm($moduleid);
+	//$cm=$PAGE->cm;
+	$component = "mod_" . $cm->modname;
+	
+	//get module context
+	//may be able to avoid useing moduleid, by using PAGE global
+	$thecontext = get_context_instance(CONTEXT_MODULE,$moduleid);
+	//$thecontext=$PAGE->context;
+
+	
+	
+	
+	//FIlter could submit submission/draft/content/intro as options here
+	if($filearea == "") {$filearea ="content";}
+	
+	//item id is a bit of a mystery, I am assuming it is always 0, though that could be bogus
+	$itemid=0;
+	
+	//establish our filename
+	$filename=poodllBasename($filepath);
+	//There is probably a better way to do this, that doesnt hang on multipbyte
+	//need to remove filename and leave trailing dir sep
+	$filepath=strrev(strstr(strrev($filepath),DIRECTORY_SEPARATOR));
+	
+	
+	//get the file brower object
+	$browser = get_file_browser();
+			
+					
+	//fetch our info object
+	$fileinfo = $browser->get_file_info($thecontext, $component,$filearea, $itemid, $filepath, $filename);
+			
+	//get the url to the file
+	if($fileinfo){
+			$urltofile = $fileinfo->get_url();
+	}else{
+			$urltofile = "accessdenied";
+	}
+
+	//prepare our return array
+	$return['success']=false;
+	array_push($return['messages'],"we have a url");
+	array_push($return['messages'],$filepath . " " . $filename);
+	array_push($return['messages'],$urltofile);
+
+	//Return the data
+	$xml_output = prepareXMLReturn($return,$requestid);
+	return $xml_output;
+
+
+}
+
 //this turns our results array into an xml string for returning to browser
 function prepareXMLReturn($resultArray, $requestid){
 	//set up xml to return	
@@ -707,11 +783,10 @@ function fetchReturnArray($initsuccess=false){
 }
 
 //The basename function is unreliable with multibyte strings
-//This may be *nix dependant ... need a windows condition ..
+//This is a cobbled together, dodgey alternative
 function poodllBasename($filepath){
 	return end(explode(DIRECTORY_SEPARATOR,$filepath));
 	//return basename($filepath,'/');
-	//return("house");
 }
 
 function cmpFilenames($a, $b)

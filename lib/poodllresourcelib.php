@@ -656,7 +656,7 @@ if ($CFG->filter_poodll_usecourseid){
 }
 
 function fetchSimpleAudioRecorder($assigname, $userid="", $updatecontrol="saveflvvoice", $filename=""){
-global $CFG, $USER, $COURSE;
+global $CFG, $USER, $COURSE, $PAGE;
 
 //Set the servername 
 $flvserver = $CFG->poodll_media_server;
@@ -693,8 +693,7 @@ if ($updatecontrol == "saveflvvoice"){
 }else{
 	$savecontrol = "";
 }
- return("
-        <table><tr><td>
+ return("<table><tr><td>
         <script type=\'text/javascript\'>
             lzOptions = { ServerRoot: \'\'};
         </script>
@@ -1658,9 +1657,14 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 		. '&cachekiller=' . rand(10000,999999);
 }
 
+	$params = array();
+	$params['red5url'] = urlencode($flvserver);
+	$params['playlist'] = urlencode($fetchdataurl);
 
- 
+    $returnString=  fetchWidgetCode('bigvideogallery.lzx.swf9.swf',
+    						$params,$width,$height,'#D5FFFA');
 
+	return $returnString;
 
  return("
         <table><tr><td>
@@ -1713,6 +1717,43 @@ global $CFG, $USER, $COURSE;
 	
 }
 
+function fetchWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF"){
+	global $CFG, $PAGE;
+	
+	//build the parameter string out of the passed in array
+	$params="?";
+	foreach ($paramsArray as $key => $value) {
+    	$params .= '&' . $key . '=' . $value;
+	}
+	
+	//add in any common params
+	$params .= '&debug=false&lzproxied=false'; 
+	
+	//if we wish to pass in more common params, here is the place
+	//eg. $params .= '&modulename=' . $PAGE->cm->modname;
+	
+	$retcode = "
+        <table><tr><td>
+        <script type=\'text/javascript\'>
+            lzOptions = { ServerRoot: \'\'};
+        </script>
+        <script type=\"text/javascript\" src=\"{$CFG->wwwroot}/filter/poodll/flash/embed-compressed.js\"></script>
+        <script type=\"text/javascript\">
+" . '	lz.embed.swf({url: \'' . $CFG->wwwroot . '/filter/poodll/flash/' . $widget . $params . 
+		 '\', bgcolor: \'' . $bgcolor . '\', width: \'' .$width . '\', height: \'' . $height . '\', id: \'lzapp_' . rand(100000, 999999) . '\', accessible: \'false\'});	
+		
+' . "
+        </script>
+        <noscript>
+            Please enable JavaScript in order to use this application.
+        </noscript>
+        </td></tr>
+		</table>";
+		
+		return $retcode;
+
+
+}
 
 
 
