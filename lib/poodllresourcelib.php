@@ -144,7 +144,8 @@ function fetch_poodllconsole($coursedataurl="",$mename="", $courseid=-1, $embed=
 		}				
 
 }
-
+/*
+* Not a part of PoodLL 2
 
 function fetch_clientconsole($coursedataurl, $courseid=-1, $embed=false){
 	global $CFG, $USER, $COURSE;
@@ -206,6 +207,7 @@ function fetch_clientconsole($coursedataurl, $courseid=-1, $embed=false){
 		}
 
 }
+*/
 
 function fetch_poodllheader(){
 	global $CFG, $USER, $COURSE;
@@ -334,12 +336,6 @@ global $CFG, $USER, $COURSE;
 //Set the servername
 $flvserver = $CFG->poodll_media_server;
 $width=800;
-//get the main url of the poodllpallette
-if($runtime=="dhtml"){
-	$baseUrl = $CFG->wwwroot . '/filter/poodll/js/poodllpalette.lzx.js';
-}else{
-	$baseUrl = $CFG->wwwroot . '/filter/poodll/flash/poodllpalette.lzx.swf10.swf';
-}
 
 //$coursefilesurl = $CFG->wwwroot . '/lib/editor/htmlarea/poodll-coursefiles.php?id=' . $COURSE->id;
 // The ID of the current module (eg moodleurl/view.php?id=X ) or in edit mode update=X
@@ -360,6 +356,35 @@ $bandwidth=$CFG->filter_poodll_bandwidth;
 $picqual=$CFG->filter_poodll_picqual; 
 $cameraprefs= '&capturefps=' . $capturefps . '&captureheight=' . $captureheight . '&picqual=' . $picqual . '&bandwidth=' . $bandwidth . '&capturewidth=' . $capturewidth .   '&prefmic=' . $prefmic . '&prefcam=' . $prefcam;
 
+
+
+
+		//merge config data with javascript embed code
+		$params = array();
+		$params['red5url'] = urlencode($flvserver);
+		$params['poodlllogicurl'] =  $poodlllogicurl . $cameraprefs ;
+		$params['courseid'] = $courseid;
+		$params['filename'] = 'amediafile';
+		$params['coursefiles'] = urlencode($coursefilesurl) ;
+		$params['componentlist'] = urlencode($componentlist);
+
+		
+	
+    	$returnString=  fetchWidgetCode('poodllpalette.lzx.swf10.swf',
+    						$params,$width,$height,'#FFFFFF');
+
+    						
+    	return $returnString ;
+		
+
+/*
+
+//get the main url of the poodllpallette
+if($runtime=="dhtml"){
+	$baseUrl = $CFG->wwwroot . '/filter/poodll/js/poodllpalette.lzx.js';
+}else{
+	$baseUrl = $CFG->wwwroot . '/filter/poodll/flash/poodllpalette.lzx.swf10.swf';
+}
 $params = '?red5url='.urlencode($flvserver). '&poodlllogicurl=' . $poodlllogicurl . $cameraprefs . '&courseid='.$COURSE->id . '&filename=amediafile.flv&coursefiles=' . urlencode($coursefilesurl) .'&componentlist=' . urlencode($componentlist);
 //return $baseUrl . $params;	
 
@@ -402,7 +427,9 @@ if($runtime=="dhtml"){
 }
 		
  return $retstring;
+ */
 }
+/*
 
 function fetch_poodllpalette_old($width=500, $height=300){
 global $CFG, $USER, $COURSE;
@@ -441,6 +468,7 @@ $params = '?red5url='.urlencode($flvserver). '&poodlllogicurl=' . $poodlllogicur
         </noscript>
         '); 	
 }
+*/
 
 function fetch_screencast_subscribe($mename="", $embed=false, $width=600, $height=350,$broadcastkey="1234567"){
 global $CFG, $USER, $COURSE;
@@ -463,23 +491,23 @@ $baseUrl = $CFG->wwwroot . '/filter/poodll/flash/screensubscribe.lzx.swf9.swf';
 $params = '?red5url='.urlencode($flvserver). '&broadcastkey='.$broadcastkey. '&showwidth='.$showwidth. '&showheight='.$showheight.'&courseid='.$COURSE->id  .'&mename='.$mename;
 //return $baseUrl . $params;	
 
-//if necessary return the embed code, otherwise just return the url
-if (!$embed){
-	return $baseUrl . $params;
-}else{
- return('
-        <script type="text/javascript">
-            lzOptions = { ServerRoot: \'\'};
-        </script>
-        <script type="text/javascript" src="' . $CFG->wwwroot . '/filter/poodll/flash/embed-compressed.js"></script>
-        <script type="text/javascript">
-              lz.embed.swf({url: \'' . $baseUrl . $params . '\', bgcolor: \'#cccccc\', width: \''. ($showwidth+10) . '\', height: \'' . ($showheight+10) .'\', id: \'lzapp_screensubscribe_' . rand(100000, 999999) . '\', accessible: \'false\'});
-        </script>
-        <noscript>
-            Please enable JavaScript in order to use this application.
-        </noscript>
-        '); 	
-}
+	//if necessary return the embed code, otherwise just return the url
+	if (!$embed){
+		return $baseUrl . $params;
+	}else{
+	 return('
+			<script type="text/javascript">
+				lzOptions = { ServerRoot: \'\'};
+			</script>
+			<script type="text/javascript" src="' . $CFG->wwwroot . '/filter/poodll/flash/embed-compressed.js"></script>
+			<script type="text/javascript">
+				  lz.embed.swf({url: \'' . $baseUrl . $params . '\', bgcolor: \'#cccccc\', width: \''. ($showwidth+10) . '\', height: \'' . ($showheight+10) .'\', id: \'lzapp_screensubscribe_' . rand(100000, 999999) . '\', accessible: \'false\'});
+			</script>
+			<noscript>
+				Please enable JavaScript in order to use this application.
+			</noscript>
+			'); 	
+	}
 
 }
 function fetch_screencast_broadcast($mename){
@@ -523,6 +551,23 @@ if ($CFG->filter_poodll_usecourseid){
 	$courseid = -1;
 }
 
+	//merge config data with javascript embed code
+		$params = array();
+		$params['red5url'] = urlencode($flvserver);
+		$params['updatecontrol'] = $updatecontrol;
+		$params['course'] = $courseid;
+		$params['filename'] = $filename . $cameraprefs;
+	
+		
+		
+	
+    	$returnString=  fetchWidgetCode('PoodLLTeachersRecorder.lzx.swf9.swf',
+    						$params,$CFG->filter_poodll_talkbackwidth,$CFG->filter_poodll_talkbackheight,'#CCCCCC');
+
+    						
+    	return $returnString ;
+		/*
+
  return('
         <script type="text/javascript">
             lzOptions = { ServerRoot: \'\'};
@@ -536,6 +581,7 @@ if ($CFG->filter_poodll_usecourseid){
         </noscript>
         ');        
        // echo "\n";
+	   */
 
 }
 
@@ -563,6 +609,36 @@ if($standalone == 'true'){
 //whats my name...? my name goddamit, I can't remember  N A mm eeeE
 $mename=$USER->username;		
 
+	//merge config data with javascript embed code
+		$params = array();
+		$params['red5url'] = urlencode($flvserver);
+		$params['mename'] = $mename;
+		$params['boardname'] = $boardname;
+		$params['imageurl'] = $imageurl;
+		$params['courseid'] = $courseid;
+		$params['rooms'] = $rooms;
+
+		//Are  we merely a slave to the admin whiteboard ?
+		if ($slave){
+			$widgetstring=  fetchWidgetCode('scribbleslave.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+		}else{
+			//normal mode is a standard scribble with a cpanel
+			//simple mode has a simple double click popup menu
+			if ($mode=='normal'){
+				$widgetstring=  fetchWidgetCode('scribbler.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+			}else{
+				$widgetstring=  fetchWidgetCode('simplescribble.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+				
+			}
+		}
+		
+		return $widgetstring;
+		
+		/*
+
 //Are  we merely a slave to the admin whiteboard ?
 //(aren't we all, sigh....)
 if ($slave){
@@ -576,6 +652,11 @@ if ($slave){
 		$widgetstring= $CFG->wwwroot . '/filter/poodll/flash/simplescribble.lzx.swf9.swf?&red5url='.urlencode($flvserver).'&courseid='.$courseid.'&mename='.$mename. '&rooms=' . $rooms . '&boardname=' . $boardname . '&imageurl=' . $imageurl;
 	}
 }
+
+
+		
+	
+    	
 
  return("
         <table><tr><td>
@@ -593,7 +674,7 @@ if ($slave){
         </td></tr>
 		<tr><td></td></tr></table>");  
 		
-
+*/
 }
 
 
@@ -633,8 +714,26 @@ if ($CFG->filter_poodll_usecourseid){
 	$courseid="";
 }
 
+		//merge config data with javascript embed code
+		$params = array();
+		$params['red5url'] = urlencode($flvserver);
+		$params['basefile'] = $basefile;
+		$params['recordable'] = $recordable;
+		$params['fileroot'] = $fileroot;
+		$params['randomfnames'] = $randomfnames;
+		$params['courseid'] = $courseid;
+		$params['username'] = $USER->id;
+		$params['streamtype'] = $streamtype;
+		$params['mediadescriptor'] = $basefile . $descriptor_file;
 		
+	
+    	$returnString=  fetchWidgetCode('talkback.lzx.swf9.swf',
+    						$params,$CFG->filter_poodll_talkbackwidth,$CFG->filter_poodll_talkbackheight,'#FFFFFF');
 
+    						
+    	return $returnString ;
+		
+		/*
 
  return("
         <table><tr><td>
@@ -652,7 +751,7 @@ if ($CFG->filter_poodll_usecourseid){
         </td></tr>
 		<tr><td></td></tr></table>");  
 		
-
+*/
 }
 
 function fetchSimpleAudioRecorder($assigname, $userid="", $updatecontrol="saveflvvoice", $filename=""){
@@ -693,6 +792,30 @@ if ($updatecontrol == "saveflvvoice"){
 }else{
 	$savecontrol = "";
 }
+
+$params = array();
+		$params['red5url'] = urlencode($flvserver);
+		$params['overwritefile'] = $overwritemediafile;
+		$params['rate'] = $micrate;
+		$params['gain'] = $micgain;
+		$params['prefdevice'] = $micdevice;
+		$params['loopback'] = $micloopback;
+		$params['echosupression'] = $micecho;
+		$params['silencelevel'] = $micsilence;
+		$params['capturewidth'] = $capturewidth;
+		$params['filename'] = $prefmic;
+		$params['assigName'] = $assigname;
+		$params['course'] = $courseid;
+		$params['updatecontrol'] = $updatecontrol;
+		$params['uid'] = $userid;
+	
+    	$returnString=  fetchWidgetCode('PoodllAudioRecorder.lzx.swf9.swf',
+    						$params,$width,$height,'#CFCFCF');
+    						
+    	$returnString .= 	 $savecontrol;
+    						
+    	return $returnString ;
+/*
  return("<table><tr><td>
         <script type=\'text/javascript\'>
             lzOptions = { ServerRoot: \'\'};
@@ -714,7 +837,7 @@ if ($updatecontrol == "saveflvvoice"){
 			. $savecontrol .
 "</td></tr></table>");  
 		
-
+*/
 }
 
 function fetch_stopwatch($width, $height, $fontheight,$mode='normal',$permitfullscreen=false,$uniquename='uniquename'){
@@ -742,6 +865,29 @@ $userid = $USER->username;
 	}else{
 		$isadmin=false;
 	}
+	    //merge config data with javascript embed code
+		$params = array();
+		$params['initseconds'] = $initseconds;
+		$params['permitfullscreen'] = $permitfullscreen;
+		$params['mename'] = $mename;
+		$params['uniquename'] = $uniquename;
+		$params['courseid'] = $courseid;
+		$params['red5url'] = urlencode($flvserver);
+		$params['mode'] = $mode;
+		
+		//LZ string if master/save  mode and not admin => show slave mode
+	//otherwise show stopwatch
+	if ($mode=='master' && !$isadmin) {
+    	$returnString=  fetchWidgetCode('slaveview.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+    }else{
+    	$returnString=  fetchWidgetCode('stopwatch.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+    }
+   						
+    return $returnString;
+    
+    /*
 	
 	//LZ string if master/save  mode and not admin => show slave mode
 	//otherwise show stopwatch
@@ -784,13 +930,20 @@ $userid = $USER->username;
         </noscript>
         ");  
 		
-
+*/
 }
 
 function fetch_poodllcalc($width, $height){
 global $CFG;
 
-
+	//merge config data with javascript embed code
+		$params = array();
+	
+    	$returnString=  fetchWidgetCode('poodllcalc.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+   						
+    	return $returnString;
+/*
  return("
         <script type=\'text/javascript\'>
             lzOptions = { ServerRoot: \'\'};
@@ -805,7 +958,7 @@ global $CFG;
         </noscript>
         ");  
 		
-
+*/
 }
 
 
@@ -836,6 +989,34 @@ $userid = $USER->username;
 		$isadmin=false;
 	}
 	
+	
+	
+	
+			//merge config data with javascript embed code
+		$params = array();
+		$params['initseconds'] = $initseconds;
+		$params['permitfullscreen'] = $permitfullscreen;
+		$params['usepresets'] = $usepresets;
+		$params['mename'] = $mename;
+		$params['uniquename'] = $uniquename;
+		$params['courseid'] = $courseid;
+		$params['red5url'] = urlencode($flvserver);
+		$params['mode'] = $mode;
+		
+		//LZ string if master/save  mode and not admin => show slave mode
+	//otherwise show stopwatch
+	if ($mode=='master' && !$isadmin) {
+    	$returnString=  fetchWidgetCode('slaveview.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+    }else{
+    	$returnString=  fetchWidgetCode('countdowntimer.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+    }
+   						
+    	return $returnString;
+    	
+/*
+	
 		//LZ string if master/save  mode and not admin => show slave mode
 	//otherwise show stopwatch
 	if ($mode=='master' && !$isadmin) {
@@ -862,7 +1043,6 @@ $userid = $USER->username;
 	
 	
 	
-	
 
 
 
@@ -879,12 +1059,27 @@ $userid = $USER->username;
         </noscript>
         ");   
 		
-
+*/
 }
 
 function fetch_counter($initcount, $usepresets, $width, $height, $fontheight,$permitfullscreen=false){
 global $CFG;
 
+		//merge config data with javascript embed code
+		$params = array();
+		$params['initcount'] = $initcount;
+		$params['permitfullscreen'] = $permitfullscreen;
+		$params['usepresets'] = $usepresets;
+		$params['fontheight'] = $fontheight;
+		
+	
+    	$returnString=  fetchWidgetCode('counter.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+   						
+    	return $returnString;
+    	
+    	
+    	/*
 
  return("
         <script type=\'text/javascript\'>
@@ -900,13 +1095,24 @@ global $CFG;
         </noscript>
         ");  
 		
-
+*/
 }
 
 function fetch_dice($dicecount,$dicesize,$width,$height){
 global $CFG;
 
+		//merge config data with javascript embed code
+		$params = array();
+		$params['dicecount'] = $dicecount;
+		$params['dicesize'] = $dicesize;
+		
+	
+    	$returnString=  fetchWidgetCode('dice.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
 
+    						
+    	return $returnString ;
+/*
  return("
         <script type=\'text/javascript\'>
             lzOptions = { ServerRoot: \'\'};
@@ -921,7 +1127,7 @@ global $CFG;
         </noscript>
         ");  
 		
-
+*/
 }
 
 function fetch_flashcards($cardset,$cardwidth,$cardheight,$randomize,$width,$height){
@@ -939,8 +1145,20 @@ global $CFG,$COURSE;
 			. '&cachekiller=' . rand(10000,999999);
 	}
 
+		//merge config data with javascript embed code
+		$params = array();
+		$params['cardset'] = urlencode($fetchdataurl);
+		$params['randomize'] = $randomize;
+		$params['cardwidth'] = $cardwidth;
+		$params['cardheight'] = $cardheight;
+		
+	
+    	$returnString=  fetchWidgetCode('flashcards.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
 
-
+    						
+    	return $returnString ;
+/*
  return("
         <script type=\'text/javascript\'>
             lzOptions = { ServerRoot: \'\'};
@@ -955,7 +1173,7 @@ global $CFG,$COURSE;
         </noscript>
         ");  
 		
-
+*/
 }
 
 
@@ -993,6 +1211,31 @@ if ($updatecontrol == "saveflvvoice"){
 }else{
 	$savecontrol = "";
 }
+
+$params = array();
+		$params['red5url'] = urlencode($flvserver);
+		$params['overwritefile'] = $overwritemediafile;
+		$params['capturefps'] = $capturefps;
+		$params['filename'] = $filename;
+		$params['assigName'] = $assigname;
+		$params['captureheight'] = $captureheight;
+		$params['picqual'] = $picqual;
+		$params['bandwidth'] = $bandwidth;
+		$params['capturewidth'] = $capturewidth;
+		$params['prefmic'] = $prefmic;
+		$params['prefcam'] = $prefcam;
+		$params['course'] = $courseid;
+		$params['updatecontrol'] = $updatecontrol;
+		$params['uid'] = $userid;
+	
+    	$returnString=  fetchWidgetCode('PoodllVideoRecorder.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+    						
+    	$returnString .= 	$savecontrol;
+    						
+    	return $returnString ;
+/*
+
  return("
         <table><tr><td>
         <script type=\'text/javascript\'>
@@ -1010,6 +1253,7 @@ if ($updatecontrol == "saveflvvoice"){
 		<tr><td>"
 			. $savecontrol .
 "</td></tr></table>");  
+*/
 		
 
 }
@@ -1035,9 +1279,17 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 }
 
 	
+		$params = array();
+		$params['red5url'] = urlencode($flvserver);
+		$params['playertype'] = $protocol;
+		$params['playlist']=urlencode($fetchdataurl);
+	
+    	$returnString=  fetchWidgetCode('poodllaudiotestplayer.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+    						
+    	return $returnString;
 
-
-
+/*
 
 	//some common variables for the embedding stage.	
 	$playerLoc = $CFG->wwwroot . '/filter/poodll/flash/poodllaudiotestplayer.lzx.swf9.swf';
@@ -1061,6 +1313,7 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 
 	
 	return $returnString; 
+	*/
 	
 }
 
@@ -1091,9 +1344,18 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 
 	
 
+	$params = array();
+		$params['red5url'] = urlencode($flvserver);
+		$params['playertype'] = $protocol;
+		$params['sequentialplay'] = $sequentialplay;
+		$params['playlist']=urlencode($fetchdataurl);
+	
+    	$returnString=  fetchWidgetCode('poodllaudiolistplayer.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+    						
+    	return $returnString;
 
-
-
+/*
 	//some common variables for the embedding stage.	
 	$playerLoc = $CFG->wwwroot . '/filter/poodll/flash/poodllaudiolistplayer.lzx.swf9.swf';
 
@@ -1119,6 +1381,7 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 
 	
 	return $returnString; 
+	*/
 	
 }
 
@@ -1191,6 +1454,22 @@ $flvserver = $CFG->poodll_media_server;
 
 	//if we do not want to use embedding, ie use javascript to detect and insert (probably best..?)	
 	}else{
+	
+		$params = array();
+		$params['red5url'] = urlencode($flvserver);
+		$params['playertype'] = $type;
+		$params['mediapath'] = $rtmp_file;
+		$params['permitfullscreen'] = $permitfullscreen;
+	
+	
+    	$returnString=  fetchWidgetCode('poodllaudioplayer.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+    						
+    	return $returnString;
+	}
+	
+	/*
+	
 		$returnString = " <table><tr><td>
 	        <script type=\'text/javascript\'>
 	            lzOptions = { ServerRoot: \'\'};
@@ -1210,6 +1489,7 @@ $flvserver = $CFG->poodll_media_server;
 
 	}
 	return $returnString; 
+	*/
 	
 }
 
@@ -1289,7 +1569,21 @@ $flvserver = $CFG->poodll_media_server;
 
 			return $returnString;
 
-	}else{
+	}else{		
+	
+ 		$params = array();
+		$params['red5url'] = urlencode($flvserver);
+		$params['playertype'] = $type;
+		$params['mediapath'] = $rtmp_file;
+		$params['permitfullscreen'] = $permitfullscreen;
+	
+	
+    	$returnString=  fetchWidgetCode('poodllvideoplayer.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+    						
+    	return $returnString;
+	
+		/*
 		 return("
 				<table><tr><td>
 				<script type=\'text/javascript\'>
@@ -1305,221 +1599,139 @@ $flvserver = $CFG->poodll_media_server;
 				</noscript>
 				</td></tr>
 				<tr><td></td></tr></table>"); 
+		*/
 		}
 	
 }
 
-function fetchPairworkPlayer($mename,$themname,$mepicurl,$mefullname,$thempicurl,$themfullname){
-global $CFG, $USER;
-
-//Set the servername 
-$flvserver = $CFG->poodll_media_server;
-
-//set the stream name for the teacher to talk to the pair. (should be the same for both a and b, hence the strcmp)
-if(strcmp($mename,$themname)<0){
-	$teacherpairstreamname=$mename . "_" . $themname;
-}else{
-	$teacherpairstreamname=$themname . "_" . $mename;
-}
- 
 
 
- return("
-        <table><tr><td>
-        <script type=\'text/javascript\'>
-            lzOptions = { ServerRoot: \'\'};
-        </script>
-        <script type=\"text/javascript\" src=\"{$CFG->wwwroot}/filter/poodll/flash/embed-compressed.js\"></script>
-        <script type=\"text/javascript\">
-" . '	lz.embed.swf({url: \'' . $CFG->wwwroot . '/filter/poodll/flash/pairbroadcast.lzx.swf?&red5url='.urlencode($flvserver)
-.'&mename='.$mename . '&mefullname=' .$mefullname . '&themfullname=' .$themfullname . '&mepictureurl='.urlencode($mepicurl)
-. '&thempictureurl='.urlencode($thempicurl).'&themname=' .$themname . '&teacherallstreamname=' . TEACHERSTREAMNAME . '&teacherpairstreamname=' . $teacherpairstreamname
-. '&debug=false&lzproxied=false\', bgcolor: \'#D5FFFA\', width: \'300\', height: \'60\', id: \'lzapp_' . rand(100000, 999999) . '\', accessible: \'false\'});	
-		
-' . "
-        </script>
-        <noscript>
-            Please enable JavaScript in order to use this application.
-        </noscript>
-        </td></tr>
-		</table>");
-		
-		
-}
-
-function fetchPairsList($pairdataurl, $offlinedataurl, $unassigneddataurl,$mename){
-global $CFG, $USER;
-//Set the servername 
-$flvserver = $CFG->poodll_media_server;
-
- return("
-        <table><tr><td>
-        <script type=\'text/javascript\'>
-            lzOptions = { ServerRoot: \'\'};
-        </script>
-        <script type=\"text/javascript\" src=\"{$CFG->wwwroot}/filter/poodll/flash/embed-compressed.js\"></script>
-        <script type=\"text/javascript\">		
-" . '	lz.embed.swf({url: \'' . $CFG->wwwroot . '/filter/poodll/flash/pairlist.lzx.swf?&red5url='.urlencode($flvserver) . '&mename=' .$mename . '&pairdataurl='.urlencode($pairdataurl) . '&offlinedataurl='.urlencode($offlinedataurl) . '&unassigneddataurl='.urlencode($unassigneddataurl) 
-. '&debug=false&lzproxied=false\', bgcolor: \'#AAAAFF\', width: \'900\', height: \'600\', id: \'lzapp_' . rand(100000, 999999) . '\', accessible: \'false\'});	
-		
-' . "
-        </script>
-        <noscript>
-            Please enable JavaScript in order to use this application.
-        </noscript>
-        </td></tr>
-		</table>");
-		
-
-}
-
-function fetchTeacherPairBroadcastPlayer($aname,$bname,$mepicurl,$mefullname){
-global $CFG, $USER;
-
-//Set the servername 
-$flvserver = $CFG->poodll_media_server;
-
-//set the stream name for the teacher to talk to the pair. (should be the same for both a and b, hence the strcmp)
-if(strcmp($aname,$bname)<0){
-	$teacherpairstreamname=$aname . "_" . $bname;
-}else{
-	$teacherpairstreamname=$bname . "_" . $aname;
-}
- 
-
-
- return("
-        <table><tr><td>
-        <script type=\'text/javascript\'>
-            lzOptions = { ServerRoot: \'\'};
-        </script>
-        <script type=\"text/javascript\" src=\"{$CFG->wwwroot}/filter/poodll/flash/embed-compressed.js\"></script>
-        <script type=\"text/javascript\">
-" . '	lz.embed.swf({url: \'' . $CFG->wwwroot . '/filter/poodll/flash/teacherpairbroadcast.lzx.swf?&red5url='.urlencode($flvserver) . '&teacherpairstreamname=' . $teacherpairstreamname 
-.'&mefullname=' .$mefullname . '&mepictureurl='.urlencode($mepicurl) . '&aname=' . $aname . '&bname=' . $bname 
-. '&debug=false&lzproxied=false\', bgcolor: \'#AAFFFA\', width: \'110\', height: \'35\', id: \'lzapp_' . rand(100000, 999999) . 'teachertopair' . $teacherpairstreamname . '\', accessible: \'false\'});	
-		
-' . "
-        </script>
-        <noscript>
-            Please enable JavaScript in order to use this application.
-        </noscript>
-        </td></tr>
-		</table>");
-		
-		
-}
-
-function fetchTeacherAllBroadcastPlayer($mepicurl,$mefullname){
-global $CFG, $USER;
-
-//Set the servername 
-$flvserver = $CFG->poodll_media_server;
- 
-
-
- return("
-        <table><tr><td>
-        <script type=\'text/javascript\'>
-            lzOptions = { ServerRoot: \'\'};
-        </script>
-        <script type=\"text/javascript\" src=\"{$CFG->wwwroot}/filter/poodll/flash/embed-compressed.js\"></script>
-        <script type=\"text/javascript\">
-" . '	lz.embed.swf({url: \'' . $CFG->wwwroot . '/filter/poodll/flash/teacherallbroadcast.lzx.swf?&red5url='.urlencode($flvserver) . '&teacherstreamname=' . TEACHERSTREAMNAME .'&mefullname=' .$mefullname . '&mepictureurl='.urlencode($mepicurl). '&debug=false&lzproxied=false\', bgcolor: \'#AAFFFA\', width: \'145\', height: \'65\', id: \'lzapp_' . rand(100000, 999999) . 'teachertoall\', accessible: \'false\'});	
-		
-' . "
-        </script>
-        <noscript>
-            Please enable JavaScript in order to use this application.
-        </noscript>
-        </td></tr>
-		</table>");
-		
-		
-}
-
-/**
- * Show a mediaplayer loaded with a media
- * For use as a media resource from DB with options set
- *
- * @param integer $mediaid The id of the media to show
- */
-function fetch_mediaplayer($mediaid,$usefileid=""){
+function fetchSmallVideoGallery($playlist, $protocol, $width, $height,$permitfullscreen=false){
 global $CFG, $USER, $COURSE;
 
- 	// get accessed by card
-    $sql = "
-        SELECT
-           reference servername, alltext mediafile, options 
-        FROM
-            {$CFG->prefix}resource       
-        WHERE
-            id = ".        $mediaid;
-    
-	$theResource = get_record_sql($sql);     
-       
-		$id = 'filter_flv_'.time(); //we need something unique because it might be stored in text cache
-                $cleanurl = addslashes_js($theResource->servername);
-				
-	//Massage the media file name if we have a username variable passed in . (A Justin special)		
-		//This allows us to show different video to each student
-		$mediafile = str_replace( "@@username@@",$USER->username,$theResource->mediafile);
-		if($usefileid!=""){
-			$mediafile = str_replace( "@@usefileid@@",$usefileid,$theResource->mediafile);
-		}
+//Set the servername 
+$courseid= $COURSE->id;
+$flvserver = $CFG->poodll_media_server;
+
+//set size params
+if ($width==''){$width=$CFG->filter_poodll_smallgallwidth;}
+if ($height==''){$height=$CFG->filter_poodll_smallgallheight;}
+
+//Determine if we are admin, admins can always fullscreen
+	if (has_capability('mod/quiz:preview', get_context_instance(CONTEXT_COURSE, $COURSE->id))){		
+		$permitfullscreen='true';
+	}
+
+
+//determine which of, automated or manual playlists to use
+if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
+	//get a manually made playlist
+	$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $playlist;
+}else{
+	//get the url to the automated medialist maker
+	$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllmedialist&courseid=' . $courseid 
+		. '&paramone=' . $playlist 
+		. '&paramtwo=' . $protocol 
+		. '&cachekiller=' . rand(10000,999999);
+}
+ 	
+ 	$params = array();
+	$params['red5url'] = urlencode($flvserver);
+	$params['playlist'] = urlencode($fetchdataurl);
+	$params['protocol'] = urlencode($protocol);
+	$params['permitfullscreen'] = urlencode($permitfullscreen);
+
+    $returnString=  fetchWidgetCode('smallvideogallery.lzx.swf9.swf',
+    						$params,$width,$height,'#D5FFFA');
+
+	return $returnString;
+/*
+ return("
+        <table><tr><td>
+        <script type=\'text/javascript\'>
+            lzOptions = { ServerRoot: \'\'};
+        </script>
+        <script type=\"text/javascript\" src=\"{$CFG->wwwroot}/filter/poodll/flash/embed-compressed.js\"></script>
+        <script type=\"text/javascript\">
+" . '	lz.embed.swf({url: \'' . $CFG->wwwroot . '/filter/poodll/flash/smallvideogallery.lzx.swf9.swf?&red5url='.urlencode($flvserver)
+	.'&playlist='. urlencode($fetchdataurl)
+	. '&permitfullscreen=' . $permitfullscreen 
+	.'&playertype='. urlencode($protocol)
+	. '&debug=false&lzproxied=false\', bgcolor: \'#D5FFFA\', allowfullscreen: \'true\', width: \'' .$width . '\', height: \'' . $height . '\', id: \'lzapp_' . rand(100000, 999999) . '\', accessible: \'false\'});	
 		
-	
-
-		
-					
-
-	//Set the file location
-	$flvserver = $theResource->servername;
-
-
-
-	//see if we have data in options
-	$options = $theResource->options;
-	if (!empty($options)){
-
-	$mediaoptions = explode(';',$options);
-			$mediatype = $mediaoptions[0];
-			$videowidth = $mediaoptions[1];
-			$videoheight = $mediaoptions[2];
-			$videobuffer =  $mediaoptions[3];
-			$autostart=  $mediaoptions[4]=="1" ? "true" : "false";
-			$repeat=  $mediaoptions[5]=="1" ? "true" : "false";
-			$allowfullscreen=  $mediaoptions[6]=="1" ? "true" : "false";	
-
-	}else{
-
-			$videowidth = $CFG->filter_poodll_videowidth;
-			$videoheight = $CFG->filter_poodll_videoheight;
-			//$videobuffer =  $CFG->filter_poodll_buffer;
-			//$autostart=  $CFG->filter_poodll_autostart==1 ? "true" : "false";
-			//$repeat=  $CFG->filter_poodll_repeat==1 ? "true" : "false";
-			//$allowfullscreen=  $CFG->filter_poodll_allowfs==1 ? "true" : "false";
-
-	}
-
-
-	//Jump in here if it is a talkback, fetch the talkbackplayer 
-	if ($mediatype == MR_TYPETALKBACK){
-		return fetchTalkbackPlayer($mediafile);
-	}
-
-	//Jump in here if it is an video, fetch PoodLLVideoPlayer
-	if ($mediatype == MR_TYPEVIDEO){
-		return fetchSimpleVideoPlayer($mediafile,$videowidth,$videoheight);
-	}
-
-	//Jump in here if it is an audio, fetch poodllaudioplayer
-	if ($mediatype == MR_TYPEAUDIO){
-		return fetchSimpleAudioPlayer($mediafile,"",$videowidth,$videoheight);
-	}
+' . "
+        </script>
+        <noscript>
+            Please enable JavaScript in order to use this application.
+        </noscript>
+        </td></tr>
+		</table>");
+*/		
 		
 }
 
+function fetchBigVideoGallery($playlist, $protocol, $width, $height){
+global $CFG, $USER, $COURSE;
+
+//Set the servername 
+$courseid= $COURSE->id;
+$flvserver = $CFG->poodll_media_server;
+
+//set size params
+if ($width==''){$width=$CFG->filter_poodll_biggallwidth;}
+if ($height==''){$height=$CFG->filter_poodll_biggallheight;}
+
+//determine which of, automated or manual playlists to use
+if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
+	//get a manually made playlist
+	$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $playlist;
+}else{
+	//get the url to the automated medialist maker
+	$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllmedialist&courseid=' . $courseid 
+		. '&paramone=' . $playlist 
+		. '&paramtwo=' . $protocol 
+		. '&cachekiller=' . rand(10000,999999);
+}
+
+	$params = array();
+	$params['red5url'] = urlencode($flvserver);
+	$params['playlist'] = urlencode($fetchdataurl);
+
+    $returnString=  fetchWidgetCode('bigvideogallery.lzx.swf9.swf',
+    						$params,$width,$height,'#D5FFFA');
+
+	return $returnString;
+
+}
+
+
+//WMV player with defaults, for use with PoodLL filter
+function fetchWMVPlayer($wmv_file, $width="400",$height="380"){
+global $CFG, $USER, $COURSE;
+
+	//Massage the media file name if we have a username variable passed in.	
+	//This allows us to show different video to each student
+	$wmv_file = str_replace( "@@username@@",$USER->username,$wmv_file);
+
+
+
+	//Add course id and full path to url 
+	$wmv_file= $CFG->wwwroot . "/file.php/" . $COURSE->id . "/" .   $wmv_file ;
+
+	
+		 return("
+				<table><tr><td> 
+					<object id='MediaPlayer' width=$width height=$height classid='CLSID:22D6f312-B0F6-11D0-94AB-0080C74C7E95' standby='Loading Windows Media Player components...' type='application/x-oleobject' codebase='http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=6,4,7,1112'>
+						<param name='filename' value='$wmv_file'>
+						<param name='Showcontrols' value='True'>
+						<param name='autoStart' value='False'>
+						<param name='wmode' value='transparent'>
+						<embed type='application/x-mplayer2' src='$wmv_file' name='MediaPlayer' autoStart='True' wmode='transparent' width='$width' height='$height' ></embed>
+					</object>										
+				</td></tr></table>"); 
+		
+	
+}
 
 	
 //Given a user object, return the url to a picture for that user.
@@ -1579,143 +1791,6 @@ function fetch_filter_properties($filterstring){
 
 }
 
-function fetchSmallVideoGallery($playlist, $protocol, $width, $height,$permitfullscreen=false){
-global $CFG, $USER, $COURSE;
-
-//Set the servername 
-$courseid= $COURSE->id;
-$flvserver = $CFG->poodll_media_server;
-
-//set size params
-if ($width==''){$width=$CFG->filter_poodll_smallgallwidth;}
-if ($height==''){$height=$CFG->filter_poodll_smallgallheight;}
-
-//Determine if we are admin, admins can always fullscreen
-	if (has_capability('mod/quiz:preview', get_context_instance(CONTEXT_COURSE, $COURSE->id))){		
-		$permitfullscreen='true';
-	}
-
-
-//determine which of, automated or manual playlists to use
-if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
-	//get a manually made playlist
-	$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $playlist;
-}else{
-	//get the url to the automated medialist maker
-	$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllmedialist&courseid=' . $courseid 
-		. '&paramone=' . $playlist 
-		. '&paramtwo=' . $protocol 
-		. '&cachekiller=' . rand(10000,999999);
-}
- 
-
-
- return("
-        <table><tr><td>
-        <script type=\'text/javascript\'>
-            lzOptions = { ServerRoot: \'\'};
-        </script>
-        <script type=\"text/javascript\" src=\"{$CFG->wwwroot}/filter/poodll/flash/embed-compressed.js\"></script>
-        <script type=\"text/javascript\">
-" . '	lz.embed.swf({url: \'' . $CFG->wwwroot . '/filter/poodll/flash/smallvideogallery.lzx.swf9.swf?&red5url='.urlencode($flvserver)
-	.'&playlist='. urlencode($fetchdataurl)
-	. '&permitfullscreen=' . $permitfullscreen 
-	.'&playertype='. urlencode($protocol)
-	. '&debug=false&lzproxied=false\', bgcolor: \'#D5FFFA\', allowfullscreen: \'true\', width: \'' .$width . '\', height: \'' . $height . '\', id: \'lzapp_' . rand(100000, 999999) . '\', accessible: \'false\'});	
-		
-' . "
-        </script>
-        <noscript>
-            Please enable JavaScript in order to use this application.
-        </noscript>
-        </td></tr>
-		</table>");
-		
-		
-}
-
-function fetchBigVideoGallery($playlist, $protocol, $width, $height){
-global $CFG, $USER, $COURSE;
-
-//Set the servername 
-$courseid= $COURSE->id;
-$flvserver = $CFG->poodll_media_server;
-
-//set size params
-if ($width==''){$width=$CFG->filter_poodll_biggallwidth;}
-if ($height==''){$height=$CFG->filter_poodll_biggallheight;}
-
-//determine which of, automated or manual playlists to use
-if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
-	//get a manually made playlist
-	$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $playlist;
-}else{
-	//get the url to the automated medialist maker
-	$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllmedialist&courseid=' . $courseid 
-		. '&paramone=' . $playlist 
-		. '&paramtwo=' . $protocol 
-		. '&cachekiller=' . rand(10000,999999);
-}
-
-	$params = array();
-	$params['red5url'] = urlencode($flvserver);
-	$params['playlist'] = urlencode($fetchdataurl);
-
-    $returnString=  fetchWidgetCode('bigvideogallery.lzx.swf9.swf',
-    						$params,$width,$height,'#D5FFFA');
-
-	return $returnString;
-
- return("
-        <table><tr><td>
-        <script type=\'text/javascript\'>
-            lzOptions = { ServerRoot: \'\'};
-        </script>
-        <script type=\"text/javascript\" src=\"{$CFG->wwwroot}/filter/poodll/flash/embed-compressed.js\"></script>
-        <script type=\"text/javascript\">
-" . '	lz.embed.swf({url: \'' . $CFG->wwwroot . '/filter/poodll/flash/bigvideogallery.lzx.swf9.swf?&red5url='.urlencode($flvserver)
-	.'&playlist='. urlencode($fetchdataurl)
-	. '&debug=false&lzproxied=false\', bgcolor: \'#D5FFFA\', width: \'' .$width . '\', height: \'' . $height . '\', id: \'lzapp_' . rand(100000, 999999) . '\', accessible: \'false\'});	
-		
-' . "
-        </script>
-        <noscript>
-            Please enable JavaScript in order to use this application.
-        </noscript>
-        </td></tr>
-		</table>");
-		
-		
-}
-
-
-//WMV player with defaults, for use with PoodLL filter
-function fetchWMVPlayer($wmv_file, $width="400",$height="380"){
-global $CFG, $USER, $COURSE;
-
-	//Massage the media file name if we have a username variable passed in.	
-	//This allows us to show different video to each student
-	$wmv_file = str_replace( "@@username@@",$USER->username,$wmv_file);
-
-
-
-	//Add course id and full path to url 
-	$wmv_file= $CFG->wwwroot . "/file.php/" . $COURSE->id . "/" .   $wmv_file ;
-
-	
-		 return("
-				<table><tr><td> 
-					<object id='MediaPlayer' width=$width height=$height classid='CLSID:22D6f312-B0F6-11D0-94AB-0080C74C7E95' standby='Loading Windows Media Player components...' type='application/x-oleobject' codebase='http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=6,4,7,1112'>
-						<param name='filename' value='$wmv_file'>
-						<param name='Showcontrols' value='True'>
-						<param name='autoStart' value='False'>
-						<param name='wmode' value='transparent'>
-						<embed type='application/x-mplayer2' src='$wmv_file' name='MediaPlayer' autoStart='True' wmode='transparent' width='$width' height='$height' ></embed>
-					</object>										
-				</td></tr></table>"); 
-		
-	
-}
 
 function fetchWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF"){
 	global $CFG, $PAGE;
@@ -1740,7 +1815,7 @@ function fetchWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF"
         <script type=\"text/javascript\" src=\"{$CFG->wwwroot}/filter/poodll/flash/embed-compressed.js\"></script>
         <script type=\"text/javascript\">
 " . '	lz.embed.swf({url: \'' . $CFG->wwwroot . '/filter/poodll/flash/' . $widget . $params . 
-		 '\', bgcolor: \'' . $bgcolor . '\', width: \'' .$width . '\', height: \'' . $height . '\', id: \'lzapp_' . rand(100000, 999999) . '\', accessible: \'false\'});	
+		 '\', bgcolor: \'' . $bgcolor . '\', allowfullscreen: \'true\', width: \'' .$width . '\', height: \'' . $height . '\', id: \'lzapp_' . rand(100000, 999999) . '\', accessible: \'false\'});	
 		
 ' . "
         </script>
