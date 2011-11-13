@@ -74,12 +74,39 @@ require_once($CFG->libdir . '/filelib.php');
 			echo "<?xml version=\"1.0\"?>\n";
 			$returnxml=instance_copydirin($moduleid, $courseid, $paramone, $paramtwo, $paramthree, $requestid);
 			break;
+			
+		case "instancerenamefile": 
+			header("Content-type: text/xml");
+			echo "<?xml version=\"1.0\"?>\n";
+			//paramone = filearea paramtwo=filepath paramthree=newfilename $copyas=false
+			$returnxml=instance_renamefile($moduleid, $courseid, $paramone, $paramtwo, $paramthree, false, $requestid);
+			break;
+			
+		case "instancecopyasfile": 
+			header("Content-type: text/xml");
+			echo "<?xml version=\"1.0\"?>\n";
+			//paramone = filearea paramtwo=filepath paramthree=newfilename $copyas=true
+			$returnxml=instance_renamefile($moduleid, $courseid, $paramone, $paramtwo, $paramthree, true, $requestid);
+			break;
+			
+		case "getmoddata": 
+			header("Content-type: text/xml");
+			echo "<?xml version=\"1.0\"?>\n";
+			$returnxml=getmoddata($courseid, $requestid);
+			break;	
 		
 		case "fetchrealurl": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
 			$returnxml=fetchrealurl($moduleid,$courseid, $paramone, $paramtwo, $requestid);
 			break;
+			
+		case "instancedownload":
+			//paramone=mimetype paramtwo=path paramthree=hash
+			instance_download($paramone,$paramtwo,$hash,$requestid);
+			
+			exit;
+			
 		
 		default:
 			header("Content-type: text/xml");
@@ -176,7 +203,7 @@ function fetch_repodirlist($startpath=''){
 
 
 
-
+//This will fetch the contents of a module instance directory, can be recursively called
 function fetch_instancedir_contents($thedir, &$thecontext, $recursive=false){
 	
 	$browser = get_file_browser();
@@ -193,8 +220,8 @@ function fetch_instancedir_contents($thedir, &$thecontext, $recursive=false){
 			 if(!array_key_exists('dirfile',$subdir)){return;}
 			$f = $subdir['dirfile'];
 			//$filename =$f->get_filename();
-			//$filename=poodllBasename($f->get_filepath());
-			$filename=basename($f->get_filepath(),"/");
+			$filename=poodllBasename($f->get_filepath());
+			//$filename=basename($f->get_filepath(),"/");
 			/*
 			if ($filename == "." || $filename == "..") {
 				continue;
@@ -206,20 +233,30 @@ function fetch_instancedir_contents($thedir, &$thecontext, $recursive=false){
 			//fetch our info object
 			$fileinfo = $browser->get_file_info($thecontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
 			
-			//get the url to the file
+				//If we could get an info object, process. But if we couldn't, although we have info via $f, we don't have permissions
+				//so we don't reveal it
 				if($fileinfo){
 					$urltofile = $fileinfo->get_url();
-				}else{
-					$urltofile = "accessdenied";
-				}
-	
-			//filehash for any delete/edit manipulations we wish to do
-			$hash= $f->get_pathnamehash();	
+				/* if(true){
+					if(!$fileinfo){
+							$urltofile="denied";
+						}else{
+							$urltofile = $fileinfo->get_url();
+						}
+			
+					*/
+					
+					//filehash for any delete/edit manipulations we wish to do
+					$hash= $f->get_pathnamehash();	
 				
-			//output xml for dir (escape for odd quotes that kill xml parser)
-			$xml_output .=  "\t<directory name='" . htmlspecialchars($filename,ENT_QUOTES) ."'  url='" . htmlspecialchars($urltofile,ENT_QUOTES) . "' hash='" . $hash . "'>\n";
-			$xml_output .= fetch_instancedir_contents($subdir,$thecontext,true);	
-			$xml_output .=  "\t</directory>";
+					//output xml for dir (escape for odd quotes that kill xml parser)
+					$xml_output .=  "\t<directory name='" . htmlspecialchars($filename,ENT_QUOTES) ."'  url='" . htmlspecialchars($urltofile,ENT_QUOTES) . "' hash='" . $hash . "'>\n";
+					$xml_output .= fetch_instancedir_contents($subdir,$thecontext,true);	
+					$xml_output .=  "\t</directory>";
+			
+				//}else{
+				//	$xml_output .= "<directory url='booboo' name='" . $thecontext->id .'@'. $f->get_component() .'@'. $f->get_filearea() .'@'. $f->get_itemid() .'@'. $f->get_filepath() .'@'. $f->get_filename() . "' hash='buubuu' />";
+				}
 		
 	
 		}
@@ -243,25 +280,31 @@ function fetch_instancedir_contents($thedir, &$thecontext, $recursive=false){
 				//get the url to the file
 				if($fileinfo){
 					$urltofile = $fileinfo->get_url();
-				}else{
-					$urltofile = "accessdenied";
-				}
-				
-				//filehash for any delete/edit manipulations we wish to do
-				$hash= $f->get_pathnamehash();
+			/*	 if(true){
+					if(!$fileinfo){
+							$urltofile="denied";
+						}else{
+							$urltofile = $fileinfo->get_url();
+						}
+						*/
+						
 					
-				//create the output xml for this file/dir, we escape special characters so as not to break XML parsing
-				$xml_output .=  "\t<file name='" . htmlspecialchars($filename,ENT_QUOTES) ."' isleaf='true' url='" . 
+					//filehash for any delete/edit manipulations we wish to do
+					$hash= $f->get_pathnamehash();
+					
+					//create the output xml for this file/dir, we escape special characters so as not to break XML parsing
+					$xml_output .=  "\t<file name='" . htmlspecialchars($filename,ENT_QUOTES) ."' isleaf='true' url='" . 
 						htmlspecialchars($urltofile,ENT_QUOTES)  . "' filesize='" . $f->get_filesize()  
 						. "' created='" . date('d M Y H:i:s', $f->get_timecreated())  
 						. "' modified='" . date('d M Y H:i:s', $f->get_timemodified()) 
 						. "' type='" . $f->get_mimetype() 
 						. "' hash='" . $hash . "'/>\n";
-		
+
+				}//end of if($fileinfo)
 				
-		}
+		}//end of for each
 	
-	}
+	}//end of if empty
 	
 	return $xml_output;
 
@@ -298,7 +341,7 @@ global $CFG, $DB;
 	//how should we handle itemid? 0?
 	$itemid = 0;
 	$topdir = $fs->get_area_tree($contextid, "mod_" . $cm->modname, $filearea,$itemid);
-	
+	$xml_output .= $cm->modname;
 	//when dev/testing set the recursive flag to false if you prefer not to wait for infinite loops.
 	$xml_output .= fetch_instancedir_contents($topdir,$thiscontext,true);
 	
@@ -311,7 +354,10 @@ global $CFG, $DB;
 }
 
 
-
+//This will delete all files attached to a module instance
+//this works but it should no really be used by joe user.
+//commented because unsecure. Justin 20111103
+/*
 function instance_deleteall($moduleid, $courseid, $filearea, $requestid){
 	global $CFG, $DB;
 
@@ -338,6 +384,7 @@ function instance_deleteall($moduleid, $courseid, $filearea, $requestid){
 	//set up xml to return	
 	$xml_output = "<result requestid='" . $requestid . "'>\n";
 	
+	
 	if($fs->delete_area_files($contextid, $component, $filearea, $itemid)){
 		$xml_output .= "success";
 	}else{
@@ -350,9 +397,36 @@ function instance_deleteall($moduleid, $courseid, $filearea, $requestid){
 	return $xml_output;
 
 }
+*/
 
+function instance_download($mimetype,$filename,$filehash,$requestid){
+//paramone=mimetype paramtwo=filename paramthree=filehash requestid, 
+header("Cache-Control: public");
+header("Content-Description: File Transfer");
+header("Content-Disposition: attachment;filename='" . $filename . "'");
+header("Content-Type: " . $mimetype);
+header("Content-Transfer-Encoding: binary");
+//header('Accept-Ranges: bytes');
 
+			$fs = get_file_storage();
+			$f = $fs->get_file_by_hash($filehash);
+			if($f){
+				//$content = $f->get_content();
+				//echo $content;
+				$f->readfile();
+			}else{
+				//set up return object	
+				$return=fetchReturnArray(false);
+				array_push($return['messages'],"file not found." );
+				$xml_output=prepareXMLReturn($return, $requestid);	
+				header("Content-type: text/xml");
+				echo "<?xml version=\"1.0\"?>\n";
+				echo $xml_output;
+				return;
+			}
+}
 
+//This will delete a single file/dir from a module instance
 function instance_deletefile($filehash, $requestid){
 	$fs = get_file_storage();
 	$f = $fs->get_file_by_hash($filehash);
@@ -365,13 +439,30 @@ function instance_deletefile($filehash, $requestid){
 	if(!$f){
 		$return['success']=false;
 		array_push($return['messages'],"no such file/dir to delete." );
+		//we process the result for return to browser
+		$xml_output=prepareXMLReturn($return, $requestid);		   
+		return $xml_output;
+	}
+		
+	//fetch our info object
+	$browser = get_file_browser();
+	$thecontext = get_context_instance_by_id($f->get_contextid());
+	$fileinfo = $browser->get_file_info($thecontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
 	
+	
+	if(!$fileinfo || !$fileinfo->is_writable()){
+		$return['success']=false;
+		array_push($return['messages'],"You do not have adequate permissions to delete this file." );
+		//array_push($return['messages'],$thecontext->id . " " . $f->get_component() . " " .  $f->get_filearea(). " " .  $f->get_itemid(). " " .  $f->get_filepath(). " " .  $f->get_filename());
+	
+		
+		
 	}else if($f->is_directory()){
 	   $sreturn= instance_deletedircontents($f);
 	   $return = mergeReturnArrays($return,$sreturn);
 	
 	}else{
-		if($f->delete()){
+		if($fileinfo->delete()){
 			$return['success']=true;	
 		}
 	
@@ -382,13 +473,21 @@ function instance_deletefile($filehash, $requestid){
 	return $xml_output;
 }
 
+//This will delete the contents of a directory in a module instance
+//it may be called recursively if the dir contains sub dirs
 function instance_deletedircontents($sfdir){
 	
 	
 	//set up return object	
 	$return=fetchReturnArray(true);
 	
+	//get file handling objects
+	//it is unlikely that sub dirs or files have different permissions to their parents
+	//so perhaps the permissions checks(filebrowser) are unnecessary. but 
 	 $fs = get_file_storage();
+	 $browser = get_file_browser();
+	 
+	 
 	if($sfdir->is_directory()){
 		$files = $fs->get_directory_files( $sfdir->get_contextid(), 
 										 $sfdir->get_component(),
@@ -398,16 +497,28 @@ function instance_deletedircontents($sfdir){
 										 true,true);
 		
 		foreach($files as $singlefile){
-			if(!$singlefile->is_directory()){
-				if(!$singlefile->delete()){				
-					$return['success']=false;
-					array_push($return['messages'],"unable to delete" . $singlefile->get_filepath() . " "  . $singlefile->get_filename());
+		
+			$thecontext = get_context_instance_by_id($singlefile->get_contextid());
+			$fileinfo = $browser->get_file_info($thecontext, $singlefile->get_component(),$singlefile->get_filearea(), $singlefile->get_itemid(), $singlefile->get_filepath(), $singlefile->get_filename());
+			//if we have insuff permissions to delete. Exit.
+			if(!$fileinfo || !$fileinfo->is_writable()){
+				$return['success']=false;
+				array_push($return['messages'],"You do not have adequate permissions to delete " . $singlefile->get_filepath() . " "  . $singlefile->get_filename());
+		
+		//if we have suff. permissions continue
+			}else{	
+				if(!$singlefile->is_directory()){
+					if(!$fileinfo->delete()){				
+						$return['success']=false;
+						array_push($return['messages'],"unable to delete" . $singlefile->get_filepath() . " "  . $singlefile->get_filename());
+					}
+				}else{
+					$sreturn = instance_deletedircontents($singlefile);
+					$return = mergeReturnArrays($return,$sreturn);
 				}
-			}else{
-				$sreturn = instance_deletedircontents($singlefile);
-				$return = mergeReturnArrays($return,$sreturn);
-			}
-		}
+			}//end of is deletable
+			
+		}//end of for each
 		
 		//if we could delete all subfiles and dirs, then we can delete this dir itself.
 		$files = $fs->get_directory_files( $sfdir->get_contextid(), 
@@ -422,14 +533,24 @@ function instance_deletedircontents($sfdir){
 	}else{
 		$return['success'] = false;
 		array_push($return['messages'],"unable to delete dir (" . $sfdir->get_filename() . ") because it is not a dir.");
-	}
+	}//end of if directory
 	
 	return $return;
 }
 
 
+//This creates an empty dir in 
+//available in a module instance (ie added from repository)
 function instance_createdir($moduleid, $courseid, $filearea, $newdir, $requestid){
-	$return = do_createdir($moduleid, $courseid, $filearea, $newdir);
+
+	if(pathIsWritable($moduleid, $courseid, $filearea,"/","")){
+		$return = do_createdir($moduleid, $courseid, $filearea, $newdir);
+	}else{
+		//set up return object	
+		$return=fetchReturnArray(false);
+		 $return['success']=false;
+	  	 array_push($return['messages'],"insuffficient permissions to create dir: " . $newdir );
+	}
 	$xml_return = prepareXMLReturn($return,$requestid);
 	return $xml_return;
 }
@@ -493,10 +614,13 @@ function do_createdir($moduleid, $courseid, $filearea, $newdir){
 
 }
 
+//Returns boolean true if file at passed in path exists.
 function instance_exists($pathname){
 	return file_exists_by_hash($pathname);
 }
 
+//Copies over a single file from rep to module instance
+//workhorse function, is called internally
 function do_copyfilein($moduleid, $courseid, $filearea, $filepath,$newpath, $requestid){
 	global $CFG, $DB;
 
@@ -603,8 +727,7 @@ function instance_copyfilein($moduleid, $courseid, $filearea, $filepath,$newpath
 
 
 //Fetch a sub directory list for file explorer  
-//calls itself recursively, dangerous #NOTES instance_copyin needs to made modular with wrapper functions for diff ret types
-//wiring up to these functions from gui and form data not done yet 20110919
+//calls itself recursively
 function instance_copydircontents($moduleid, $courseid, $filearea, $dir,$newpath, $requestid,  $recursive=false){
 	global $CFG;
 	
@@ -638,8 +761,7 @@ function instance_copydircontents($moduleid, $courseid, $filearea, $dir,$newpath
 }
 
 
-
-//Fetch a directory list from the repo
+//Copy an entire directory from rep over to module instance
 function instance_copydirin($moduleid, $courseid, $filearea, $filepath,$newpath, $requestid){
 	global $USER, $CFG;	
 	
@@ -652,23 +774,124 @@ function instance_copydirin($moduleid, $courseid, $filearea, $filepath,$newpath,
 	//Handle directories
 	$fullpath = $CFG->{'dataroot'}  . $filepath;
 	
-
+	//prepare return array
+	$return=fetchReturnArray(false);
 	
 	$files = scandir($fullpath);
-	if (!empty($files)) {
-	//if (false) {
-		$return = instance_copydircontents($moduleid, $courseid, $filearea, $filepath,$newpath, $requestid,true);
+	
+	//if no files to copy throw error
+	if (empty($files)) {
+		array_push($return['messages'],"no files in directory to copy.");
 		
 	}else{
-		$return=fetchReturnArray(false);
-		array_push($return['messages'],"no files in directory to copy.");
-	}
+		//if area writeable proceed, else throw error
+		if(pathIsWritable($moduleid, $courseid, $filearea,"/","")){
+			$return = instance_copydircontents($moduleid, $courseid, $filearea, $filepath,$newpath, $requestid,true);
+		
+		}else{
+			$return['success']=false;
+			array_push($return['messages'],"you do not have permission to write in this directory.");
+		
+		}
+	}//end of if empty files 
 	
 	
 	//Return the data
 	$xml_output = prepareXMLReturn($return,$requestid);
 	//$xml_output = "<result>I love you</result>";
 	return $xml_output;
+}
+
+function instance_renamefile($moduleid, $courseid, $filearea, $filepath,$newfilename, $copyas, $requestid){
+	global $CFG, $DB;
+
+	//new return values array
+	$return = fetchReturnArray(false);
+	
+	
+	//FIlter could submit submission/draft/content/intro as options here
+	if($filearea == "") {$filearea ="content";}
+	
+	//fetch info and ids about the module calling this data
+	$course = $DB->get_record('course', array('id'=>$courseid));
+	$modinfo = get_fast_modinfo($course);
+	$cm = $modinfo->get_cm($moduleid);
+	$component = "mod_" . $cm->modname;
+	
+	//get a handle on the module context
+	$thiscontext = get_context_instance(CONTEXT_MODULE,$moduleid);
+	$contextid = $thiscontext->id;
+	
+	//item id is a bit of a mystery, I am assuming it is always 0, though that could be bogus
+	$itemid=0;
+
+	//establish our filename and filepath
+	$filename=poodllBasename($filepath);
+	//There is probably a better way to do this, that doesnt hang on multipbyte
+	//need to remove filename and leave trailing dir sep. 
+	//perhaps we should have sent it from widget to here with preceding slash? This could get confusing ..
+	$filepath=DIRECTORY_SEPARATOR . strrev(strstr(strrev($filepath),DIRECTORY_SEPARATOR));
+	
+	
+	
+	//get filehandling objects
+	$browser = get_file_browser();
+	$fs = get_file_storage();
+	$f = $fs->get_file($contextid,$component,$filearea,$itemid,$filepath,$filename) ;
+	
+	//get file fails if it is directory (i think its a bug ..check latest moodle version)
+	//if($f && $f->is_directory()) {
+	if(!$f){
+		$return['success']=false;
+		array_push($return['messages'],"Directories cannot be copied or renamed(yet). Sorry, next version.");
+	
+	//check if the file we wish to copy to already exists, and that the new filename is diff to old one
+	}else if( $newfilename == $filename){
+		$return['success']=false;
+		array_push($return['messages'],"can't rename a file with its original name.");
+		
+	}else if($fs->file_exists($contextid,$component,$filearea,$itemid,$filepath,$newfilename)){
+		$return['success']=false;
+		array_push($return['messages'],"A file with that name already exists in the current directory.");
+	
+
+	
+	//commence the copy and delete
+	}else{
+		//fetch our info object
+		$fileinfo = $browser->get_file_info($thiscontext, $component,$filearea, $itemid, $filepath, $filename);
+		if($fileinfo && $fileinfo->is_writable()){
+			$return['success'] = $fileinfo->copy_to_storage($contextid, $component, $filearea, $itemid, $filepath, $newfilename);
+			//if we could copy ok, lets delete the original file
+			if($return['success']){
+			
+					if($copyas || $fileinfo ->delete()){
+						$return['success']=true;	
+					}else{
+						$return['success']=false;
+						array_push($return['messages'],"copied but unable to delete original file." );
+					}
+			
+			}
+		}else{
+			$return['success']=false;
+			array_push($return['messages'],"unable to fetch original file. Are you logged in?");
+			//array_push($return['messages'],$thiscontext->id . " " . $component . " " .  $filearea . " " .  $itemid . " " .  $filepath . " " .  $filename);
+		}
+	}
+
+
+	
+	
+	if(!$return['success']){
+		$return['success']=false;
+		array_push($return['messages'],"unable to rename/copy file");
+	}
+
+	//Return the data
+	$xml_output = prepareXMLReturn($return,$requestid);
+	return $xml_output;
+
 }
 
 
@@ -681,6 +904,7 @@ function fetchRealUrl($moduleid,$courseid, $filearea, $filepath, $requestid){
 	
 	//new return values array
 	$return = fetchReturnArray(false);
+	
 	
 	//fetch info and ids about the module calling this data
 	$course = $DB->get_record('course', array('id'=>$courseid));
@@ -731,6 +955,7 @@ function fetchRealUrl($moduleid,$courseid, $filearea, $filepath, $requestid){
 	$return['success']=false;
 	array_push($return['messages'],"we have a url");
 	array_push($return['messages'],$filepath . " " . $filename);
+	//array_push($return['messages'],$thecontext->id . " " . $component . " " .  $filearea . " " .  $itemid . " " .  $filepath . " " .  $filename);
 	array_push($return['messages'],$urltofile);
 
 	//Return the data
@@ -738,6 +963,64 @@ function fetchRealUrl($moduleid,$courseid, $filearea, $filepath, $requestid){
 	return $xml_output;
 
 
+}
+
+function getmoddata($courseid,$requestid){
+	global $DB;
+	
+	
+	
+	//fetch info and ids about the modules in this course
+	$course = $DB->get_record('course', array('id'=>$courseid));
+ 	$modinfo =& get_fast_modinfo($course);   
+    get_all_mods($courseid, $mods, $modnames, $modnamesplural, $modnamesused);
+    $sections = get_all_sections($courseid);
+     /* Displays the type of mod name - assignment/ quiz etc 
+    foreach($modnames as $modname) {
+	   array_push($return['messages'],$modname);
+    }
+    */
+    
+    $sectionarray = array();
+    foreach($sections as $section){
+    	
+    	//$sectionarray[$section->id] = get_section_name($course,$section);
+    	//here we will store all the mods for the section
+    	$sectionarray[$section->section] = array();
+    	
+    }
+    
+    //for each mod add its name and id to an array for its section
+    foreach($mods as $mod) {
+    		$modname = htmlspecialchars($modinfo->cms[$mod->id]->name, ENT_QUOTES);
+    		$sectionid=$modinfo->cms[$mod->id]->sectionnum;
+    		array_push($sectionarray[$sectionid], "<module sectionid='" . $sectionid . "' modid='" . $mod->id .  "' modname='" . $modname. "' />");
+    }
+    
+    //init xml output
+  	$xml_output = "<course courseid='" . $courseid . "'>";
+   
+   //go through each section adding a sect header and all the modules in it
+   foreach($sections as $section){
+    	
+    	//$sectionarray[$section->id] = get_section_name($course,$section);
+    	//here we will store all the mods for the section
+    	$sectionname =  htmlspecialchars(get_section_name($course,$section),ENT_QUOTES);
+    	$xml_output .= "<section sectionid='" . $section->section . "' sectionname='" . $sectionname ."'>"; 
+    	foreach($sectionarray[$section->section]  as $line){
+    		$xml_output .= "\t" . $line;
+    	}
+    	$xml_output .= "</section>";
+    }
+
+   //close off xml output
+    $xml_output .= "</course>";
+   
+    //"section", "section, id, course, name, summary, summaryformat, sequence, visible");
+
+	//Return the data
+	//$xml_output = prepareXMLReturn($return,$requestid);
+	return $xml_output;
 }
 
 //this turns our results array into an xml string for returning to browser
@@ -785,15 +1068,92 @@ function fetchReturnArray($initsuccess=false){
 //The basename function is unreliable with multibyte strings
 //This is a cobbled together, dodgey alternative
 function poodllBasename($filepath){
+		//return basename($filepath,'/');
+	//if it is a directory then we should remove the trailing slash because it will
+	//get exploded into an empty string
+	if(substr($filepath,-1)==DIRECTORY_SEPARATOR){
+		$filepath = substr($filepath,0,-1);
+	}
 	return end(explode(DIRECTORY_SEPARATOR,$filepath));
-	//return basename($filepath,'/');
+	
 }
 
+//This is a convenience function for checking that a storedfile is writeable
+//
+function fileIsWritable($f){
+	//get the file brower object
+	
+	$browser = get_file_browser();
+	$thecontext = get_context_instance_by_id($f->get_contextid());
+	$fileinfo = $browser->get_file_info($thecontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
+	//if we have insuff permissions to delete. Exit.
+	if(!$fileinfo || !$fileinfo->is_writable()){
+		return false;
+	}else{
+		return true;
+	}
+}
+
+//This is a convenience function for checking that a storedfile is readable
+//
+function fileIsReadable($f){
+	//get the file brower object
+	$browser = get_file_browser();
+	$thecontext = get_context_instance_by_id($f->get_contextid());
+	$fileinfo = $browser->get_file_info($thecontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
+	//if we have insuff permissions to delete. Exit.
+	if(!$fileinfo || !$fileinfo->is_readable()){
+		return false;
+	}else{
+		return true;
+	}
+}
+
+
+//This tells us if the path can be written to
+//dirs should have a trailing slash and root is / . if dir, filename should be blank
+function pathIsWritable($moduleid, $courseid, $filearea,$filepath="/",$filename=""){
+	global $DB;
+
+
+	//get a handle on the module context
+	$thiscontext = get_context_instance(CONTEXT_MODULE,$moduleid);
+	
+	//fetch info and ids about the module calling this data
+	$course = $DB->get_record('course', array('id'=>$courseid));
+	$modinfo = get_fast_modinfo($course);
+	$cm = $modinfo->get_cm($moduleid);
+	$component = "mod_" . $cm->modname;
+	
+	//FIlter could submit submission/draft/content/intro as options here
+	if($filearea == "") {$filearea ="content";}
+
+	
+	//item id is a bit of a mystery, I am assuming it is always 0, though that could be bogus
+	$itemid=0;
+	
+	//get our file object
+	$filepath="/";
+	$filename="";
+	$browser = get_file_browser();
+	$fileinfo = $browser->get_file_info($thiscontext, $component,$filearea, $itemid, $filepath, $filename);
+	
+	//return writeable or not
+	if($fileinfo && $fileinfo->is_writable()){
+		return true;
+	}else{
+		return false;
+	}
+}
+
+
+//This is used to sort an array of filenames alphabetically
 function cmpFilenames($a, $b)
 {
     return strcasecmp($a->get_filename(), $b->get_filename());
 }
 
+//This is used to sort an array of directory names alphabetically
 function cmpDirnames($a, $b)
 {
     return strcasecmp(poodllBasename($a['dirfile']->get_filepath()), poodllBasename($b['dirfile']->get_filepath()));
