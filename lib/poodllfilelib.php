@@ -23,6 +23,7 @@ require_once($CFG->libdir . '/filelib.php');
 	$datatype = optional_param('datatype', "", PARAM_TEXT);    // Type of action/data we are requesting
 	$courseid  = optional_param('courseid', 0, PARAM_INT);  // the id of the course 
 	$moduleid  = optional_param('moduleid', 0, PARAM_INT);  // the id of the module 
+	$itemid  = optional_param('itemid', 0, PARAM_INT);  // the id of the module
 	$hash  = optional_param('hash', "", PARAM_TEXT);  // file or dir hash
 	$requestid  = optional_param('requestid', "", PARAM_TEXT);  // file or dir hash
 	$paramone  = optional_param('paramone', "", PARAM_TEXT);  // nature of value depends on datatype, maybe path
@@ -31,7 +32,11 @@ require_once($CFG->libdir . '/filelib.php');
 
 	switch($datatype){
 
-
+		case "getrepodata": 
+			header("Content-type: text/xml");
+			echo "<?xml version=\"1.0\"?>\n";
+			$returnxml=fetch_repos();
+			break;
 
 		case "repodirlist": 
 			header("Content-type: text/xml");
@@ -42,19 +47,19 @@ require_once($CFG->libdir . '/filelib.php');
 		case "instancedirlist": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
-			$returnxml=fetch_instancedirlist($moduleid, $courseid, $paramone, $paramtwo);
+			$returnxml=fetch_instancedirlist($moduleid, $courseid, $itemid, $paramone, $paramtwo);
 			break;
 				
 		case "instancedeleteall": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
-			$returnxml=instance_deleteall($moduleid, $courseid, $paramone, $requestid);
+			$returnxml=instance_deleteall($moduleid, $courseid, $itemid, $paramone, $requestid);
 			break;
 			
 		case "instancecopyfile": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
-			$returnxml=instance_copyfilein($moduleid, $courseid, $paramone, $paramtwo,$paramthree, $requestid);
+			$returnxml=instance_copyfilein($moduleid, $courseid, $itemid, $paramone, $paramtwo,$paramthree, $requestid);
 			break;
 		
 		case "instancedeletefile": 
@@ -66,27 +71,27 @@ require_once($CFG->libdir . '/filelib.php');
 		case "instancecreatedir": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
-			$returnxml=instance_createdir($moduleid, $courseid, $paramone, $paramtwo, $requestid);
+			$returnxml=instance_createdir($moduleid, $courseid, $itemid, $paramone, $paramtwo, $requestid);
 			break;
 
 		case "instancecopydir": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
-			$returnxml=instance_copydirin($moduleid, $courseid, $paramone, $paramtwo, $paramthree, $requestid);
+			$returnxml=instance_copydirin($moduleid, $courseid, $itemid, $paramone, $paramtwo, $paramthree, $requestid);
 			break;
 			
 		case "instancerenamefile": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
 			//paramone = filearea paramtwo=filepath paramthree=newfilename $copyas=false
-			$returnxml=instance_renamefile($moduleid, $courseid, $paramone, $paramtwo, $paramthree, false, $requestid);
+			$returnxml=instance_renamefile($moduleid, $courseid, $itemid, $paramone, $paramtwo, $paramthree, false, $requestid);
 			break;
 			
 		case "instancecopyasfile": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
 			//paramone = filearea paramtwo=filepath paramthree=newfilename $copyas=true
-			$returnxml=instance_renamefile($moduleid, $courseid, $paramone, $paramtwo, $paramthree, true, $requestid);
+			$returnxml=instance_renamefile($moduleid, $courseid, $itemid, $paramone, $paramtwo, $paramthree, true, $requestid);
 			break;
 			
 		case "getmoddata": 
@@ -98,7 +103,7 @@ require_once($CFG->libdir . '/filelib.php');
 		case "fetchrealurl": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
-			$returnxml=fetchrealurl($moduleid,$courseid, $paramone, $paramtwo, $requestid);
+			$returnxml=fetchrealurl($moduleid,$courseid, $itemid, $paramone, $paramtwo, $requestid);
 			break;
 			
 		case "instancedownload":
@@ -177,7 +182,7 @@ function fetch_repodirlist($startpath=''){
     global $USER, $CFG;
 	
 	//Handle directories
-	$fullpath = $CFG->{'dataroot'}  . $startpath;
+	$fullpath = $CFG->{'dataroot'}  . "/repository/" . $startpath;
 	
 	//open xml to return
 	$xml_output = "<directorylist>";
@@ -194,6 +199,76 @@ function fetch_repodirlist($startpath=''){
 	
 	//close xml to return
 	$xml_output .= "</directorylist>";
+	
+	//Return the data
+	return $xml_output;
+	
+	
+}
+
+
+//Fetch a directory list from the repo
+function fetch_repos(){
+	global $CFG, $DB;	
+	
+	
+	global $basedir;
+    global $usecheckboxes;
+    global $id;
+    global $USER, $CFG;
+	
+	//Handle directories
+	$fullpath = $CFG->{'dataroot'}  . DIRECTORY_SEPARATOR . "repository";
+	
+	//open xml to return
+	$xml_output = "<repositories>";
+	
+	
+	
+	
+	/// USe this to extract only unique file paths that can be tacked on  / add ri.contextid to hone down the permissions level
+	$sql = "SELECT DISTINCT(ric.value) as filepath FROM {repository} r , {repository_instances} ri , {repository_instance_config} ric  WHERE r.type='filesystem' AND ric.name='fs_path' AND r.id=ri.typeid  AND ri.id=ric.instanceid" ;
+
+	 //or try this if above dont work
+   	//$sql = "SELECT DISTINCT(ric.value) as filepath FROM {repository} r JOIN {repository_instances} ri ON r.id=ri.typeid JOIN {repository_instance_config} ric ON ri.id=ric.instanceid WHERE r.type='filesystem' AND ric.name='fs_path'";
+  
+   //possibly could be shortened to 
+   //$sql = "SELECT UNIQUE(ric.value) as filepath FROM {repository_instance_config} ric WHERE  ric.name='fs_path'";
+
+   $records=$DB->get_records_sql($sql);
+   if (!empty($records)) {
+		
+		foreach ($records as $record){
+			$adir=  htmlspecialchars( $record->filepath,ENT_QUOTES);
+			if(is_dir($fullpath . DIRECTORY_SEPARATOR .  $adir)){
+				if($adir != "." && $adir != ".."){
+					$xml_output .="<repo name='" . $adir . "' path='" . $fullpath . DIRECTORY_SEPARATOR .  $adir . "'/>";
+				}
+			}
+		}
+		
+	}
+	
+	
+
+/* This way just got all the sub directories of repository
+	$files = scandir($fullpath);
+	if (!empty($files)) {
+		
+		foreach ($files as $afile){
+			$afile =  htmlspecialchars( $afile,ENT_QUOTES);
+			if(is_dir($fullpath . DIRECTORY_SEPARATOR .  $afile)){
+				if($afile != "." && $afile != ".."){
+					$xml_output .="<repo name='" . $afile . "' path='" . $fullpath . DIRECTORY_SEPARATOR .  $afile . "'/>";
+				}
+			}
+		}
+		
+	}
+	*/
+	
+	//close xml to return
+	$xml_output .= "</repositories>";
 	
 	//Return the data
 	return $xml_output;
@@ -312,7 +387,7 @@ function fetch_instancedir_contents($thedir, &$thecontext, $recursive=false){
 
 //This will fetch the directory list of all the files
 //available in a module instance (ie added from repository)
-function fetch_instancedirlist($moduleid, $courseid,  $path, $filearea){
+function fetch_instancedirlist($moduleid, $courseid, $itemid, $path, $filearea){
 global $CFG, $DB;
 
 
@@ -338,8 +413,7 @@ global $CFG, $DB;
 	$contextid = $thiscontext->id;
 	
 	//fetch a list of files in this area, and sort them alphabetically
-	//how should we handle itemid? 0?
-	$itemid = 0;
+	
 	$topdir = $fs->get_area_tree($contextid, "mod_" . $cm->modname, $filearea,$itemid);
 	$xml_output .= $cm->modname;
 	//when dev/testing set the recursive flag to false if you prefer not to wait for infinite loops.
@@ -377,9 +451,7 @@ function instance_deleteall($moduleid, $courseid, $filearea, $requestid){
 	//get filehandling objects
 	$browser = get_file_browser();
 	$fs = get_file_storage();
-	
-	//default is to delete all files, but say for a forum, itemid could distinguish between posts)
-	$itemid=0;
+
 	
 	//set up xml to return	
 	$xml_output = "<result requestid='" . $requestid . "'>\n";
@@ -541,10 +613,10 @@ function instance_deletedircontents($sfdir){
 
 //This creates an empty dir in 
 //available in a module instance (ie added from repository)
-function instance_createdir($moduleid, $courseid, $filearea, $newdir, $requestid){
+function instance_createdir($moduleid, $courseid, $itemid, $filearea, $newdir, $requestid){
 
-	if(pathIsWritable($moduleid, $courseid, $filearea,"/","")){
-		$return = do_createdir($moduleid, $courseid, $filearea, $newdir);
+	if(pathIsWritable($moduleid, $courseid, $itemid, $filearea,"/","")){
+		$return = do_createdir($moduleid, $courseid, $itemid, $filearea, $newdir);
 	}else{
 		//set up return object	
 		$return=fetchReturnArray(false);
@@ -555,7 +627,7 @@ function instance_createdir($moduleid, $courseid, $filearea, $newdir, $requestid
 	return $xml_return;
 }
 
-function do_createdir($moduleid, $courseid, $filearea, $newdir){
+function do_createdir($moduleid, $courseid, $itemid, $filearea, $newdir){
 		global $CFG, $DB;
 
 	//FIlter could submit submission/draft/content/intro as options here
@@ -574,9 +646,7 @@ function do_createdir($moduleid, $courseid, $filearea, $newdir){
 	//get filehandling objects
 	$browser = get_file_browser();
 	$fs = get_file_storage();
-	
-	//default item id
-	$itemid=0;
+
 	
 	//set up return object	
 	$return=fetchReturnArray(true);
@@ -621,7 +691,7 @@ function instance_exists($pathname){
 
 //Copies over a single file from rep to module instance
 //workhorse function, is called internally
-function do_copyfilein($moduleid, $courseid, $filearea, $filepath,$newpath, $requestid){
+function do_copyfilein($moduleid, $courseid, $itemid, $filearea, $filepath,$newpath, $requestid){
 	global $CFG, $DB;
 
 	//new return values array
@@ -664,10 +734,7 @@ function do_copyfilein($moduleid, $courseid, $filearea, $filepath,$newpath, $req
 	//basename dont work well for multibyte unless locale set so try the explode function(maybe unic dependant though)
 	//$filename=basename($filepath);
 	$filename = poodllBasename($filepath);
-	
-	//default item id
-	$itemid=0;
-	
+
 	//check if file already exists, if so can out
 	if($fs->file_exists($contextid,$component,$filearea,$itemid,$newpath,$filename)){
 		$return['success'] = false;
@@ -710,11 +777,11 @@ function do_copyfilein($moduleid, $courseid, $filearea, $filepath,$newpath, $req
 
 
 //Copy a single file into an instance file area
-function instance_copyfilein($moduleid, $courseid, $filearea, $filepath,$newpath, $requestid){
+function instance_copyfilein($moduleid, $courseid, $itemid, $filearea, $filepath,$newpath, $requestid){
 	global $CFG, $DB;
 	
 	//do the copying and fetch back the result
-	$return = do_copyfilein($moduleid, $courseid, $filearea, $filepath,$newpath, $requestid);
+	$return = do_copyfilein($moduleid, $courseid, $itemid, $filearea, $itemid, $filepath,$newpath, $requestid);
 	
 	$xml_output = prepareXMLReturn($return, $requestid);
 
@@ -728,7 +795,7 @@ function instance_copyfilein($moduleid, $courseid, $filearea, $filepath,$newpath
 
 //Fetch a sub directory list for file explorer  
 //calls itself recursively
-function instance_copydircontents($moduleid, $courseid, $filearea, $dir,$newpath, $requestid,  $recursive=false){
+function instance_copydircontents($moduleid, $courseid, $itemid, $filearea, $dir,$newpath, $requestid,  $recursive=false){
 	global $CFG;
 	
 	//new return values array
@@ -745,7 +812,7 @@ function instance_copydircontents($moduleid, $courseid, $filearea, $dir,$newpath
 			//differntiate between copying file and copying subdir
 			if(is_dir($fullpath."/".$afile) && $recursive){
 				//$subsubreturn = do_createdir($moduleid, $courseid, $filearea, $newdir);
-				$subreturn =  instance_copydircontents($moduleid, $courseid, $filearea, $dir."/".$afile ,$newpath . "/" . $afile, $requestid,  $recursive);
+				$subreturn =  instance_copydircontents($moduleid, $courseid, $itemid, $filearea, $dir."/".$afile ,$newpath . "/" . $afile, $requestid,  $recursive);
 			}else{
 				$subreturn = do_copyfilein($moduleid, $courseid, $filearea, $dir."/". $afile,$newpath, $requestid);
 			}
@@ -762,7 +829,7 @@ function instance_copydircontents($moduleid, $courseid, $filearea, $dir,$newpath
 
 
 //Copy an entire directory from rep over to module instance
-function instance_copydirin($moduleid, $courseid, $filearea, $filepath,$newpath, $requestid){
+function instance_copydirin($moduleid, $courseid, $itemid, $filearea, $filepath,$newpath, $requestid){
 	global $USER, $CFG;	
 	
 	
@@ -785,8 +852,8 @@ function instance_copydirin($moduleid, $courseid, $filearea, $filepath,$newpath,
 		
 	}else{
 		//if area writeable proceed, else throw error
-		if(pathIsWritable($moduleid, $courseid, $filearea,"/","")){
-			$return = instance_copydircontents($moduleid, $courseid, $filearea, $filepath,$newpath, $requestid,true);
+		if(pathIsWritable($moduleid, $courseid, $itemid, $filearea,"/","")){
+			$return = instance_copydircontents($moduleid, $courseid, $itemid, $filearea, $filepath,$newpath, $requestid,true);
 		
 		}else{
 			$return['success']=false;
@@ -802,7 +869,7 @@ function instance_copydirin($moduleid, $courseid, $filearea, $filepath,$newpath,
 	return $xml_output;
 }
 
-function instance_renamefile($moduleid, $courseid, $filearea, $filepath,$newfilename, $copyas, $requestid){
+function instance_renamefile($moduleid, $courseid, $itemid, $filearea,  $filepath,$newfilename, $copyas, $requestid){
 	global $CFG, $DB;
 
 	//new return values array
@@ -822,8 +889,6 @@ function instance_renamefile($moduleid, $courseid, $filearea, $filepath,$newfile
 	$thiscontext = get_context_instance(CONTEXT_MODULE,$moduleid);
 	$contextid = $thiscontext->id;
 	
-	//item id is a bit of a mystery, I am assuming it is always 0, though that could be bogus
-	$itemid=0;
 
 	//establish our filename and filepath
 	$filename=poodllBasename($filepath);
@@ -899,7 +964,7 @@ function instance_renamefile($moduleid, $courseid, $filearea, $filepath,$newfile
 //But I think it may misguided, because we need more info at use time
 //than is available to be passed in
 //function fetchRealUrl($moduleid, $courseid, $filearea, $filepath, $requestid){
-function fetchRealUrl($moduleid,$courseid, $filearea, $filepath, $requestid){
+function fetchRealUrl($moduleid,$courseid, $itemid, $filearea, $filepath, $requestid){
 	global $PAGE, $DB;
 	
 	//new return values array
@@ -927,8 +992,6 @@ function fetchRealUrl($moduleid,$courseid, $filearea, $filepath, $requestid){
 	//FIlter could submit submission/draft/content/intro as options here
 	if($filearea == "") {$filearea ="content";}
 	
-	//item id is a bit of a mystery, I am assuming it is always 0, though that could be bogus
-	$itemid=0;
 	
 	//establish our filename
 	$filename=poodllBasename($filepath);
@@ -1112,7 +1175,7 @@ function fileIsReadable($f){
 
 //This tells us if the path can be written to
 //dirs should have a trailing slash and root is / . if dir, filename should be blank
-function pathIsWritable($moduleid, $courseid, $filearea,$filepath="/",$filename=""){
+function pathIsWritable($moduleid, $courseid, $itemid, $filearea,$filepath=DIRECTORY_SEPARATOR,$filename=""){
 	global $DB;
 
 
@@ -1129,11 +1192,8 @@ function pathIsWritable($moduleid, $courseid, $filearea,$filepath="/",$filename=
 	if($filearea == "") {$filearea ="content";}
 
 	
-	//item id is a bit of a mystery, I am assuming it is always 0, though that could be bogus
-	$itemid=0;
-	
 	//get our file object
-	$filepath="/";
+	$filepath=DIRECTORY_SEPARATOR;
 	$filename="";
 	$browser = get_file_browser();
 	$fileinfo = $browser->get_file_info($thiscontext, $component,$filearea, $itemid, $filepath, $filename);
