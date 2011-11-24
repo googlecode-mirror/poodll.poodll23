@@ -47,6 +47,7 @@ require_once($CFG->libdir . '/filelib.php');
 		case "instancedirlist": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
+			//paramone=path, paramtwo=filearea
 			$returnxml=fetch_instancedirlist($moduleid, $courseid, $itemid, $paramone, $paramtwo);
 			break;
 				
@@ -59,7 +60,15 @@ require_once($CFG->libdir . '/filelib.php');
 		case "instancecopyfile": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
-			$returnxml=instance_copyfilein($moduleid, $courseid, $itemid, $paramone, $paramtwo,$paramthree, $requestid);
+			//$moduleid, $courseid, $itemid, $filearea, $filepath,$newpath, $requestid)
+			$returnxml=instance_copyfilein($moduleid, $courseid,$itemid, $paramone, $paramtwo, $paramthree, $requestid);
+			break;
+			
+		case "instanceduplicatefile": 
+			header("Content-type: text/xml");
+			echo "<?xml version=\"1.0\"?>\n";
+			//module, course, itemid, filearea, filepath, (origfile)hash,  reqid
+			$returnxml=instance_duplicatefile($moduleid, $courseid, $itemid, $paramone,  $paramtwo, $hash, $requestid);
 			break;
 		
 		case "instancedeletefile": 
@@ -79,19 +88,20 @@ require_once($CFG->libdir . '/filelib.php');
 			echo "<?xml version=\"1.0\"?>\n";
 			$returnxml=instance_copydirin($moduleid, $courseid, $itemid, $paramone, $paramtwo, $paramthree, $requestid);
 			break;
-			
+		
+		
 		case "instancerenamefile": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
-			//paramone = filearea paramtwo=filepath paramthree=newfilename $copyas=false
-			$returnxml=instance_renamefile($moduleid, $courseid, $itemid, $paramone, $paramtwo, $paramthree, false, $requestid);
+			//module, course, originalhash, newfilename, copyas, reqid
+			$returnxml=instance_renamefile($moduleid, $courseid, $hash, $paramone, false, $requestid);
 			break;
 			
 		case "instancecopyasfile": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
-			//paramone = filearea paramtwo=filepath paramthree=newfilename $copyas=true
-			$returnxml=instance_renamefile($moduleid, $courseid, $itemid, $paramone, $paramtwo, $paramthree, true, $requestid);
+			//module, course, originalhash, newfilename, copyas, reqid
+			$returnxml=instance_renamefile($moduleid, $courseid, $hash, $paramone, true, $requestid);
 			break;
 			
 		case "getmoddata": 
@@ -390,8 +400,6 @@ function fetch_instancedir_contents($thedir, &$thecontext, $recursive=false){
 function fetch_instancedirlist($moduleid, $courseid, $itemid, $path, $filearea){
 global $CFG, $DB;
 
-
-	
 	//FIlter could submit submission/draft/content/intro as options here
 	if($filearea == "") {$filearea ="content";}
 	
@@ -415,7 +423,7 @@ global $CFG, $DB;
 	//fetch a list of files in this area, and sort them alphabetically
 	
 	$topdir = $fs->get_area_tree($contextid, "mod_" . $cm->modname, $filearea,$itemid);
-	$xml_output .= $cm->modname;
+	$xml_output .= $cm->modname . " " . $itemid;
 	//when dev/testing set the recursive flag to false if you prefer not to wait for infinite loops.
 	$xml_output .= fetch_instancedir_contents($topdir,$thiscontext,true);
 	
@@ -515,34 +523,48 @@ function instance_deletefile($filehash, $requestid){
 		$xml_output=prepareXMLReturn($return, $requestid);		   
 		return $xml_output;
 	}
-		
-	//fetch our info object
-	$browser = get_file_browser();
-	$thecontext = get_context_instance_by_id($f->get_contextid());
-	$fileinfo = $browser->get_file_info($thecontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
 	
+	//call our delete file handling method
+	$return = instance_deletefile_internal($f);	
 	
-	if(!$fileinfo || !$fileinfo->is_writable()){
-		$return['success']=false;
-		array_push($return['messages'],"You do not have adequate permissions to delete this file." );
-		//array_push($return['messages'],$thecontext->id . " " . $f->get_component() . " " .  $f->get_filearea(). " " .  $f->get_itemid(). " " .  $f->get_filepath(). " " .  $f->get_filename());
-	
-		
-		
-	}else if($f->is_directory()){
-	   $sreturn= instance_deletedircontents($f);
-	   $return = mergeReturnArrays($return,$sreturn);
-	
-	}else{
-		if($fileinfo->delete()){
-			$return['success']=true;	
-		}
-	
-	}
 	
 	//we process the result for return to browser
 	$xml_output=prepareXMLReturn($return, $requestid);		   
 	return $xml_output;
+}
+
+//This will delete a file or directory(by calling a recursive function), 
+//it is called by instance_delete, and instance_rename/copyas file
+function instance_deletefile_internal($f){
+
+			//set up return object	
+			$return=fetchReturnArray(true);
+
+			//fetch our info object
+			$browser = get_file_browser();
+			$thecontext = get_context_instance_by_id($f->get_contextid());
+			$fileinfo = $browser->get_file_info($thecontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
+	
+			//if we don't have permission to delete, exit
+			if(!$fileinfo || !$fileinfo->is_writable()){
+				$return['success']=false;
+				array_push($return['messages'],"You do not have adequate permissions to delete this file." );
+				//array_push($return['messages'],$thecontext->id . " " . $f->get_component() . " " .  $f->get_filearea(). " " .  $f->get_itemid(). " " .  $f->get_filepath(). " " .  $f->get_filename());		
+			
+			//if it is a directory, head in and do recursive processing	
+			}else if($f->is_directory()){
+			   $sreturn= instance_deletedircontents($f);
+			   $return = mergeReturnArrays($return,$sreturn);
+			
+			//if it is a single file, just delete it
+			}else{
+				if($fileinfo->delete()){
+					$return['success']=true;	
+				}
+			
+			}
+			
+			return $return;
 }
 
 //This will delete the contents of a directory in a module instance
@@ -694,6 +716,7 @@ function instance_exists($pathname){
 function do_copyfilein($moduleid, $courseid, $itemid, $filearea, $filepath,$newpath, $requestid){
 	global $CFG, $DB;
 
+
 	//new return values array
 	$return = fetchReturnArray(false);
 	
@@ -713,6 +736,7 @@ function do_copyfilein($moduleid, $courseid, $itemid, $filearea, $filepath,$newp
 	//get filehandling objects
 	$browser = get_file_browser();
 	$fs = get_file_storage();
+
 	
 	//Make full path to source file
 	$filepath = $CFG->{'dataroot'} . $filepath;
@@ -734,6 +758,7 @@ function do_copyfilein($moduleid, $courseid, $itemid, $filearea, $filepath,$newp
 	//basename dont work well for multibyte unless locale set so try the explode function(maybe unic dependant though)
 	//$filename=basename($filepath);
 	$filename = poodllBasename($filepath);
+	//$filename="hello";
 
 	//check if file already exists, if so can out
 	if($fs->file_exists($contextid,$component,$filearea,$itemid,$newpath,$filename)){
@@ -759,7 +784,7 @@ function do_copyfilein($moduleid, $courseid, $itemid, $filearea, $filepath,$newp
 	$xml_output = "<result requestid='" . $requestid . "'>";
 	
 	if($fs->create_file_from_pathname($newfile, $filepath)){
-	//if(true){
+	//if(false){
 		
 		$return['success'] = true;
 		
@@ -770,6 +795,9 @@ function do_copyfilein($moduleid, $courseid, $itemid, $filearea, $filepath,$newp
 	}else{
 		$return['success'] = false;
 		array_push($return['messages'],"Unable to create " . $filename . " at " . $newpath);
+		//array_push($return['messages'],"newfilename:" . $newfile['filename']);
+		//array_push($return['messages'],"filepath:" . $newfile['filepath']);
+		//array_push($return['messages'],"itemid:" . $newfile['itemid']);
 		return $return;
 	}
 	
@@ -781,8 +809,9 @@ function instance_copyfilein($moduleid, $courseid, $itemid, $filearea, $filepath
 	global $CFG, $DB;
 	
 	//do the copying and fetch back the result
-	$return = do_copyfilein($moduleid, $courseid, $itemid, $filearea, $itemid, $filepath,$newpath, $requestid);
-	
+	//$filepath="/repository/audiofiles/adir/jackquizimages/iconfour.png";
+	$return = do_copyfilein($moduleid, $courseid, $itemid, $filearea, $filepath,$newpath, $requestid);
+							
 	$xml_output = prepareXMLReturn($return, $requestid);
 
 	//Return the data
@@ -814,7 +843,7 @@ function instance_copydircontents($moduleid, $courseid, $itemid, $filearea, $dir
 				//$subsubreturn = do_createdir($moduleid, $courseid, $filearea, $newdir);
 				$subreturn =  instance_copydircontents($moduleid, $courseid, $itemid, $filearea, $dir."/".$afile ,$newpath . "/" . $afile, $requestid,  $recursive);
 			}else{
-				$subreturn = do_copyfilein($moduleid, $courseid, $filearea, $dir."/". $afile,$newpath, $requestid);
+				$subreturn = do_copyfilein($moduleid, $courseid, $itemid, $filearea, $dir."/". $afile,$newpath, $requestid);
 			}
 			
 			//process return values
@@ -869,7 +898,201 @@ function instance_copydirin($moduleid, $courseid, $itemid, $filearea, $filepath,
 	return $xml_output;
 }
 
-function instance_renamefile($moduleid, $courseid, $itemid, $filearea,  $filepath,$newfilename, $copyas, $requestid){
+function instance_duplicatefile($moduleid, $courseid, $itemid, $filearea, $filepath, $originalhash, $requestid){
+	
+	//set up return object	
+	$return=fetchReturnArray(true);
+	
+	//get filehandling objects
+	$browser = get_file_browser();
+	$fs = get_file_storage();
+	
+	//get file to copy 
+	$f = $fs->get_file_by_hash($originalhash);
+	
+	if(!$f){
+		$return['success']=false;
+		array_push($return['messages'],"Unable to fetch original file. ");
+	}else{
+		//kick off the recursive thing
+		$return = instance_duplicatefilecontents($f, $moduleid, $courseid, $itemid, $filearea, $filepath , $requestid);
+	}
+	
+	//Return the data
+	$xml_output = prepareXMLReturn($return,$requestid);
+	//$xml_output = "<result>I love you</result>";
+	return $xml_output;
+
+}
+
+
+function instance_duplicatefilecontents($f, $moduleid, $courseid, $itemid, $filearea, $filepath , $requestid, $filename=''){
+	global $CFG, $DB;
+
+	//new return values array
+	$return = fetchReturnArray(true);
+	
+	//get filehandling objects
+	$browser = get_file_browser();
+	$fs = get_file_storage();
+	
+	//get file to copy 
+	if(!$f){
+		$return['success']=false;
+		array_push($return['messages'],"Unable to fetch original file. ");
+		return $return;
+	}
+	
+	//Filter could submit submission/draft/content/intro as options here
+	if($filearea == "") {$filearea ="content";}
+	
+	//fetch info and ids about the module to which we will duplicate our file.
+	$course = $DB->get_record('course', array('id'=>$courseid));
+	$modinfo = get_fast_modinfo($course);
+	$cm = $modinfo->get_cm($moduleid);
+	$component = "mod_" . $cm->modname;
+	
+	//get a handle on the module context
+	$thiscontext = get_context_instance(CONTEXT_MODULE,$moduleid);
+	$contextid = $thiscontext->id;
+	
+	
+	//use the original filename , as the new name if we have not been given a name to use
+	
+	//$filepath=$f->get_filepath();
+	
+	if ($f->is_directory()){
+	
+		
+		$files = $fs->get_directory_files( $f->get_contextid(), 
+										 $f->get_component(),
+										 $f->get_filearea(),
+										 $f->get_itemid(), 
+										 $f->get_filepath(), 
+										 true,true);
+		
+		//get the dir name	if one has not been passed in
+		if($filename==''){
+			$dirname=poodllBasename($f->get_filepath());
+			
+		}else{
+			//here we need to get logic
+			//e.g /home/villages should go to /home/smalltown but it is going to /home/villages/smalltown
+			//so we need to get the parent directory (what if root?)
+			$filepath = $f->get_parent_directory()->get_filepath();
+			$dirname=$filename;
+		}
+		
+		//add the new dir name to the filepath to copy to								 
+		$filepath = $filepath . $dirname  .  DIRECTORY_SEPARATOR;
+			
+	
+		
+		
+		//call on the copy logic for each file
+		foreach($files as $singlefile){
+			
+			$subreturn = instance_duplicatefilecontents($singlefile,$moduleid, $courseid,$itemid, $filearea, $filepath , $requestid);
+				//process return values
+			if(!$subreturn['success']){
+				$return = mergeReturnArrays($return,$subreturn);
+			}//end of process returns
+		}//end of for each
+	
+	
+	
+		
+	
+	}else{
+	
+		//autogenerate a filename if one has not been passed in
+		if($filename==''){
+			$filename=$f->get_filename();
+		}
+		
+		//fetch the file info object for our original file
+		$original_context = get_context_instance_by_id($f->get_contextid());
+		$original_fileinfo = $browser->get_file_info($original_context, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
+	
+		//perform the copy	
+		if($original_fileinfo){
+			$return['success'] = $original_fileinfo->copy_to_storage($contextid, $component, $filearea, $itemid, $filepath, $filename);
+			//$return['success'] =false;
+			
+		}//end of if $original_fileinfo
+	}
+
+	//add a message if we could not do the action
+	if(!$return['success']){
+		array_push($return['messages'],"unable to copy file to: " . $filepath . $filename);
+	}
+
+	//Return the data
+	return $return;
+
+}
+
+//here we rename a file or directory
+function instance_renamefile($moduleid, $courseid, $originalhash,$newfilename, $copyas, $requestid){
+	//set up return object	
+	$return=fetchReturnArray(true);
+	
+	//get filehandling objects
+	$browser = get_file_browser();
+	$fs = get_file_storage();
+	
+	//get file to copy 
+	$f = $fs->get_file_by_hash($originalhash);
+	
+	//get oldfilename
+	if($f){
+		if($f->is_directory()) {
+			$oldfilename=poodllBasename($f->get_filepath());
+		}else{
+			$oldfilename=$f->get_filename();
+		}
+	}else{
+		$oldfilename="";
+	}
+	
+	if(!$f){
+		$return['success']=false;
+		array_push($return['messages'],"Unable to fetch original file: " . $originalhash);
+	//check if the file we wish to copy to already exists, and that the new filename is diff to old one
+	}else if( $newfilename == $oldfilename){
+		$return['success']=false;
+		array_push($return['messages'],"can't rename a file with its original name.");
+		
+	}else if($fs->file_exists($f->get_contextid(),$f->get_component(),$f->get_filearea(),$f->get_itemid(),$f->get_filepath(),$newfilename)){
+		$return['success']=false;
+		array_push($return['messages'],"A file with that name already exists in the current directory.");
+	
+	}else {
+		//kick off the recursive copy thing
+		$return = instance_duplicatefilecontents($f, $moduleid, $courseid, $f->get_itemid(), $f->get_filearea(), $f->get_filepath() , $requestid, $newfilename);
+	}
+	
+	//if we were successful, and were renaming, delete the original
+	if($return['success']){
+		if(!$copyas){
+			$return = instance_deletefile_internal($f);
+		}
+	
+	//if we were not successful, and renaming, add an error
+	}else{
+		if(!$copyas){
+			array_push($return['messages'],"Because of errors, original file(s) not deleted ");
+		}
+	}
+	
+	//Return the data
+	$xml_output = prepareXMLReturn($return,$requestid);
+	//$xml_output = "<result>I love you</result>";
+	return $xml_output;
+
+}
+
+function xinstance_renamefile($moduleid, $courseid, $itemid, $filearea,  $filepath,$newfilename, $copyas, $requestid){
 	global $CFG, $DB;
 
 	//new return values array
@@ -1055,9 +1278,11 @@ function getmoddata($courseid,$requestid){
     
     //for each mod add its name and id to an array for its section
     foreach($mods as $mod) {
-    		$modname = htmlspecialchars($modinfo->cms[$mod->id]->name, ENT_QUOTES);
+    		//$modname = htmlspecialchars($modinfo->cms[$mod->id]->name, ENT_QUOTES);
+    		$modname = htmlspecialchars($mod->name, ENT_QUOTES);
+    		$modtype = $mod->modfullname;
     		$sectionid=$modinfo->cms[$mod->id]->sectionnum;
-    		array_push($sectionarray[$sectionid], "<module sectionid='" . $sectionid . "' modid='" . $mod->id .  "' modname='" . $modname. "' />");
+    		array_push($sectionarray[$sectionid], "<module sectionid='" . $sectionid . "' modid='" . $mod->id .  "' modname='" . $modname. "'  modtype='" . $modtype . "'  />");
     }
     
     //init xml output
