@@ -633,12 +633,14 @@ global $CFG;
 
 //Fetch a deck of flashcards  
 function fetch_poodllflashcards($courseid, $flashcardid){
-global $CFG;	
+global $CFG, $DB;	
 	//Handle directories
-	$subquestions = get_records('question_match_sub', 'question', $flashcardid);
+	//$subquestions = $DB->get_records('question_match_sub', 'question', $flashcardid);
+	$subquestions = $DB->get_records('question_match_sub', array('question'=>$flashcardid));
+	
     if (empty($subquestions)) {
-        notice(get_string('nosubquestions', 'poodllflashcard'));
-        return;          
+       // notice(get_string('nosubquestions', 'poodllflashcard'));
+        return "nothing nothing nothing goddamn it";          
     }
 	
 	//We really need to put formatting into the filter string itself, not mix it in with the data.
@@ -687,15 +689,15 @@ global $CFG;
 
 //Fetch a deck of flashcards  
 function fetch_poodllflashcardsconvert($courseid, $flashcardid){
-global $CFG;	
+global $CFG, $DB;	
 	//Convert the incoming module id into a flashcard instance id
-	$modulerecord = get_record("course_modules", 'id',$flashcardid,'course',$courseid);
+	$modulerecord = $DB->get_record("course_modules", 'id',$flashcardid,'course',$courseid);
 	if ($modulerecord){
 		$flashcardid = $modulerecord->instance;
 	}
 
 	//Handle directories
-	$subquestions = get_records('poodllflashcard_deckdata', 'flashcardid', $flashcardid);
+	$subquestions = $DB->get_records('poodllflashcard_deckdata', 'flashcardid', $flashcardid);
     if (empty($subquestions)) {
        // notice(get_string('nosubquestions', 'poodllflashcard'));
         return "<stack></stack>";          

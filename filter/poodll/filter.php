@@ -49,88 +49,91 @@ function poodll_callback($link) {
 	
 	//Init our return variable 
 	$returnHtml ="";
+	
+	//Runtime JS or Flash
+	if (empty($filterprops['runtime']))$filterprops['runtime'] ='SWF'; 
 
 	//depending on the type of filter
 	switch ($filterprops['type']){
 		case 'video': 
 			//$returnHtml="<BR />" . fetchSimpleVideoPlayer($filterprops['path'],$filterprops['width'],$filterprops['height']);
-			$returnHtml="<BR />" . fetchSimpleVideoPlayer($filterprops['path'],!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_videowidth,!empty($filterprops['height']) ? $filterprops['height'] :  $CFG->filter_poodll_videoheight,!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['embed']) ? $filterprops['embed']=='true' : false,!empty($filterprops['permitfullscreen']) ? $filterprops['permitfullscreen'] : false ,!empty($filterprops['embedstring']) ? $filterprops['embedstring'] : 'Play');
+			$returnHtml="<BR />" . fetchSimpleVideoPlayer($filterprops['runtime'],$filterprops['path'],!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_videowidth,!empty($filterprops['height']) ? $filterprops['height'] :  $CFG->filter_poodll_videoheight,!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['embed']) ? $filterprops['embed']=='true' : false,!empty($filterprops['permitfullscreen']) ? $filterprops['permitfullscreen'] : false ,!empty($filterprops['embedstring']) ? $filterprops['embedstring'] : 'Play');
 			break;
 		
 		case 'wmvvideo': 
-			$returnHtml="<BR />" . fetchWMVPlayer($filterprops['path'],!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_videowidth,!empty($filterprops['height']) ? $filterprops['height'] :  $CFG->filter_poodll_videoheight);
+			$returnHtml="<BR />" . fetchWMVPlayer($filterprops['runtime'],$filterprops['path'],!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_videowidth,!empty($filterprops['height']) ? $filterprops['height'] :  $CFG->filter_poodll_videoheight);
 			break;
 			
 		case 'audio':
-			$returnHtml="<BR />" . fetchSimpleAudioPlayer($filterprops['path'],!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_audiowidth,!empty($filterprops['height']) ? $filterprops['height'] :  $CFG->filter_poodll_audioheight,!empty($filterprops['embed']) ? $filterprops['embed']=='true' : false,!empty($filterprops['embedstring']) ? $filterprops['embedstring'] : 'Play');
+			$returnHtml="<BR />" . fetchSimpleAudioPlayer($filterprops['runtime'],$filterprops['path'],!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_audiowidth,!empty($filterprops['height']) ? $filterprops['height'] :  $CFG->filter_poodll_audioheight,!empty($filterprops['embed']) ? $filterprops['embed']=='true' : false,!empty($filterprops['embedstring']) ? $filterprops['embedstring'] : 'Play');
 			break;
 			
 		case 'audiolist':
-			$returnHtml="<BR />" . fetchAudioListPlayer($filterprops['path'],!empty($filterprops['filearea']) ? $filterprops['filearea'] : 'content',!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['width']) ? $filterprops['width'] : 400,!empty($filterprops['height']) ? $filterprops['height'] : 250, !empty($filterprops['sequentialplay']) ? $filterprops['sequentialplay'] : 'true');
+			$returnHtml="<BR />" . fetchAudioListPlayer($filterprops['runtime'],$filterprops['path'],!empty($filterprops['filearea']) ? $filterprops['filearea'] : 'content',!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['width']) ? $filterprops['width'] : 400,!empty($filterprops['height']) ? $filterprops['height'] : 250, !empty($filterprops['sequentialplay']) ? $filterprops['sequentialplay'] : 'true');
 			break;
 			
 		case 'audiotest':
-			$returnHtml="<BR />" . fetchAudioTestPlayer($filterprops['path'],!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['width']) ? $filterprops['width'] : 400,!empty($filterprops['height']) ? $filterprops['height'] : 50);
+			$returnHtml="<BR />" . fetchAudioTestPlayer($filterprops['runtime'],$filterprops['path'],!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['width']) ? $filterprops['width'] : 400,!empty($filterprops['height']) ? $filterprops['height'] : 50);
 			break;	
 			
 		case 'talkback':
-			$returnHtml="<BR />" . fetchTalkbackPlayer($filterprops['path'],!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['recordable']) ? $filterprops['recordable'] : 'false',!empty($filterprops['savefolder']) ? $filterprops['savefolder'] : 'default');
+			$returnHtml="<BR />" . fetchTalkbackPlayer($filterprops['runtime'],$filterprops['path'],!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['recordable']) ? $filterprops['recordable'] : 'false',!empty($filterprops['savefolder']) ? $filterprops['savefolder'] : 'default');
 			break;
 			
 		case 'bigvideogallery':
-			$returnHtml="<BR />" . fetchBigVideoGallery($filterprops['path'],!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_biggallwidth,!empty($filterprops['height']) ? $filterprops['height'] :  $CFG->filter_poodll_biggallheight);
+			$returnHtml="<BR />" . fetchBigVideoGallery($filterprops['runtime'],$filterprops['path'],!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_biggallwidth,!empty($filterprops['height']) ? $filterprops['height'] :  $CFG->filter_poodll_biggallheight);
 			break;	
 			
 		case 'videorecorder':
-			$returnHtml="<BR />" . fetchSimpleVideoRecorder($filterprops['savefolder']);
+			$returnHtml="<BR />" . fetchSimpleVideoRecorder($filterprops['runtime'],$filterprops['savefolder']);
 			break;	
 			
 		case 'audiorecorder':
-			$returnHtml="<BR />" . fetchSimpleAudioRecorder($filterprops['savefolder']);
+			$returnHtml="<BR />" . fetchSimpleAudioRecorder($filterprops['runtime'],$filterprops['savefolder']);
 			break;
 
 		case 'calculator':
-			$returnHtml="<BR />" . fetch_poodllcalc(!empty($filterprops['width']) ? $filterprops['width'] : 300,
+			$returnHtml="<BR />" . fetch_poodllcalc($filterprops['runtime'],!empty($filterprops['width']) ? $filterprops['width'] : 300,
 				!empty($filterprops['height']) ? $filterprops['height'] : 400);
 			break;
 
 		case 'teachersrecorder':
-			$returnHtml="<BR />" . fetch_teachersrecorder($filterprops['savepath'], "");
+			$returnHtml="<BR />" . fetch_teachersrecorder($filterprops['runtime'],$filterprops['savepath'], "");
 			break;	
 			
 		case 'adminconsole':
-			$returnHtml="<BR />" . fetch_poodllconsole("","billybob",-1,true);
+			$returnHtml="<BR />" . fetch_poodllconsole($filterprops['runtime'],"","billybob",-1,true);
 			break;	
 
 		case 'countdown':
-			$returnHtml="<BR />" . fetch_countdowntimer($filterprops['initseconds'],
+			$returnHtml="<BR />" . fetch_countdowntimer($filterprops['runtime'],$filterprops['initseconds'],
 				!empty($filterprops['usepresets']) ? $filterprops['usepresets'] : 'false',
 				!empty($filterprops['width']) ? $filterprops['width'] : 400,
 				!empty($filterprops['height']) ? $filterprops['height'] : 265,
-				!empty($filterprops['fontsize']) ? $filterprops['fontsize'] : 64,
+				!empty($filterprops['fontheight']) ? $filterprops['fontheight'] : 128,
 				!empty($filterprops['mode']) ? $filterprops['mode'] : 'normal',
 				!empty($filterprops['permitfullscreen']) ? $filterprops['permitfullscreen'] : false, 
 				!empty($filterprops['uniquename']) ? $filterprops['uniquename'] : 'auniquename');
 			break;
 		
 		case 'counter':
-			$returnHtml="<BR />" . fetch_counter(!empty($filterprops['initcount']) ? $filterprops['initcount']  : 0,
+			$returnHtml="<BR />" . fetch_counter($filterprops['runtime'],!empty($filterprops['initcount']) ? $filterprops['initcount']  : 0,
 				!empty($filterprops['usepresets']) ? $filterprops['usepresets'] : 'false',
 				!empty($filterprops['width']) ? $filterprops['width'] : 480,
 				!empty($filterprops['height']) ? $filterprops['height'] : 265,
-				!empty($filterprops['fontsize']) ? $filterprops['fontsize'] : 64,
+				!empty($filterprops['fontheight']) ? $filterprops['fontheight'] : 64,
 				!empty($filterprops['permitfullscreen']) ? $filterprops['permitfullscreen'] : false );
 			break;	
 		
 		case 'dice':
-			$returnHtml="<BR />" . fetch_dice(!empty($filterprops['dicecount']) ? $filterprops['dicecount']  : 1,
+			$returnHtml="<BR />" . fetch_dice($filterprops['runtime'],!empty($filterprops['dicecount']) ? $filterprops['dicecount']  : 1,
 				!empty($filterprops['dicesize']) ? $filterprops['dicesize'] : 200,
 				!empty($filterprops['width']) ? $filterprops['width'] : 300,
 				!empty($filterprops['height']) ? $filterprops['height'] : 300);
 			break;
 			
 		case 'flashcards':
-			$returnHtml="<BR />" . fetch_flashcards($filterprops['cardset'],
+			$returnHtml="<BR />" . fetch_flashcards($filterprops['runtime'],$filterprops['cardset'],
 				!empty($filterprops['cardwidth']) ? $filterprops['cardwidth'] : 300,
 				!empty($filterprops['cardheight']) ? $filterprops['cardheight'] : 150,
 				!empty($filterprops['randomize']) ? $filterprops['randomize'] : 'yes',
@@ -139,22 +142,22 @@ function poodll_callback($link) {
 			break;
 			
 		case 'stopwatch':
-			$returnHtml="<BR />" . fetch_stopwatch(!empty($filterprops['width']) ? $filterprops['width'] : 400,
-				!empty($filterprops['height']) ? $filterprops['height'] : 265,!empty($filterprops['fontsize']) ? $filterprops['fontsize'] : 64,
+			$returnHtml="<BR />" . fetch_stopwatch($filterprops['runtime'],!empty($filterprops['width']) ? $filterprops['width'] : 400,
+				!empty($filterprops['height']) ? $filterprops['height'] : 265,!empty($filterprops['fontheight']) ? $filterprops['fontheight'] : 64,
 				!empty($filterprops['mode']) ? $filterprops['mode'] : 'normal',
 				!empty($filterprops['permitfullscreen']) ? $filterprops['permitfullscreen'] : false, 
 				!empty($filterprops['uniquename']) ? $filterprops['uniquename'] : 'auniquename');
 			break;
 						
 		case 'smallvideogallery':
-			$returnHtml="<BR />" . fetchSmallVideoGallery($filterprops['path'],!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',
+			$returnHtml="<BR />" . fetchSmallVideoGallery($filterprops['runtime'],$filterprops['path'],!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',
 				!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_smallgallwidth,
 				!empty($filterprops['height']) ? $filterprops['height'] :  $CFG->filter_poodll_smallgallheight,
 				!empty($filterprops['permitfullscreen']) ? $filterprops['permitfullscreen'] : false );
 			break;	
 			
 		case 'newpoodllpairwork':
-			$returnHtml="<BR />" . fetch_embeddablepairclient(!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_newpairwidth,
+			$returnHtml="<BR />" . fetch_embeddablepairclient($filterprops['runtime'],!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_newpairwidth,
 				!empty($filterprops['height']) ? $filterprops['height'] : $CFG->filter_poodll_newpairheight,
 				!empty($filterprops['chat']) ? $filterprops['chat'] : true,
 				!empty($filterprops['whiteboard']) ? $filterprops['whiteboard'] : false, 
@@ -164,17 +167,17 @@ function poodll_callback($link) {
 			break;	
 
 		case 'screensubscribe':
-			$returnHtml="<BR />" . fetch_screencast_subscribe("",true,!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_showwidth,
+			$returnHtml="<BR />" . fetch_screencast_subscribe($filterprops['runtime'],"",true,!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_showwidth,
 				!empty($filterprops['height']) ? $filterprops['height'] : $CFG->filter_poodll_showheight
 				);
 			break;	
 
 		case 'poodllpalette':
-			$returnHtml="<BR />" . fetch_poodllpalette($filterprops['width'],$filterprops['height'],"swf");
+			$returnHtml="<BR />" . fetch_poodllpalette($filterprops['runtime'],$filterprops['width'],$filterprops['height'],"swf");
 			break;	
 			
 		case 'whiteboard':
-			$returnHtml="<BR />" . fetch_whiteboard(!empty($filterprops['boardname']) ? $filterprops['boardname'] : "whiteboard",
+			$returnHtml="<BR />" . fetch_whiteboard($filterprops['runtime'],!empty($filterprops['boardname']) ? $filterprops['boardname'] : "whiteboard",
 				!empty($filterprops['backimage']) ? $filterprops['backimage'] : "",
 				(!empty($filterprops['slave'])&& $filterprops['slave']=='true') ? $filterprops['slave'] : false,
 				!empty($filterprops['rooms']) ? $filterprops['rooms'] : "",

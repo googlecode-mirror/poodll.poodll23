@@ -533,6 +533,98 @@ function instance_deletefile($filehash, $requestid){
 	return $xml_output;
 }
 
+//it is called by instance_delete, and instance_rename/copyas file
+//BOGUS BOGUS BOGUS
+function bogus_instance_deletefile_internal($f){
+	//set up return object	
+			$return=fetchReturnArray(false);
+
+			//fetch our info object
+			$browser = get_file_browser();
+			$thecontext = get_context_instance_by_id($f->get_contextid());
+			$fileinfo = $browser->get_file_info($thecontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
+	
+			//if we don't have permission to delete, exit
+			if(!$fileinfo || !$fileinfo->is_writable()){
+				$return['success']=false;
+				//array_push($return['messages'],"You do not have  permissions to delete this file." );
+				array_push($return['messages'],'TNO:' . $thecontext->id . " " . $f->get_component() . " " .  $f->get_filearea(). " " .  $f->get_itemid(). " " .  $f->get_filepath(). " " .  $f->get_filename());		
+			
+			//if it is a directory, head in and do recursive processing	
+			}else if($f->is_directory()){
+				array_push($return['messages'],'TYES:' . $thecontext->id . " " . $f->get_component() . " " .  $f->get_filearea(). " " .  $f->get_itemid(). " " .  $f->get_filepath(). " " .  $f->get_filename());		
+			
+			   $sreturn= bogus_instance_deletedircontents($f);
+			   $return = mergeReturnArrays($return,$sreturn);
+			
+			//if it is a single file, just delete it
+			}else{
+				array_push($return['messages'],'TTYES:' . $thecontext->id . " " . $f->get_component() . " " .  $f->get_filearea(). " " .  $f->get_itemid(). " " .  $f->get_filepath(). " " .  $f->get_filename());		
+			
+				
+			}
+			return $return;
+}
+//This will delete the contents of a directory in a module instance
+//it may be called recursively if the dir contains sub dirs
+function bogus_instance_deletedircontents($sfdir){
+	
+	//set up return object	
+	$return=fetchReturnArray(false);
+	
+	//get file handling objects
+	//it is unlikely that sub dirs or files have different permissions to their parents
+	//so perhaps the permissions checks(filebrowser) are unnecessary. but 
+	 $fs = get_file_storage();
+	 $browser = get_file_browser();
+	 
+	 
+	if($sfdir->is_directory()){
+		$files = $fs->get_directory_files( $sfdir->get_contextid(), 
+										 $sfdir->get_component(),
+										 $sfdir->get_filearea(),
+										 $sfdir->get_itemid(), 
+										 $sfdir->get_filepath(), 
+										 false,true);
+		
+		foreach($files as $f){
+		
+			$thecontext = get_context_instance_by_id($f->get_contextid());
+			$fileinfo = $browser->get_file_info($thecontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
+			//if we have insuff permissions to delete. Exit.
+			//if(!$fileinfo){
+			if(!$fileinfo || !$fileinfo->is_writable()){
+				array_push($return['messages'],' SNO:' . $thecontext->id . " " . $f->get_component() . " " .  $f->get_filearea(). " " .  $f->get_itemid(). " " .  $f->get_filepath(). " " .  $f->get_filename());		
+			
+			}else if(!$fileinfo->is_writable()){
+				array_push($return['messages'],'SSNO:' . $thecontext->id . " " . $f->get_component() . " " .  $f->get_filearea(). " " .  $f->get_itemid(). " " .  $f->get_filepath(). " " .  $f->get_filename());		
+			
+			}else{	
+				if(!$f->is_directory()){
+					array_push($return['messages'],'SYES:' . $thecontext->id . " " . $f->get_component() . " " .  $f->get_filearea(). " " .  $f->get_itemid(). " " .  $f->get_filepath(). " " .  $f->get_filename());		
+					if(!$fileinfo->delete()){				
+						$return['success']=false;
+						array_push($return['messages'],"unable to delete" . $f->get_filepath() . " "  . $f->get_filename());
+					}
+				}else{
+					array_push($return['messages'],'SSYES:' . $thecontext->id . " " . $f->get_component() . " " .  $f->get_filearea(). " " .  $f->get_itemid(). " " .  $f->get_filepath(). " " .  $f->get_filename());		
+					 $sreturn= bogus_instance_deletedircontents($f);
+					$return = mergeReturnArrays($return,$sreturn);
+				}
+			}//end of is deletable
+			
+		}//end of for each
+		
+		
+	//if it is not a directory complain
+	}else{
+			$return['success']=false;
+			array_push($return['messages'],"unable to delete non dir: " . $singlefile->get_filepath() . $singlefile->get_filename());
+	}
+	
+	return $return;
+}
+
 //This will delete a file or directory(by calling a recursive function), 
 //it is called by instance_delete, and instance_rename/copyas file
 function instance_deletefile_internal($f){
@@ -545,10 +637,10 @@ function instance_deletefile_internal($f){
 			$thecontext = get_context_instance_by_id($f->get_contextid());
 			$fileinfo = $browser->get_file_info($thecontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
 	
-			//if we don't have permission to delete, exit
+			//if we don't have permission to delete, or the file cant be info'd exit
 			if(!$fileinfo || !$fileinfo->is_writable()){
 				$return['success']=false;
-				array_push($return['messages'],"You do not have adequate permissions to delete this file." );
+				array_push($return['messages'],"You do not have  permissions to delete this file." );
 				//array_push($return['messages'],$thecontext->id . " " . $f->get_component() . " " .  $f->get_filearea(). " " .  $f->get_itemid(). " " .  $f->get_filepath(). " " .  $f->get_filename());		
 			
 			//if it is a directory, head in and do recursive processing	
@@ -558,19 +650,18 @@ function instance_deletefile_internal($f){
 			
 			//if it is a single file, just delete it
 			}else{
+				//array_push( $return['messages'], "DELOK" . $thecontext->id . ':' . $f->get_component() . ':' . $f->get_filearea() . ':' . $f->get_itemid()  . ':' . $f->get_filepath() . ':' . $f->get_filename());
+
 				if($fileinfo->delete()){
 					$return['success']=true;	
 				}
-			
 			}
-			
 			return $return;
 }
 
 //This will delete the contents of a directory in a module instance
 //it may be called recursively if the dir contains sub dirs
 function instance_deletedircontents($sfdir){
-	
 	
 	//set up return object	
 	$return=fetchReturnArray(true);
@@ -588,18 +679,25 @@ function instance_deletedircontents($sfdir){
 										 $sfdir->get_filearea(),
 										 $sfdir->get_itemid(), 
 										 $sfdir->get_filepath(), 
-										 true,true);
+										 false,true);
 		
 		foreach($files as $singlefile){
 		
 			$thecontext = get_context_instance_by_id($singlefile->get_contextid());
 			$fileinfo = $browser->get_file_info($thecontext, $singlefile->get_component(),$singlefile->get_filearea(), $singlefile->get_itemid(), $singlefile->get_filepath(), $singlefile->get_filename());
-			//if we have insuff permissions to delete. Exit.
-			if(!$fileinfo || !$fileinfo->is_writable()){
+			
+			//if the file cant be info'd, exit.
+			if(!$fileinfo){
+				$return['success']=false;
+				array_push($return['messages'],"couldnt get fileinfo " . $singlefile->get_filepath() . ": :"  . $singlefile->get_filename());
+			
+			//if we have insuff. permissions, fail
+			}else if(!$fileinfo->is_writable()){
+		
 				$return['success']=false;
 				array_push($return['messages'],"You do not have adequate permissions to delete " . $singlefile->get_filepath() . " "  . $singlefile->get_filename());
 		
-		//if we have suff. permissions continue
+			//attempt the delete or recursive delete if dir
 			}else{	
 				if(!$singlefile->is_directory()){
 					if(!$fileinfo->delete()){				
@@ -624,10 +722,12 @@ function instance_deletedircontents($sfdir){
 		if(!($files && $files.length >0)){
 			$sfdir->delete();
 		}	
+		
+	//if it is not a directory complain, single files shouldn't be passed in to this method
 	}else{
-		$return['success'] = false;
-		array_push($return['messages'],"unable to delete dir (" . $sfdir->get_filename() . ") because it is not a dir.");
-	}//end of if directory
+			$return['success']=false;
+			array_push($return['messages'],"unable to delete non dir: " . $singlefile->get_filepath() . $singlefile->get_filename());
+	}
 	
 	return $return;
 }
