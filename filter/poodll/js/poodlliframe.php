@@ -14,7 +14,7 @@
 * Includes and requires
 */
 require_once("../../../config.php");
-
+global $CFG;
 
 	$widget = optional_param('widget', "", PARAM_TEXT);    // Type of action/data we are requesting
 	$paramstring  = optional_param('paramstring', "", PARAM_TEXT);  // the id of the course 
@@ -24,7 +24,9 @@ require_once("../../../config.php");
 	$usemastersprite  = optional_param('usemastersprite', "false", PARAM_TEXT);  // file or dir hash
 
 	header("Content-type: text/html");
-	echo "<html><head></head><body>";
+	echo "<html><head>";
+	echo "<!--[if IE]><script type=\"text/javascript\" src=\"" . $CFG->wwwroot . "/filter/poodll/js/lps/includes/excanvas.js\" ></script><![endif]-->";
+	echo "</head><body>";
 	echo fetchJSWidgetCode($widget,$paramstring,$width,$height, $bgcolor, $usemastersprite);
 	echo "</body></html>";
 	return;

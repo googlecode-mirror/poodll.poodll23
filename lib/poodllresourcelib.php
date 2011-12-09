@@ -647,7 +647,37 @@ global $CFG;
 
 }
 
+function fetch_explorer($runtime, $width, $height, $moduleid){
+global $CFG,$COURSE;
+	
+	//If we are using course ids then lets do that
+	//else send -1 to widget (ignore flag)
+	if ($CFG->filter_poodll_usecourseid){
+		$courseid = $COURSE->id;
+	}else{
+		$courseid = -1;
+	}
+	
+	//get the url to the automated medialist maker
+	$filedataurl= $CFG->wwwroot . '/lib/poodllfilelib.php';
 
+	//merge config data with javascript embed code
+		$params = array();
+		$params['courseid'] = $courseid;
+		$params['filedataurl'] = $filedataurl;
+		$params['moduleid'] = $moduleid;
+		
+		if($runtime=='js'){
+			$returnString=  fetchJSWidgetCode('attachmentexplorer.lzx.js',
+    						$params,$width,$height,'#FFFFFF'); 
+		}else{
+    		$returnString=  fetchWidgetCode('attachmentexplorer.lzx.swf10.swf',
+    						$params,$width,$height,'#FFFFFF');
+    	}
+   						
+    	return $returnString;
+
+}
 
 function fetch_countdowntimer($runtime, $initseconds, $usepresets, $width, $height, $fontheight,$mode='normal',$permitfullscreen=false,$uniquename='uniquename'){
 global $CFG, $USER, $COURSE;
@@ -782,11 +812,11 @@ global $CFG,$COURSE;
 		$params['cardwidth'] = $cardwidth;
 		$params['cardheight'] = $cardheight;
 		
-	if($runtime=="swf"){
-    	$returnString=  fetchWidgetCode('flashcards.lzx.swf9.swf',
+	if($runtime=="js"){
+    	$returnString=  fetchJSWidgetCode('flashcards.lzx.js',
     						$params,$width,$height,'#FFFFFF');
 	}else{
-		$returnString=  fetchJSWidgetCode('flashcards.lzx.js',
+		$returnString=  fetchWidgetCode('flashcards.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
 	}
     						

@@ -132,6 +132,13 @@ function poodll_callback($link) {
 				!empty($filterprops['height']) ? $filterprops['height'] : 300);
 			break;
 			
+		case 'explorer':
+			$returnHtml="<BR />" . fetch_explorer($filterprops['runtime'],
+				!empty($filterprops['width']) ? $filterprops['width'] : 1250,
+				!empty($filterprops['height']) ? $filterprops['height'] : 800,
+				!empty($filterprops['moduleid']) ? $filterprops['moduleid'] : '');
+			break;
+			
 		case 'flashcards':
 			$returnHtml="<BR />" . fetch_flashcards($filterprops['runtime'],$filterprops['cardset'],
 				!empty($filterprops['cardwidth']) ? $filterprops['cardwidth'] : 300,
