@@ -964,7 +964,7 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 }
 
 //Audio player with defaults, for use with PoodLL filter
-function fetchSimpleAudioPlayer($runtime, $rtmp_file, $protocol="", $width="450",$height="40",$embed=false, $embedstring="Play"){
+function fetchSimpleAudioPlayer($runtime, $rtmp_file, $protocol="", $width="450",$height="40",$embed=false, $embedstring="Play",$permitfullscreen=false){
 global $CFG, $USER, $COURSE;
 
 //Set our servername .
