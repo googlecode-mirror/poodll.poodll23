@@ -969,6 +969,7 @@ global $CFG, $USER, $COURSE;
 
 //Set our servername .
 $flvserver = $CFG->poodll_media_server;
+$courseid= $COURSE->id;
 
 	//Set our use protocol type
 	//if one was not passed, then it may have been tagged to the url
@@ -1033,6 +1034,13 @@ $flvserver = $CFG->poodll_media_server;
 	//if we do not want to use embedding, ie use javascript to detect and insert (probably best..?)	
 	}else{
 	
+		//If we are using the legacy coursefiles, we want to fall into this code
+		//this is just a temporary fix to achieve this. Justin 20111213
+		if($protocol=='rtmp'){
+			$rtmp_file= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $rtmp_file;
+		}
+	
+	
 		$params = array();
 		$params['red5url'] = urlencode($flvserver);
 		$params['playertype'] = $type;
@@ -1058,6 +1066,7 @@ global $CFG, $USER, $COURSE;
 
 //Set our servername .
 $flvserver = $CFG->poodll_media_server;
+$courseid= $COURSE->id;
 
 
 	//Massage the media file name if we have a username variable passed in.	
@@ -1127,6 +1136,12 @@ $flvserver = $CFG->poodll_media_server;
 			return $returnString;
 
 	}else{		
+	
+		//If we are using the legacy coursefiles, we want to fall into this code
+		//this is just a temporary fix to achieve this. Justin 20111213
+		if($protocol=='rtmp'){
+			$rtmp_file= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $rtmp_file;
+		}
 	
  		$params = array();
 		$params['red5url'] = urlencode($flvserver);
