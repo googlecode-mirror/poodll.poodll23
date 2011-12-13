@@ -1017,6 +1017,13 @@ $courseid= $COURSE->id;
 	//some common variables for the embedding stage.	
 	$playerLoc = $CFG->wwwroot . '/filter/poodll/flash/poodllaudioplayer.lzx.swf9.swf';
 
+	//If we are using the legacy coursefiles, we want to fall into this code
+	//this is just a temporary fix to achieve this. Justin 20111213
+	if($protocol=='rtmp'){
+		$rtmp_file= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $rtmp_file;
+        $type = 'http';
+	}
+	
 	//If we want to avoid javascript we do it this way
 	//embedding via javascript screws updating the entry on the page,
 	//which is seen after marking a single audio assignment from a list
@@ -1033,12 +1040,6 @@ $courseid= $COURSE->id;
 
 	//if we do not want to use embedding, ie use javascript to detect and insert (probably best..?)	
 	}else{
-	
-		//If we are using the legacy coursefiles, we want to fall into this code
-		//this is just a temporary fix to achieve this. Justin 20111213
-		if($protocol=='rtmp'){
-			$rtmp_file= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $rtmp_file;
-		}
 	
 	
 		$params = array();
@@ -1116,9 +1117,13 @@ $courseid= $COURSE->id;
 			}
 	}
 	
-
+	//If we are using the legacy coursefiles, we want to fall into this code
+	//this is just a temporary fix to achieve this. Justin 20111213
+	if($protocol=='rtmp'){
+		$rtmp_file= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $rtmp_file;
+        $type = 'http';
+	}
 	
-
 	//If we want to avoid loading 20 players on the screen, we use this script
 	//to load players ondemand
 	//this does screw up updating the entry on the page,
@@ -1136,12 +1141,6 @@ $courseid= $COURSE->id;
 			return $returnString;
 
 	}else{		
-	
-		//If we are using the legacy coursefiles, we want to fall into this code
-		//this is just a temporary fix to achieve this. Justin 20111213
-		if($protocol=='rtmp'){
-			$rtmp_file= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $rtmp_file;
-		}
 	
  		$params = array();
 		$params['red5url'] = urlencode($flvserver);
