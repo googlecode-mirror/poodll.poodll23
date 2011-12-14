@@ -51,6 +51,13 @@ require_once($CFG->libdir . '/filelib.php');
 			$returnxml=fetch_instancedirlist($moduleid, $courseid, $itemid, $paramone, $paramtwo);
 			break;
 				
+		case "legacydirlist": 
+			header("Content-type: text/xml");
+			echo "<?xml version=\"1.0\"?>\n";
+			//paramone=path, paramtwo=filearea
+			$returnxml=fetch_legacydirlist($courseid);
+			break;
+				
 		case "instancedeleteall": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
@@ -75,6 +82,12 @@ require_once($CFG->libdir . '/filelib.php');
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
 			$returnxml=instance_deletefile($hash, $requestid);
+			break;
+			
+		case "instancefetchfileinfo": 
+			header("Content-type: text/xml");
+			echo "<?xml version=\"1.0\"?>\n";
+			$returnxml=instance_fetchfileinfo($hash, $requestid);
 			break;
 			
 		case "instancecreatedir": 
@@ -395,6 +408,45 @@ function fetch_instancedir_contents($thedir, &$thecontext, $recursive=false){
 
 }
 
+//This is just so we can get a list of stuff in the old course legacy files area
+//we can try if it works but it might not.
+function fetch_legacydirlist($courseid){
+
+$thiscontext = get_context_instance(CONTEXT_COURSE, $courseid);
+$contextid = $thiscontext->id;
+    
+    $fs = get_file_storage();
+  
+  
+  //set up xml to return	
+	$xml_output = "<directorylist>\n";
+  
+   $fullpath = "/$contextid/course/legacy/0/";
+   $file = $fs->get_file_by_hash(sha1($fullpath));
+   
+   if(!$file){
+   	$fullpath = "/$contextid/course/legacy/0";
+   	$file = $fs->get_file_by_hash(sha1($fullpath));
+   }
+   
+   if ($file) {
+   		//set up xml to return	
+		//$xml_output .= "we have a file";
+		$topdir = $fs->get_area_tree($file->get_contextid(), $file->get_component(), $file->get_filearea(),$file->get_itemid());
+		$xml_output .= fetch_instancedir_contents($topdir,$thiscontext,true);
+	}else{
+		$xml_output .= "no files " . $courseid . " " . $contextid . " " . $fullpath;
+	}
+	
+
+	//close xml to return
+	$xml_output .= "</directorylist>";
+
+	//Return the data
+	return $xml_output;
+	
+}
+
 //This will fetch the directory list of all the files
 //available in a module instance (ie added from repository)
 function fetch_instancedirlist($moduleid, $courseid, $itemid, $path, $filearea){
@@ -532,6 +584,35 @@ function instance_deletefile($filehash, $requestid){
 	$xml_output=prepareXMLReturn($return, $requestid);		   
 	return $xml_output;
 }
+
+//This will delete a single file/dir from a module instance
+function instance_fetchfileinfo($filehash, $requestid){
+	$fs = get_file_storage();
+	$f = $fs->get_file_by_hash($filehash);
+	
+	//set up return object	
+	$return=fetchReturnArray(true);
+	
+	
+	//if we don't get a file we can out
+	if(!$f){
+		$return['success']=false;
+		array_push($return['messages'],"no such file/dir to delete." );
+		//we process the result for return to browser
+		$xml_output=prepareXMLReturn($return, $requestid);		   
+		return $xml_output;
+	}else{
+		$return['success']=false;
+		array_push($return['messages'], "component:" . $f->get_component() . " filearea:" . $f->get_filearea() . " itemid:" . $f->get_itemid() . " filepath:" . $f->get_filepath() . " filename:" . $f->get_filename());
+	
+	}
+	
+	
+	//we process the result for return to browser
+	$xml_output=prepareXMLReturn($return, $requestid);		   
+	return $xml_output;
+}
+
 
 //it is called by instance_delete, and instance_rename/copyas file
 //BOGUS BOGUS BOGUS
