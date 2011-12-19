@@ -358,7 +358,7 @@ function fetch_course_menu($courseid){
 
 
 //Fetch the menu (assignments/resources/quizzes) for this course 
-function fetch_poodllmedialist($moduleid, $courseid, $path, $playertype, $filearea){
+function fetch_poodllmedialist($moduleid, $courseid, $path="/", $playertype, $filearea){
 global $CFG, $DB;	
 
 
@@ -370,6 +370,15 @@ global $CFG, $DB;
 	$course = $DB->get_record('course', array('id'=>$courseid));
 	$modinfo = get_fast_modinfo($course);
 	$cm = $modinfo->get_cm($moduleid);
+	
+	//make sure we have a trailing slash
+	if(strlen($path)>0){
+		if(substr($path,-1) !='/'){
+			$path .= "/";
+		}
+	}else{
+		$path = "/";
+	}
 
 	//set up xml to return	
 	$xml_output = "<videos>\n";
@@ -477,7 +486,7 @@ function cmpDirnames($a, $b)
 }
 
 //Fetch the menu (assignments/resources/quizzes) for this course 
-function fetch_poodllaudiolist($moduleid, $courseid,  $path, $playertype, $filearea){
+function fetch_poodllaudiolist($moduleid, $courseid,  $path="/", $playertype, $filearea){
 global $CFG, $DB, $COURSE;	
 
 	//=================================================================
@@ -516,6 +525,15 @@ global $CFG, $DB, $COURSE;
 	$course = $DB->get_record('course', array('id'=>$courseid));
 	$modinfo = get_fast_modinfo($course);
 	$cm = $modinfo->get_cm($moduleid);
+	
+	//make sure we have a trailing slash
+	if(strlen($path)>0){
+		if(substr($path,-1) !='/'){
+			$path .= "/";
+		}
+	}else{
+		$path = "/";
+	}
 
 	//set up xml to return	
 	$xml_output = "<audios>\n";
