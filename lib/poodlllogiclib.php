@@ -85,7 +85,8 @@ require_once($CFG->libdir . '/filelib.php');
 		case "poodllmedialist": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
-			$returnxml=fetch_poodllmedialist($courseid, $paramone, $paramtwo);
+			//moduleid/courseid/path/playerype/filearea
+			$returnxml=fetch_poodllmedialist($moduleid, $courseid, $paramone, $paramtwo, $paramthree);
 			break;
 			
 		case "poodllaudiolist": 
@@ -355,8 +356,77 @@ function fetch_course_menu($courseid){
 
 }
 
+
 //Fetch the menu (assignments/resources/quizzes) for this course 
-function fetch_poodllmedialist($courseid, $path, $playertype){
+function fetch_poodllmedialist($moduleid, $courseid, $path, $playertype, $filearea){
+global $CFG, $DB;	
+
+
+	
+	//FIlter could submit submission/draft/content/intro as options here
+	if($filearea == "") {$filearea ="content";}
+	
+	//fetch info and ids about the module calling this data
+	$course = $DB->get_record('course', array('id'=>$courseid));
+	$modinfo = get_fast_modinfo($course);
+	$cm = $modinfo->get_cm($moduleid);
+
+	//set up xml to return	
+	$xml_output = "<videos>\n";
+	
+	//get filehandling objects
+	$browser = get_file_browser();
+	$fs = get_file_storage();
+
+	//get a handle on the module context
+	$thiscontext = get_context_instance(CONTEXT_MODULE,$moduleid);
+	$contextid = $thiscontext->id;
+	
+	//fetch a list of files in this area, and sort them alphabetically
+	$files = $fs->get_area_files($contextid, "mod_" . $cm->modname, $filearea);
+	usort($files, "cmpFilenames");
+
+	//loop through all the media files and load'em up	
+		foreach ($files as $f) {
+			$filename =trim($f->get_filename());
+			//if we are not a directory and filename is long enough and extension is mp3 or flv or mp4, we proceed
+			if ($filename != "."){
+				if(strlen($filename)>4){
+					$ext = substr($filename,-4);
+					if($ext==".mp3" || $ext==".mp4" || $ext==".flv"){
+						//fetch our info object
+						$fileinfo = $browser->get_file_info($thiscontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
+						
+						//if we are at the dir level
+						if($f->get_filepath()==$path){
+							//get the url to the file and add it to the XML
+							$urltofile = $fileinfo->get_url();
+							$xml_output .=  "\t<video videoname='" . basename($filename) ."' playertype='" . $playertype . "' url='" . trim($urltofile) . "'/>\n";
+						}
+					}
+				}
+			}
+		}
+
+
+
+
+
+	//close xml to return
+	$xml_output .= "</videos>";
+
+	//Return the data
+	return $xml_output;
+
+
+}
+
+
+
+
+
+//Fetch the menu (assignments/resources/quizzes) for this course 
+function old_fetch_poodllmedialist($courseid, $path, $playertype){
 global $CFG;	
 	//Handle directories
 	$baseDir = $CFG->{'dataroot'} . "/" . $courseid . "/" . $path;

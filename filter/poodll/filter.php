@@ -81,7 +81,7 @@ function poodll_callback($link) {
 			break;
 			
 		case 'bigvideogallery':
-			$returnHtml="<BR />" . fetchBigVideoGallery($filterprops['runtime'],$filterprops['path'],!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_biggallwidth,!empty($filterprops['height']) ? $filterprops['height'] :  $CFG->filter_poodll_biggallheight);
+			$returnHtml="<BR />" . fetchBigVideoGallery($filterprops['runtime'],$filterprops['path'],!empty($filterprops['filearea']) ? $filterprops['filearea'] : 'content',!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_biggallwidth,!empty($filterprops['height']) ? $filterprops['height'] :  $CFG->filter_poodll_biggallheight);
 			break;	
 			
 		case 'videorecorder':
@@ -157,7 +157,7 @@ function poodll_callback($link) {
 			break;
 						
 		case 'smallvideogallery':
-			$returnHtml="<BR />" . fetchSmallVideoGallery($filterprops['runtime'],$filterprops['path'],!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',
+			$returnHtml="<BR />" . fetchSmallVideoGallery($filterprops['runtime'],$filterprops['path'],!empty($filterprops['filearea']) ? $filterprops['filearea'] : 'content',!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',
 				!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_smallgallwidth,
 				!empty($filterprops['height']) ? $filterprops['height'] :  $CFG->filter_poodll_smallgallheight,
 				!empty($filterprops['permitfullscreen']) ? $filterprops['permitfullscreen'] : false );

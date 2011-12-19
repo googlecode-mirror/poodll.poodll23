@@ -284,7 +284,7 @@ $cameraprefs= '&capturefps=' . $capturefps . '&captureheight=' . $captureheight 
 		$params = array();
 		$params['red5url'] = urlencode($flvserver);
 		$params['poodlllogicurl'] =  $poodlllogicurl . $cameraprefs ;
-		$params['courseid'] = $courseid;
+		$params['courseid'] = $COURSE->id;
 		$params['filename'] = 'amediafile';
 		$params['coursefiles'] = urlencode($coursefilesurl) ;
 		$params['componentlist'] = urlencode($componentlist);
@@ -1164,12 +1164,15 @@ $courseid= $COURSE->id;
 
 
 
-function fetchSmallVideoGallery($runtime, $playlist, $protocol, $width, $height,$permitfullscreen=false){
+
+function fetchSmallVideoGallery($runtime, $playlist, $filearea="content", $protocol="", $width, $height,$permitfullscreen=false){
 global $CFG, $USER, $COURSE;
 
 //Set the servername 
 $courseid= $COURSE->id;
 $flvserver = $CFG->poodll_media_server;
+
+$moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current module (eg moodleurl/view.php?id=X )
 
 //set size params
 if ($width==''){$width=$CFG->filter_poodll_smallgallwidth;}
@@ -1186,10 +1189,14 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 	//get a manually made playlist
 	$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $playlist;
 }else{
+	
 	//get the url to the automated medialist maker
-	$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllmedialist&courseid=' . $courseid 
+	$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllmedialist'
+		. '&courseid=' . $COURSE->id
+		. '&moduleid=' . $moduleid
 		. '&paramone=' . $playlist 
 		. '&paramtwo=' . $protocol 
+		. '&paramthree=' . $filearea
 		. '&cachekiller=' . rand(10000,999999);
 }
  	
@@ -1207,12 +1214,14 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 		
 }
 
-function fetchBigVideoGallery($runtime, $playlist, $protocol, $width, $height){
+function fetchBigVideoGallery($runtime, $playlist,$filearea="content",  $protocol, $width, $height){
 global $CFG, $USER, $COURSE;
 
 //Set the servername 
 $courseid= $COURSE->id;
 $flvserver = $CFG->poodll_media_server;
+
+$moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current module (eg moodleurl/view.php?id=X )
 
 //set size params
 if ($width==''){$width=$CFG->filter_poodll_biggallwidth;}
@@ -1224,9 +1233,13 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 	$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $playlist;
 }else{
 	//get the url to the automated medialist maker
-	$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllmedialist&courseid=' . $courseid 
+		//get the url to the automated medialist maker
+	$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllmedialist'
+		. '&courseid=' . $COURSE->id
+		. '&moduleid=' . $moduleid
 		. '&paramone=' . $playlist 
 		. '&paramtwo=' . $protocol 
+		. '&paramthree=' . $filearea
 		. '&cachekiller=' . rand(10000,999999);
 }
 
