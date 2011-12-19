@@ -23,6 +23,9 @@ require_once($CFG->dirroot . '/filter/poodll/poodllinit.php');
 require_js ($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/swfobject.js');
 require_js ($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/javascript.php');
 
+//added for moodle 2
+require_once($CFG->libdir . '/filelib.php');
+
 
 function fetch_slidemenu($runtime){
 	global $CFG, $USER, $COURSE;
@@ -938,8 +941,9 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 	$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $playlist;
 }else{
 	//get the url to the automated medialist maker
-	$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllaudiolist&moduleid=' . $moduleid
+	$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllaudiolist'
 		. '&courseid=' . $COURSE->id
+		. '&moduleid=' . $moduleid
 		. '&paramone=' . $playlist 
 		. '&paramtwo=' . $protocol 
 		. '&paramthree=' . $filearea

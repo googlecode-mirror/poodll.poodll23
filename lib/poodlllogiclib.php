@@ -91,6 +91,7 @@ require_once($CFG->libdir . '/filelib.php');
 		case "poodllaudiolist": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
+			//moduleid/courseid/path/playerype/filearea
 			$returnxml=fetch_poodllaudiolist($moduleid, $courseid, $paramone, $paramtwo, $paramthree);
 			break;
 			
@@ -407,8 +408,7 @@ function cmpDirnames($a, $b)
 
 //Fetch the menu (assignments/resources/quizzes) for this course 
 function fetch_poodllaudiolist($moduleid, $courseid,  $path, $playertype, $filearea){
-global $CFG, $DB;	
-
+global $CFG, $DB, $COURSE;	
 
 	//=================================================================
 	
@@ -464,22 +464,21 @@ global $CFG, $DB;
 
 	//loop through all the media files and load'em up	
 		foreach ($files as $f) {
-			$filename =$f->get_filename();
+			$filename =trim($f->get_filename());
 			//if we are not a directory and filename is long enough and extension is mp3 or flv or mp4, we proceed
 			if ($filename != "."){
 				if(strlen($filename)>4){
 					$ext = substr($filename,-4);
 					if($ext==".mp3" || $ext==".mp4" || $ext==".flv"){
-						
 						//fetch our info object
 						$fileinfo = $browser->get_file_info($thiscontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
 						
-						//In here add logic to check parent of $f against $path
-						//logic logic logic logic e.g if $fileinfo.get_parent
-						
-						//get the url to the file and add it to the XML
-						$urltofile = $fileinfo->get_url();
-						$xml_output .=  "\t<audio audioname='" . basename($filename) ."' playertype='" . $playertype . "' url='" . $urltofile . "'/>\n";
+						//if we are at the dir level
+						if($f->get_filepath()==$path){
+							//get the url to the file and add it to the XML
+							$urltofile = $fileinfo->get_url();
+							$xml_output .=  "\t<audio audioname='" . basename($filename) ."' playertype='" . $playertype . "' url='" . trim($urltofile) . "'/>\n";
+						}
 					}
 				}
 			}
