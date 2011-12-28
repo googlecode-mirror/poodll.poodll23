@@ -16,12 +16,12 @@
 require_once("../../../config.php");
 global $CFG;
 
-	$widget = optional_param('widget', "", PARAM_TEXT);    // Type of action/data we are requesting
-	$paramstring  = optional_param('paramstring', "", PARAM_TEXT);  // the id of the course 
-	$width  = optional_param('width', 0, PARAM_INT);  // the id of the module 
-	$height  = optional_param('height', 0, PARAM_INT);  // the id of the module
-	$bgcolor  = optional_param('bgcolor', "#FFFFFF", PARAM_TEXT);  // file or dir hash
-	$usemastersprite  = optional_param('usemastersprite', "false", PARAM_TEXT);  // file or dir hash
+	$widget = optional_param('widget', "", PARAM_TEXT);    // The widget
+	$paramstring  = optional_param('paramstring', "", PARAM_TEXT);  // the string of paramaters 
+	$width  = optional_param('width', 0, PARAM_INT);  // the width of frame 
+	$height  = optional_param('height', 0, PARAM_INT);  // the height of widget
+	$bgcolor  = optional_param('bgcolor', "#FFFFFF", PARAM_TEXT);  // the bg color
+	$usemastersprite  = optional_param('usemastersprite', "false", PARAM_TEXT);  // to use embedded resources aka sprite sheet(probably never)
 
 	header("Content-type: text/html");
 	echo "<html><head>";

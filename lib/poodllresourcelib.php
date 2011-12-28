@@ -606,9 +606,7 @@ $userid = $USER->username;
 	}
 	    //merge config data with javascript embed code
 		$params = array();
-		$params['initseconds'] = $initseconds;
 		$params['permitfullscreen'] = $permitfullscreen;
-		$params['mename'] = $mename;
 		$params['fontheight'] = $fontheight;
 		$params['uniquename'] = $uniquename;
 		$params['courseid'] = $courseid;
@@ -717,7 +715,7 @@ $userid = $USER->username;
 		$params['permitfullscreen'] = $permitfullscreen;
 		$params['usepresets'] = $usepresets;
 		$params['fontheight'] = $fontheight;
-		$params['mename'] = $mename;
+		$params['mename'] = $userid; //this might be wrong, but do we need this?
 		$params['uniquename'] = $uniquename;
 		$params['courseid'] = $courseid;
 		$params['red5url'] = urlencode($flvserver);
@@ -1053,8 +1051,44 @@ $courseid= $COURSE->id;
 		$params['permitfullscreen'] = $permitfullscreen;
 	
 	
-    	$returnString=  fetchWidgetCode('poodllaudioplayer.lzx.swf9.swf',
+		if($runtime=='js'){
+				$returnString="";
+				
+				//The HTML5 Code
+				$returnString .="<audio controls width='" . $width . "' height='" . $height . "'>
+								<source src='" .$rtmp_file . "'/>
+								</audio>";
+				
+				//=======================
+				//if we are using mediaelement js use this. We use JQuery which is not ideal, in moodle yui environment
+				//$mediajsroot = $CFG->wwwroot . '/filter/poodll/js/mediaelementjs/';
+				//$returnString .="<script src='" . $mediajsroot .  "jquery.js'></script>";
+				//$returnString .="<script src='" . $mediajsroot .  "mediaelement-and-player.min.js'></script>";
+				//$returnString .="<link rel='stylesheet' href='" . $mediajsroot .  "mediaelementplayer.css' />	";
+				//$returnString .="<script src='" . $mediajsroot .  "mep-feature-loop.js'></script>";
+				//$returnString .="<script src='" . $mediajsroot .  "mep-feature-speed.js'></script>";
+				//$returnString .="<script src='" . $mediajsroot .  "mep-feature-progress.js'></script>";
+				////$returnString .="<script>$('audio,video').mediaelementplayer({features:['playpause','loop','speed','progess','volume']});</script>";
+				//$returnString .="<script>$('audio,video').mediaelementplayer();</script>";
+				//=======================
+			
+				//=======================
+				//If we use Kaltura, use this			
+				//$returnString .="<script src='http://html5.kaltura.org/js'></script>";
+				//=======================
+				
+				
+
+
+			
+				
+							
+		}else{
+	
+				$returnString=  fetchWidgetCode('poodllaudioplayer.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
+							
+		}
     						
     	return $returnString;
 	}
@@ -1152,10 +1186,36 @@ $courseid= $COURSE->id;
 		$params['mediapath'] = $rtmp_file;
 		$params['permitfullscreen'] = $permitfullscreen;
 	
+		if($runtime=='js'){
+			$returnString="";
+			
+			$poster="";//To do add poster code, once we have thought it all through a bit better
+			$returnString .="<video controls poster='" . $poster . "' width='" . $width . "' height='" . $height . "'>
+								<source type='video/mp4' src='" .$rtmp_file . "'/>
+							</video>";
+			//============================
+			//if we are using mediaelement js use this
+			//$mediajsroot = $CFG->wwwroot . '/filter/poodll/js/mediaelementjs/';
+			//$returnString .="<script src='" . $mediajsroot .  "jquery.js'></script>";
+			//$returnString .="<script src='" . $mediajsroot .  "mediaelement-and-player.min.js'></script>";
+			//$returnString .="<link rel='stylesheet' href='" . $mediajsroot .  "mediaelementplayer.css' />	";
+			//$returnString .="<script src='" . $mediajsroot .  "mep-feature-loop.js'></script>";
+			//$returnString .="<script src='" . $mediajsroot .  "mep-feature-speed.js'></script>";
+			//$returnString .="<script>$('audio,video').mediaelementplayer({features:['playpause','loop','speed','progess','volume']});</script>";
+			////$returnString .="<script> $('audio,video').mediaelementplayer(); </script>";
+			//============================
+			
+			//============================
+			//If we use Kaltura, use this			
+			//$returnString .="<script src='http://html5.kaltura.org/js'></script>";		
+			//============================
+							
+		}else{
 	
-    	$returnString=  fetchWidgetCode('poodllvideoplayer.lzx.swf9.swf',
+			$returnString=  fetchWidgetCode('poodllvideoplayer.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
-    						
+    	}					
+							
     	return $returnString;
 
 		}

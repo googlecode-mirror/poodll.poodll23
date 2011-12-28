@@ -371,10 +371,13 @@ global $CFG, $DB;
 	$modinfo = get_fast_modinfo($course);
 	$cm = $modinfo->get_cm($moduleid);
 	
-	//make sure we have a trailing slash
+	//make sure we have a trailing slash and leading slash
 	if(strlen($path)>0){
 		if(substr($path,-1) !='/'){
 			$path .= "/";
+		}
+		if(substr($path,1) !='/'){
+			$path = "/" . $path;
 		}
 	}else{
 		$path = "/";
@@ -530,6 +533,9 @@ global $CFG, $DB, $COURSE;
 	if(strlen($path)>0){
 		if(substr($path,-1) !='/'){
 			$path .= "/";
+		}
+		if(substr($path,1) !='/'){
+			$path = "/" . $path;
 		}
 	}else{
 		$path = "/";
