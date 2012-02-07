@@ -148,7 +148,24 @@ class assignment_poodllonline extends assignment_base {
 			}else{
 				$mediapath=$submission->data2;
 		}
-        $mform = new mod_assignment_poodllonline_edit_form(null, array("cm"=>$this->cm,"assignment"=>$this->assignment,"mediapath"=>$mediapath));
+		
+		  $data = new stdClass();
+            $data->id         = $this->cm->id;
+            $data->edit       = 1;
+            if ($submission) {
+                $data->sid        = $submission->id;
+                $data->text       = $submission->data1;
+                $data->textformat = $submission->data2;
+            } else {
+                $data->sid        = NULL;
+                $data->text       = '';
+                $data->textformat = NULL;
+            }
+		
+		$editoroptions = array('noclean'=>false, 'maxfiles'=>EDITOR_UNLIMITED_FILES, 'maxbytes'=>$this->course->maxbytes);
+		$data = file_prepare_standard_editor($data, 'text', $editoroptions, $this->context, 'mod_assignment', $this->filearea, $data->sid);
+		
+        $mform = new mod_assignment_poodllonline_edit_form(null, array("cm"=>$this->cm,"assignment"=>$this->assignment,"mediapath"=>$mediapath, "editoroptions"=>$editoroptions));
 
         $defaults = new object();
         $defaults->id = $this->cm->id;
@@ -447,7 +464,7 @@ class assignment_poodllonline extends assignment_base {
 						$CFG->filter_poodll_serverid . "&filename=" . $filename;
 
 
-		
+		if (!empty($filename)){
 		//copy file from red5 over to user submissions area.
 		//====================================================
 		//moodle 2 change
@@ -505,14 +522,18 @@ class assignment_poodllonline extends assignment_base {
 		$fs->create_file_from_url($file_record, $red5_fileurl);
 
 		//=====================================================
-
-        $update = new object();
+	}//end of if (!empty($filename)){
+	
+	   $update = new stdClass();
         $update->id           = $submission->id;
-		if (!empty($data->text)){
+		$update->data2        = "";
+        if (!empty($data->text)){
 			$update->data1        = $data->text;
 		}else{
 			$update->data1 = "";
 		}
+        
+       
 		
 		//update media field with data that our moodle audio filter will pick up
 		if (!empty($filename)){
@@ -520,14 +541,9 @@ class assignment_poodllonline extends assignment_base {
 			$update->data2         = $filename;
 			
 		}
-		//We just use html
-        //$update->data2        = $data->format;
-        $update->timemodified = time();
-
-        if (! $DB->update_record('assignment_submissions', $update)) {
-            return false;
-        }
-
+		
+		$update->timemodified = time();
+        $DB->update_record('assignment_submissions', $update);
         $submission = $this->get_submission($USER->id);
         $this->update_grade($submission);
         return true;
@@ -1004,13 +1020,12 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 						case OM_REPLYTEXTONLY:							
 						default:
 								$mediadata="";
+
 								// visible elements
-								$mform->addElement('htmleditor', 'text', get_string('submission', 'assignment'), array('cols'=>85, 'rows'=>30));
+								//$mform->addElement('editor', 'text', get_string('submission', 'assignment'), array('cols'=>85, 'rows'=>30));
+								$mform->addElement('editor', 'text', get_string('submission', 'assignment'), null, $this->_customdata['editoroptions']);
 								$mform->setType('text', PARAM_RAW); // to be cleaned before display
-								$mform->setHelpButton('text', array('reading', 'writing', 'richtext'), false, 'editorhelpbutton');
-								$mform->addRule('text', get_string('required'), 'required', null, 'client');
-								$mform->addElement('format', 'format', get_string('format'));
-								$mform->setHelpButton('format', array('textformat', get_string('helpformatting')));							
+								$mform->addRule('text', get_string('required'), 'required', null, 'client');							
 				}
 						
 						
