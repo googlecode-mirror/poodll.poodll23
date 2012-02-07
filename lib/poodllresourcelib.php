@@ -20,8 +20,11 @@ define('MR_TYPEAUDIO',1);
 define('MR_TYPETALKBACK',2);
  
 require_once($CFG->dirroot . '/filter/poodll/poodllinit.php');
-require_js ($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/swfobject.js');
-require_js ($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/javascript.php');
+global $PAGE;
+$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/swfobject.js'));
+$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/javascript.php'));
+//require_js ($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/swfobject.js');
+//require_js ($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/javascript.php');
 
 //added for moodle 2
 require_once($CFG->libdir . '/filelib.php');
@@ -515,7 +518,7 @@ if ($CFG->filter_poodll_usecourseid){
 
 }
 
-function fetchSimpleAudioRecorder($runtime, $assigname, $userid="", $updatecontrol="saveflvvoice", $filename=""){
+function fetchSimpleAudioRecorder($runtime, $assigname, $userid="", $updatecontrol="saveflvvoice", $filename="",$width="430",$height="220"){
 global $CFG, $USER, $COURSE, $PAGE;
 
 //Set the servername 
@@ -563,14 +566,13 @@ $params = array();
 		$params['loopback'] = $micloopback;
 		$params['echosupression'] = $micecho;
 		$params['silencelevel'] = $micsilence;
-		$params['capturewidth'] = $capturewidth;
-		$params['filename'] = $prefmic;
+		$params['filename'] = "123456.flv";
 		$params['assigName'] = $assigname;
 		$params['course'] = $courseid;
 		$params['updatecontrol'] = $updatecontrol;
 		$params['uid'] = $userid;
 	
-    	$returnString=  fetchWidgetCode('PoodllAudioRecorder.lzx.swf9.swf',
+    	$returnString=  fetchWidgetCode('PoodLLAudioRecorder.lzx.swf10.swf',
     						$params,$width,$height,'#CFCFCF');
     						
     	$returnString .= 	 $savecontrol;
@@ -826,7 +828,7 @@ global $CFG,$COURSE;
 }
 
 
-function fetchSimpleVideoRecorder($runtime, $assigname, $userid="", $updatecontrol="saveflvvoice", $filename=""){
+function fetchSimpleVideoRecorder($runtime, $assigname, $userid="", $updatecontrol="saveflvvoice", $filename="", $width="350",$height="400"){
 global $CFG, $USER, $COURSE;
 
 //Set the servername and a capture settings from config file

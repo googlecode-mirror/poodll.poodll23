@@ -10,8 +10,21 @@
 
 global $CFG;
 
+
+
+// Setting up the PoodLL Media Server String
+if($CFG->filter_poodll_serverport=='443'){
+	$protocol='rtmpt';
+}else{
+	$protocol='rtmp';
+}
+
+$CFG->poodll_media_server = $protocol . '://' . $CFG->filter_poodll_servername . ':' . $CFG->filter_poodll_serverport   . '/' . $CFG->filter_poodll_serverid;
+
+
+
 // Setting up the PoodLL Media Server String ... added serverport Justin 20110827
-$CFG->poodll_media_server = 'rtmp://' . $CFG->filter_poodll_servername . ':' .  $CFG->filter_poodll_serverport  . '/' . $CFG->filter_poodll_serverid;
+//$CFG->poodll_media_server = 'rtmp://' . $CFG->filter_poodll_servername . ':' .  $CFG->filter_poodll_serverport  . '/' . $CFG->filter_poodll_serverid;
 
 // A short string to the PoodLL media server (useful in code but never used anywhere)
 // $CFG->poodll_media_rtmp = CFG->filter_poodll_servername . "/" . CFG->filter_poodll_serverid;

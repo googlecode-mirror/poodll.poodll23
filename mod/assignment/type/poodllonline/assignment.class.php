@@ -27,6 +27,8 @@ define('TCPPDF_OLD',0);
  */
 class assignment_poodllonline extends assignment_base {
 
+	var $filearea = 'submission';
+
     function assignment_poodllonline($cmid='staticonly', $assignment=NULL, $cm=NULL, $course=NULL) {	
 	
         parent::assignment_base($cmid, $assignment, $cm, $course);
@@ -207,45 +209,40 @@ class assignment_poodllonline extends assignment_base {
         }
 
         if (has_capability('mod/assignment:submit', $context)) {
-            print_simple_box_start('center', '70%', '', 0, 'generalbox', 'poodllonline');
+			echo $OUTPUT->box_start('generalbox boxaligncenter', 'poodllonline');
+           // print_simple_box_start('center', '70%', '', 0, 'generalbox', 'poodllonline');
             if ($editmode) {
 					
 				if ($submission) {				
 				 
 					 //Show our  students answer box
 					 echo get_string('mysubmission', 'assignment_poodllonline');
-					 print_simple_box_start('center', '50%', '', 0, 'generalbox', 'mysubmission');
+					 echo $OUTPUT->box_start('generalbox boxaligncenter', 'mysubmission');
+					 //print_simple_box_start('center', '50%', '', 0, 'generalbox', 'mysubmission');
+					  
 				
 				//check if we need media output
 					switch($this->assignment->var3){
 						
 						case OM_REPLYVOICEONLY:
-							//format and echo text that our Audio filter will pick and show in a player
-							//needs to be formatted as html for filter to pick it up								
-							//echo format_text('{FMS:VOICE='.	$submission->data2.'}', FORMAT_HTML);
-							echo format_text('{POODLL:type=audio,path='.	$submission->data2.',protocol=rtmp}', FORMAT_HTML);
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;							
+							echo format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 							break;						
 
 						case OM_REPLYVIDEOONLY:
-							//format and echo text that our Video filter will pick and show in a player
-							//needs to be formatted as html for filter to pick it up								
-							//echo format_text('{FMS:VIDEO='.	$submission->data2.'}', FORMAT_HTML);
-							echo format_text('{POODLL:type=video,path='.	$submission->data2.',protocol=rtmp}', FORMAT_HTML);							
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+							echo format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);						
 							break;
 
 						
 						case OM_REPLYVOICETHENTEXT:						
-							//format and echo text that our Audio filter will pick and show in a player
-							//needs to be formatted as html for filter to pick it up
-							//echo format_text('{FMS:VOICE='.	$submission->data2.'}', FORMAT_HTML);
-							echo format_text('{POODLL:type=audio,path='.	$submission->data2.',protocol=rtmp}', FORMAT_HTML);	
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;							
+							echo format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 							break;
 
 						case OM_REPLYVIDEOTHENTEXT:						
-							//format and echo text that our Video filter will pick and show in a player
-							//needs to be formatted as html for filter to pick it up
-							//echo format_text('{FMS:VIDEO='.	$submission->data2.'}', FORMAT_HTML);
-							echo format_text('{POODLL:type=video,path='.	$submission->data2.',protocol=rtmp}', FORMAT_HTML);
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+							echo format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 							break;
 			
 					}
@@ -267,7 +264,8 @@ class assignment_poodllonline extends assignment_base {
 
 
 					//Close our students answer box
-					print_simple_box_end();
+					//print_simple_box_end();
+					echo $OUTPUT->box_end();
 				}
 
 			
@@ -277,25 +275,23 @@ class assignment_poodllonline extends assignment_base {
 					
 					//Show our  students answer box
 					echo get_string('mysubmission', 'assignment_poodllonline');
-					print_simple_box_start('center', '50%', '', 0, 'generalbox', 'mysubmission');
+					echo $OUTPUT->box_start('generalbox boxaligncenter', 'mysubmission');
+					//print_simple_box_start('center', '50%', '', 0, 'generalbox', 'mysubmission');
 					
 					switch($this->assignment->var3){
 						
 						case OM_REPLYVOICEONLY:
-							//format and echo text that our Audio filter will pick and show in a player
-							//needs to be formatted as html for filter to pick it up								
-							//echo format_text('{FMS:VOICE='.	$submission->data2.'}', FORMAT_HTML);	
-							echo format_text('{POODLL:type=audio,path='.	$submission->data2.',protocol=rtmp}', FORMAT_HTML);								
+						
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;							
+							//echo $mediapath . "<br />";
+							echo format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);							
 							break;
-							
 
 						case OM_REPLYVIDEOONLY:
-							//format and echo text that our Video filter will pick and show in a player
-							//needs to be formatted as html for filter to pick it up								
-							//echo format_text('{POODLL:type=video,path='.	$submission->data2.',protocol=rtmp}', FORMAT_HTML);	
+							
 							
 							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
-							echo $mediapath . "<br />";	
+							//echo $mediapath . "<br />";	
 							
 						//for debugging get a list of files	
 						/*
@@ -317,17 +313,14 @@ class assignment_poodllonline extends assignment_base {
 
 						
 						case OM_REPLYVOICETHENTEXT:						
-							//format and echo text that our Audio filter will pick and show in a player
-							//needs to be formatted as html for filter to pick it up
-							//echo format_text('{FMS:VOICE='.	$submission->data2.'}', FORMAT_HTML);
-							echo format_text('{POODLL:type=audio,path='.	$submission->data2.',protocol=rtmp}', FORMAT_HTML);
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;							
+							//echo $mediapath . "<br />";
+							echo format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 							break;
 
 						case OM_REPLYVIDEOTHENTEXT:						
-							//format and echo text that our Video filter will pick and show in a player
-							//needs to be formatted as html for filter to pick it up
-							//echo format_text('{FMS:VIDEO='.	$submission->data2.'}', FORMAT_HTML);
-							echo format_text('{POODLL:type=video,path='.	$submission->data2.',protocol=rtmp}', FORMAT_HTML);
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+							echo format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 							break;
 						
 						
@@ -353,8 +346,8 @@ class assignment_poodllonline extends assignment_base {
 					
 					
 					//Close out students answer box
-					print_simple_box_end();
-                    
+					//print_simple_box_end();
+                     echo $OUTPUT->box_end();
                 
 				
 				
@@ -365,7 +358,8 @@ class assignment_poodllonline extends assignment_base {
                     echo '<div style="text-align:center">'.get_string('emptysubmission', 'assignment').'</div>';
                 }
             }
-            print_simple_box_end();
+           // print_simple_box_end();
+		    echo $OUTPUT->box_end();
             if (!$editmode && $editable) {
                 echo "<div style='text-align:center'>";
                
@@ -402,13 +396,15 @@ class assignment_poodllonline extends assignment_base {
      * Display the assignment dates
      */
     function view_dates() {
-        global $USER, $CFG;
+        global $USER, $CFG, $OUTPUT;
 
         if (!$this->assignment->timeavailable && !$this->assignment->timedue) {
             return;
         }
-
-        print_simple_box_start('center', '', '', 0, 'generalbox', 'dates');
+		
+		echo $OUTPUT->box_start('generalbox boxaligncenter', 'dates');
+       // print_simple_box_start('center', '', '', 0, 'generalbox', 'dates');
+		 
         echo '<table>';
         if ($this->assignment->timeavailable) {
             echo '<tr><td class="c0">'.get_string('availabledate','assignment').':</td>';
@@ -430,7 +426,8 @@ class assignment_poodllonline extends assignment_base {
             }
         }
         echo '</table>';
-        print_simple_box_end();
+        //print_simple_box_end();
+		echo $OUTPUT->box_end();
     }
 
     function update_submission($data) {
@@ -438,27 +435,28 @@ class assignment_poodllonline extends assignment_base {
 
         $submission = $this->get_submission($USER->id, true);
 		
-		//a crazy hack into moodle form system. to get both the recorder to update the filename in a form field
-		//and to have moodle get that field
+		//a hack into moodle form system to have moodle get the filename of the file we recorded. 
+		//When we add the recorder via the poodll filter, it adds a hidden form field of the name "saveflvvoice"
+		//the recorder updates that field with the filename of the audio/video it recorded. We pick up that filename here.
+		$filename = optional_param('saveflvvoice', '', PARAM_RAW);
+
+
 		
-		
-		
-		//$filename = optional_param('saveflvvoice', '', PARAM_RAW);
-		//$red5_filepath = "something/" . $filename;
-		
-		//dummy flv for testing
-		$filename = "inlibrary.flv";
-		$red5_filepath = "/usr/local/demodata/2/media/insupermarket.flv";
-		$red5_fileurl = "http://billcollins.poodll.com/inlibrary.flv";
-		
-		//dummy jpg for testing
-		//$filename = "livingroom.jpg";
-		//$red5_filepath = "/usr/local/demodata/2/livingroom.jpg";
+		$red5_fileurl="http://" . $CFG->filter_poodll_servername . 
+						":443/poodll/download.jsp?poodllserverid=" . 
+						$CFG->filter_poodll_serverid . "&filename=" . $filename;
+
+
 		
 		//copy file from red5 over to user submissions area.
 		//====================================================
 		//moodle 2 change
 		//$this->context
+		
+		//from single_upload_file assignment, just so we know how to do this
+		//  $file = $mform->save_stored_file('assignment_file', $this->context->id, 'mod_assignment', 'submission',
+         //               $submission->id, '/', $newfilename);
+		
 		
 		//The filepath causes problems, if we use  single / or path surrounded by slashes saves
 		//but gives an error like this Can not create file "29/mod_assignment/submission/2//recording//insupermarket.flv"
@@ -506,7 +504,6 @@ class assignment_poodllonline extends assignment_base {
 		//$fs->create_file_from_pathname($file_record, $red5_filepath);
 		$fs->create_file_from_url($file_record, $red5_fileurl);
 
-		
 		//=====================================================
 
         $update = new object();
@@ -574,471 +571,53 @@ class assignment_poodllonline extends assignment_base {
 
         send_stored_file($file, 0, 0, true); // download MUST be forced - security!
     }
+
 	
-	//WE override this method only so we can 
-	//show the students any media feedback the teacher may have entered
-	  /**
-	    /**
-     * Display the feedback to the student
-     *
-     * This default method prints the teacher picture and name, date when marked,
-     * grade and teacher submissioncomment.
-     *
-     * @param $submission object The submission object or NULL in which case it will be loaded
-     */
-    function view_feedback($submission=NULL) {
-        global $USER, $CFG, $DB;
-        require_once($CFG->libdir.'/gradelib.php');
-
-        if (!has_capability('mod/assignment:submit', $this->context, $USER->id, false)) {
-            // can not submit assignments -> no feedback
-            return;
-        }
-
-        if (!$submission) { /// Get submission for this assignment
-            $submission = $this->get_submission($USER->id);
-        }
-
-        $grading_info = grade_get_grades($this->course->id, 'mod', 'assignment', $this->assignment->id, $USER->id);
-        $item = $grading_info->items[0];
-        $grade = $item->grades[$USER->id];
-		
-        
-		if ($grade->hidden or $grade->grade === false) { // hidden or error		
-            return;
-        }
-
-        if ($grade->grade === null and empty($grade->str_feedback)) {   /// Nothing to show yet
-            return;
-        }
-
-        $graded_date = $grade->dategraded;
-        $graded_by   = $grade->usermodified;
-
-    /// We need the teacher info
-        if (!$teacher = $DB->get_record('user', 'id', $graded_by)) {
-            error('Could not find the teacher');
-        }
-
-    /// Print the feedback
-        print_heading(get_string('feedbackfromteacher', 'assignment', $this->course->teacher)); // TODO: fix teacher string
-
-        echo '<table cellspacing="0" class="feedback">';
-
-        echo '<tr>';
-        echo '<td class="left picture">';
-        if ($teacher) {
-            print_user_picture($teacher, $this->course->id, $teacher->picture);
-        }
-        echo '</td>';
-        echo '<td class="topic">';
-        echo '<div class="from">';
-        if ($teacher) {
-            echo '<div class="fullname">'.fullname($teacher).'</div>';
-        }
-        echo '<div class="time">'.userdate($graded_date).'</div>';
-        echo '</div>';
-        echo '</td>';
-        echo '</tr>';
-
-        echo '<tr>';
-        echo '<td class="left side">&nbsp;</td>';
-        echo '<td class="content">';
-        echo '<div class="grade">';
-		//modify Justin 20081001 Hide grades from users
-		if (!$grade->hidden ){
-			//echo "hidden " . $grade->hidden ;
-			//echo get_string("grade").': '.$grade->str_long_grade;
-		}
-        echo '</div>';
-        echo '<div class="clearer"></div>';
-		//display our media comment, as video or voice, depending on the assignment settings
-		//if somehow the feedback is set to text only, and yet we have a media comment, presumably the teacher
-		//changed the assignment settings after havinf submitted a  poodllfeedback.
-		//in that case we default to video. (Should we default to showing nothing?)
-		if (!empty($submission->poodllfeedback)){
-			echo '<div class="comment">';
-			if ($this->assignment->var4 == OM_FEEDBACKTEXTVOICE){
-				//echo format_text("{FMS:VOICE=" . $submission->poodllfeedback . "}",FORMAT_HTML);
-				echo format_text('{POODLL:type=audio,path='.	$submission->poodllfeedback .',protocol=rtmp}', FORMAT_HTML);
-			}else{
-				//echo format_text("{FMS:VIDEO=" . $submission->poodllfeedback . "}",FORMAT_HTML);
-				echo format_text('{POODLL:type=video,path='.	$submission->poodllfeedback .',protocol=rtmp}', FORMAT_HTML);
-			}
-	        echo '</div>';		
-		}
-        echo '<div class="comment">';
-        echo $grade->str_feedback;
-        echo '</div>';
-        echo '</tr>';
-
-        echo '</table>';
-    }
-
-	//WE override this method only so we can 
-	//add a recorder that allows us to reply in audio/video
-	//it would be easier to update assignment/lib.php 
-	//then we could do this for all assignments	
-	  /**
-     *  Display a single submission, ready for grading on a popup window
-     *
-     * This default method prints the teacher info and submissioncomment box at the top and
-     * the student info and submission at the bottom.
-     * This method also fetches the necessary data in order to be able to
-     * provide a "Next submission" button.
-     * Calls preprocess_submission() to give assignment type plug-ins a chance
-     * to process submissions before they are graded
-     * This method gets its arguments from the page parameters userid and offset
-     */
-    function display_submission($extra_javascript = '') {
-
-        global $CFG, $DB;
-        require_once($CFG->libdir.'/gradelib.php');
-        require_once($CFG->libdir.'/tablelib.php');
-
-        $userid = required_param('userid', PARAM_INT);
-        $offset = required_param('offset', PARAM_INT);//offset for where to start looking for student.
-
-        if (!$user = $DB->get_record('user', 'id', $userid)) {
-            error('No such user!');
-        }
-
-        if (!$submission = $this->get_submission($user->id)) {
-            $submission = $this->prepare_new_submission($userid);
-        }
-        if ($submission->timemodified > $submission->timemarked) {
-            $subtype = 'assignmentnew';
+	  function can_manage_responsefiles() {
+        if (has_capability('mod/assignment:grade', $this->context)) {
+            return true;
         } else {
-            $subtype = 'assignmentold';
-        }
-
-        $grading_info = grade_get_grades($this->course->id, 'mod', 'assignment', $this->assignment->id, array($user->id));
-        $disabled = $grading_info->items[0]->grades[$userid]->locked || $grading_info->items[0]->grades[$userid]->overridden;
-
-    /// construct SQL, using current offset to find the data of the next student
-        $course     = $this->course;
-        $assignment = $this->assignment;
-        $cm         = $this->cm;
-        $context    = get_context_instance(CONTEXT_MODULE, $cm->id);
-
-        /// Get all ppl that can submit assignments
-
-        $currentgroup = groups_get_activity_group($cm);
-        if ($users = get_users_by_capability($context, 'mod/assignment:submit', 'u.id', '', '', '', $currentgroup, '', false)) {
-            $users = array_keys($users);
-        }
-
-        // if groupmembersonly used, remove users who are not in any group
-        if ($users and !empty($CFG->enablegroupings) and $cm->groupmembersonly) {
-            if ($groupingusers = groups_get_grouping_members($cm->groupingid, 'u.id', 'u.id')) {
-                $users = array_intersect($users, array_keys($groupingusers));
-            }
-        }
-
-        $nextid = 0;
-
-        if ($users) {
-            $select = 'SELECT u.id, u.firstname, u.lastname, u.picture, u.imagealt,
-                              s.id AS submissionid, s.grade, s.submissioncomment,s.poodllfeedback,
-                              s.timemodified, s.timemarked,
-                              COALESCE(SIGN(SIGN(s.timemarked) + SIGN(s.timemarked - s.timemodified)), 0) AS status ';
-            $sql = 'FROM {user} u '.
-                   'LEFT JOIN {assignment_submissions} s ON u.id = s.userid
-                                                                      AND s.assignment = '.$this->assignment->id.' '.
-                   'WHERE u.id IN ('.implode(',', $users).') ';
-
-            if ($sort = flexible_table::get_sql_sort('mod-assignment-submissions')) {
-                $sort = 'ORDER BY '.$sort.' ';
-            }
-
-            if (($auser = $DB->get_records_sql($select.$sql.$sort, $offset+1, 1)) !== false) {
-                $nextuser = array_shift($auser);
-            /// Calculate user status
-                $nextuser->status = ($nextuser->timemarked > 0) && ($nextuser->timemarked >= $nextuser->timemodified);
-                $nextid = $nextuser->id;
-            }
-        }
-
-        print_header(get_string('feedback', 'assignment').':'.fullname($user, true).':'.format_string($this->assignment->name));
-
-        /// Print any extra javascript needed for saveandnext
-        echo $extra_javascript;
-
-        ///SOme javascript to help with setting up >.>
-
-        echo '<script type="text/javascript">'."\n";
-        echo 'function setNext(){'."\n";
-        echo 'document.getElementById(\'submitform\').mode.value=\'next\';'."\n";
-        echo 'document.getElementById(\'submitform\').userid.value="'.$nextid.'";'."\n";
-        echo '}'."\n";
-
-        echo 'function saveNext(){'."\n";
-        echo 'document.getElementById(\'submitform\').mode.value=\'saveandnext\';'."\n";
-        echo 'document.getElementById(\'submitform\').userid.value="'.$nextid.'";'."\n";
-        echo 'document.getElementById(\'submitform\').saveuserid.value="'.$userid.'";'."\n";
-        echo 'document.getElementById(\'submitform\').menuindex.value = document.getElementById(\'submitform\').grade.selectedIndex;'."\n";
-        echo '}'."\n";
-
-        echo '</script>'."\n";
-        echo '<table cellspacing="0" class="feedback '.$subtype.'" >';
-
-        ///Start of teacher info row
-
-        echo '<tr>';
-        echo '<td class="picture teacher">';
-        if ($submission->teacher) {
-            $teacher = $DB->get_record('user', 'id', $submission->teacher);
-        } else {
-            global $USER;
-            $teacher = $USER;
-        }
-        print_user_picture($teacher, $this->course->id, $teacher->picture);
-        echo '</td>';
-        echo '<td class="content">';
-        echo '<form id="submitform" action="submissions.php" method="post">';
-        echo '<div>'; // xhtml compatibility - invisiblefieldset was breaking layout here
-        echo '<input type="hidden" name="offset" value="'.($offset+1).'" />';
-        echo '<input type="hidden" name="userid" value="'.$userid.'" />';
-        echo '<input type="hidden" name="id" value="'.$this->cm->id.'" />';
-        echo '<input type="hidden" name="mode" value="grade" />';
-        echo '<input type="hidden" name="menuindex" value="0" />';//selected menu index
-
-        //new hidden field, initialized to -1.
-        echo '<input type="hidden" name="saveuserid" value="-1" />';
-
-        if ($submission->timemarked) {
-            echo '<div class="from">';
-            echo '<div class="fullname">'.fullname($teacher, true).'</div>';
-            echo '<div class="time">'.userdate($submission->timemarked).'</div>';
-            echo '</div>';
-        }
-        echo '<div class="grade"><label for="menugrade">'.get_string('grade').'</label> ';
-        choose_from_menu(make_grades_menu($this->assignment->grade), 'grade', $submission->grade, get_string('nograde'), '', -1, false, $disabled);
-        echo '</div>';
-
-        echo '<div class="clearer"></div>';
-        echo '<div class="finalgrade">'.get_string('finalgrade', 'grades').': '.$grading_info->items[0]->grades[$userid]->str_grade.'</div>';
-        echo '<div class="clearer"></div>';
-
-        if (!empty($CFG->enableoutcomes)) {
-            foreach($grading_info->outcomes as $n=>$outcome) {
-                echo '<div class="outcome"><label for="menuoutcome_'.$n.'">'.$outcome->name.'</label> ';
-                $options = make_grades_menu(-$outcome->scaleid);
-                if ($outcome->grades[$submission->userid]->locked) {
-                    $options[0] = get_string('nooutcome', 'grades');
-                    echo $options[$outcome->grades[$submission->userid]->grade];
-                } else {
-                    choose_from_menu($options, 'outcome_'.$n.'['.$userid.']', $outcome->grades[$submission->userid]->grade, get_string('nooutcome', 'grades'), '', 0, false, false, 0, 'menuoutcome_'.$n);
-                }
-                echo '</div>';
-                echo '<div class="clearer"></div>';
-            }
-        }
-
-
-        $this->preprocess_submission($submission);
-
-        if ($disabled) {
-            echo '<div class="disabledfeedback">'.$grading_info->items[0]->grades[$userid]->str_feedback.'</div>';
-
-        } else {
-			//---------------Justin Video Message start 20090105-------------------
-			//if our feedback is audio or video, show a link to the recorder
-			if ($this->assignment->var4 == OM_FEEDBACKTEXTVIDEO){
-				echo '<a href="#" onclick="document.getElementById(\'teacherrecorder\').style.display=\'block\';">Record Audio/Video</a>';
-				echo "<div id='teacherrecorder' style='display: none'>";
-					//$rtmplink = "rtmp://{$CFG->rtmp}";	
-	        			$rtmplink=$CFG->poodll_media_server;
-					if (!empty($submission->poodllfeedback)){
-						$filename=$submission->poodllfeedback;
-					}else{
-						//$filename='onlinemedia/' . $this->assignment->id . $submission->userid . time(). rand() . '.flv';
-						$filename='moddata/assignment/' . $this->assignment->id . '/' . $submission->userid . '/teacher_'  . time(). rand() . '.flv';
-					}
-					$mediadata= fetch_teachersrecorder($filename, "mediafilename");
-					echo $mediadata;
-					echo '<input type="hidden" value="" id="mediafilename" name="mediafilename" />';
-				echo "</div>";			
-			}else if ($this->assignment->var4 == OM_FEEDBACKTEXTVOICE){
-				echo '<a href="#" onclick="document.getElementById(\'teacherrecorder\').style.display=\'block\';">Record Audio/Video</a>';
-				echo "<div id='teacherrecorder' style='display: none'>";
-					//$rtmplink = "rtmp://{$CFG->rtmp}";	
-	        			$rtmplink=$CFG->poodll_media_server;
-					if (!empty($submission->poodllfeedback)){
-						$filename=$submission->poodllfeedback;
-					}else{
-						//$filename='onlinemedia/' . $this->assignment->id . $submission->userid . time(). rand() . '.flv';
-						$filename='';
-					}
-					$mediadata= fetchSimpleAudioRecorder('assignment/' . $this->assignment->id  ,$submission->userid, "mediafilename",$filename);
-					echo $mediadata;
-					echo '<input type="checkbox" value="" id="mediafilename" name="mediafilename" />';
-				echo "</div>";	
-			
-			}
-			//---------------Video Message end 20090105---------------------
-            print_textarea($this->usehtmleditor, 14, 58, 0, 0, 'submissioncomment', $submission->submissioncomment, $this->course->id);
-            if ($this->usehtmleditor) {
-                echo '<input type="hidden" name="format" value="'.FORMAT_HTML.'" />';
-            } else {
-                echo '<div class="format">';
-                choose_from_menu(format_text_menu(), "format", $submission->format, "");
-                helpbutton("textformat", get_string("helpformatting"));
-                echo '</div>';
-            }
-        }
-
-        $lastmailinfo = get_user_preferences('assignment_mailinfo', 1) ? 'checked="checked"' : '';
-
-        ///Print Buttons in Single View
-        echo '<input type="hidden" name="mailinfo" value="0" />';
-        echo '<input type="checkbox" id="mailinfo" name="mailinfo" value="1" '.$lastmailinfo.' /><label for="mailinfo">'.get_string('enableemailnotification','assignment').'</label>';
-        echo '<div class="buttons">';
-        echo '<input type="submit" name="submit" value="'.get_string('savechanges').'" onclick = "document.getElementById(\'submitform\').menuindex.value = document.getElementById(\'submitform\').grade.selectedIndex" />';
-        echo '<input type="submit" name="cancel" value="'.get_string('cancel').'" />';
-        //if there are more to be graded.
-        if ($nextid) {
-            echo '<input type="submit" name="saveandnext" value="'.get_string('saveandnext').'" onclick="saveNext()" />';
-            echo '<input type="submit" name="next" value="'.get_string('next').'" onclick="setNext();" />';
-        }
-        echo '</div>';
-        echo '</div></form>';
-
-        $customfeedback = $this->custom_feedbackform($submission, true);
-        if (!empty($customfeedback)) {
-            echo $customfeedback;
-        }
-
-        echo '</td></tr>';
-
-        ///End of teacher info row, Start of student info row
-        echo '<tr>';
-        echo '<td class="picture user">';
-        print_user_picture($user, $this->course->id, $user->picture);
-        echo '</td>';
-        echo '<td class="topic">';
-        echo '<div class="from">';
-        echo '<div class="fullname">'.fullname($user, true).'</div>';
-        if ($submission->timemodified) {
-            echo '<div class="time">'.userdate($submission->timemodified).
-                                     $this->display_lateness($submission->timemodified).'</div>';
-        }
-        echo '</div>';
-        $this->print_user_files($user->id);
-        echo '</td>';
-        echo '</tr>';
-
-        ///End of student info row
-
-        echo '</table>';
-
-        if (!$disabled and $this->usehtmleditor) {
-            use_html_editor();
-        }
-
-        print_footer('none');
-    }
-
-	//We override this so that our media feedback
-	//will be appended to our text feednack: Justin 20090323
-	    /**
-     *  Process teacher feedback submission
-     *
-     * This is called by submissions() when a grading even has taken place.
-     * It gets its data from the submitted form.
-     * @return object The updated submission object
-     */
-    function process_feedback() {
-        global $CFG, $USER, $DB;
-        require_once($CFG->libdir.'/gradelib.php');
-
-        if (!$feedback = data_submitted()) {      // No incoming data?
             return false;
         }
-
-        ///For save and next, we need to know the userid to save, and the userid to go
-        ///We use a new hidden field in the form, and set it to -1. If it's set, we use this
-        ///as the userid to store
-        if ((int)$feedback->saveuserid !== -1){
-            $feedback->userid = $feedback->saveuserid;
-        }
-
-        if (!empty($feedback->cancel)) {          // User hit cancel button
-            return false;
-        }
-
-        $grading_info = grade_get_grades($this->course->id, 'mod', 'assignment', $this->assignment->id, $feedback->userid);
-
-        // store outcomes if needed
-        $this->process_outcomes($feedback->userid);
-
-        $submission = $this->get_submission($feedback->userid, true);  // Get or make one
-
-        if (!$grading_info->items[0]->grades[$feedback->userid]->locked and
-            !$grading_info->items[0]->grades[$feedback->userid]->overridden) {
-
-            $submission->grade      = $feedback->grade;
-            $submission->submissioncomment    = $feedback->submissioncomment;
-            $submission->format     = $feedback->format;
-            $submission->teacher    = $USER->id;
-            $mailinfo = get_user_preferences('assignment_mailinfo', 0);
-            if (!$mailinfo) {
-                $submission->mailed = 1;       // treat as already mailed
-            } else {
-                $submission->mailed = 0;       // Make sure mail goes out (again, even)
-            }
-            $submission->timemarked = time();
-			
-			//---------------Justin Video Message start 20090105-------------------	
-			if(!empty($_POST['mediafilename'])){
-				$mediafile = $_POST['mediafilename'];
-					  
-				if ($mediafile) 
-				{						
-					//by default we reply in Audio, later we will add a way for this class to distinguish
-					//video and audio submissions.
-					if (true){
-							$submission->poodllfeedback=$mediafile;
-					}
-				  
-				}
-			}
-			//---------------Video Message end 20090105---------------------
-
-            unset($submission->data1);  // Don't need to update this.
-            unset($submission->data2);  // Don't need to update this.
-
-            if (empty($submission->timemodified)) {   // eg for offline assignments
-                // $submission->timemodified = time();
-            }
-
-            if (! $DB->update_record('assignment_submissions', $submission)) {
-                return false;
-            }
-
-            // triger grade event
-            $this->update_grade($submission);
-
-            add_to_log($this->course->id, 'assignment', 'update grades',
-                       'submissions.php?id='.$this->assignment->id.'&user='.$feedback->userid, $feedback->userid, $this->cm->id);
-        }
-
-        return $submission;
-
     }
+	
+	
+	 function print_responsefiles($userid, $return=false) {
+        global $CFG, $USER, $OUTPUT, $PAGE;
 
+        $mode    = optional_param('mode', '', PARAM_ALPHA);
+        $offset  = optional_param('offset', 0, PARAM_INT);
+
+        $output = $OUTPUT->box_start('responsefiles');
+
+        $candelete = $this->can_manage_responsefiles();
+        $strdelete   = get_string('delete');
+
+        $fs = get_file_storage();
+        $browser = get_file_browser();
+
+        if ($submission = $this->get_submission($userid)) {
+            $renderer = $PAGE->get_renderer('mod_assignment');
+            $output .= $renderer->assignment_files($this->context, $submission->id, 'response');
+            $output .= $OUTPUT->box_end();
+        }
+
+        if ($return) {
+            return $output;
+        }
+        echo $output;
+    }
 	
 	
     function print_student_answer($userid, $return=false){
-        global $CFG;
+        global $CFG, $OUTPUT, $PAGE;
 		if (empty($PAGE)) {
 			$jsadded="jas not added";
 		}else{
 			//use this to allow javascript
 			$jsadded="jas dded";
-			//JUSTIN 20110519 this could never work, what did we do here ...
-			//$PAGE->requires->js('mod/poodllonline/poodllonlinejs.js');
-			$PAGE->requires->js('/mod/assignment/type/poodllonline.js');
+		//	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/swfobject.js'));
+		//	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot .'/mod/assignment/type/poodllonline/javascript.js'));
 		}
 		
         if (!$submission = $this->get_submission($userid)) {
@@ -1050,8 +629,8 @@ class assignment_poodllonline extends assignment_base {
 			
 			case OM_REPLYVOICEONLY:
 				if (!empty($submission->data2)){ 
-					//$showtext= format_text('{FMS:VOICE='.	$submission->data2.'}', FORMAT_HTML) . "<BR />";
-					$showtext= format_text('{POODLL:type=audio,path='.	$submission->data2.',protocol=rtmp,embed=true}', FORMAT_HTML);
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+							$showtext = format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http,embed=true}', FORMAT_HTML);
 				}else{
 					$showtext= "No Audio Found.";
 				}
@@ -1059,9 +638,8 @@ class assignment_poodllonline extends assignment_base {
 
 			case OM_REPLYVIDEOONLY:
 				if (!empty($submission->data2)){ 
-					//we show the audio player, because in a list the video player is unwieldly
-					//$showtext= format_text('{FMS:VOICE='.	$submission->data2.'}', FORMAT_HTML) . "<BR />";
-					$showtext= format_text('{POODLL:type=video,path='.	$submission->data2.',protocol=rtmp,embed=true}', FORMAT_HTML);
+					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+					$showtext = format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 				}else{
 					$showtext= "No Video Found.";
 				}
@@ -1069,16 +647,17 @@ class assignment_poodllonline extends assignment_base {
 			
 			case OM_REPLYVOICETHENTEXT:	
 				if (!empty($submission->data2)){ 					
-					//$showtext= format_text('{FMS:VOICE='.	$submission->data2.'}', FORMAT_HTML) . "<BR />";
-					$showtext= format_text('{POODLL:type=audio,path='.	$submission->data2.',protocol=rtmp,embed=true}', FORMAT_HTML);
+					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+					$showtext = format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
+
 				}else{
 					$showtext = "No Audio Found.";					
 				}
 				break;
 			case OM_REPLYVIDEOTHENTEXT:	
 				if (!empty($submission->data2)){ 					
-					//$showtext= format_text('{FMS:VOICE='.	$submission->data2.'}', FORMAT_HTML) . "<BR />";
-					$showtext= format_text('{POODLL:type=video,path='.	$submission->data2.',protocol=rtmp,embed=true}', FORMAT_HTML);
+						$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+						$showtext = format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 				}else{
 					$showtext = "No Video Found.";
 				}
@@ -1086,27 +665,37 @@ class assignment_poodllonline extends assignment_base {
 			case OM_REPLYTEXTONLY:
 			default:
 				   $showtext =shorten_text(trim(strip_tags(format_text($submission->data1,FORMAT_HTML))), 15);
+				   
+				   $link = new moodle_url("/mod/assignment/type/poodllonline/file.php?id={$this->cm->id}&userid={$submission->userid}");
+					$action = new popup_action('click', $link, 'file'.$userid, array('height' => 450, 'width' => 580));
+				$popup = $OUTPUT->action_link($link, $showtext, $action, array('title'=>get_string('submission', 'assignment')));
+
+				$output = '<div class="files">'.
+                  '<img src="'.$OUTPUT->pix_url('f/html') . '" class="icon" alt="html" />'.
+                  $popup .
+                  '</div>';
+				  return $output;
 		}				  
 				  
-				
-		$output = '<div class="files">'.
-                  '<img src="'.$CFG->pixpath.'/f/html.gif" class="icon" alt="html" />'.
-                  link_to_popup_window ('/mod/assignment/type/poodllonline/file.php?id='.$this->cm->id.'&amp;userid='.
-                  $submission->userid, 'file'.$userid, $showtext, 450, 580,
-                  get_string('submission', 'assignment'), 'none', true).
-                  '</div>';
-				
-        return $output;
+	
+		
+
+		// we use this in place of popup if you want to show little play links, have to do some javascript fixing though
+		$output = '<div class="files">';
+		$output .= $showtext;
+		$output .= '</div>';
+        return $output;		
+	
     }
 	
 	
 	
 
     function print_user_files($userid, $return=false) {
-        global $CFG;
-
+        global $CFG, $OUTPUT;
+		$returnString="";
         if (!$submission = $this->get_submission($userid)) {
-            return '';
+            return $returnString;
         }
 
 
@@ -1116,82 +705,85 @@ class assignment_poodllonline extends assignment_base {
 			
 			case OM_REPLYVOICEONLY:
 				if (!empty($submission->data2)){ 
+				
+				$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+			//	 echo $OUTPUT->box_start('generalbox boxaligncenter', 'online');
+				$returnString = format_text('{POODLL:type=audio,path='. $mediapath .',protocol=http}', FORMAT_HTML);
+			//	echo $OUTPUT->box_end();
 					//print_simple_box(format_text('{FMS:VOICE='.	$submission->data2.'}', FORMAT_HTML), 'center', '100%');
-					print_simple_box(format_text('{POODLL:type=audio,path='.	$submission->data2.',protocol=rtmp}', FORMAT_HTML), 'center', '100%');
+					//print_simple_box(format_text('{POODLL:type=audio,path='.	$submission->data2.',protocol=rtmp}', FORMAT_HTML), 'center', '100%');
 				}else{
-					echo "No Audio Found.";
+					$returnString =  "No Audio Found.";
 				}
 				break;
 				
 
 			case OM_REPLYVIDEOONLY:
 				if (!empty($submission->data2)){ 
-					//print_simple_box(format_text('{FMS:VIDEO='.	$submission->data2.'}', FORMAT_HTML), 'center', '100%');
-					print_simple_box(format_text('{POODLL:type=video,path='.	$submission->data2.',protocol=rtmp}', FORMAT_HTML), 'center', '100%');
+					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+					$returnString =  format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 				}else{
-					echo "No Video Found.";
+					$returnString =   "No Video Found.";
 				}
 				break;
 			
 			case OM_REPLYVOICETHENTEXT:	
 				if (!empty($submission->data2)){ 
-					//print_simple_box(format_text('{FMS:VOICE='.	$submission->data2.'}', FORMAT_HTML), 'center', '100%');
-					print_simple_box(format_text('{POODLL:type=audio,path='.	$submission->data2.',protocol=rtmp}', FORMAT_HTML), 'center', '100%');
-					
-					print_simple_box_start('center', '', '', 0, 'generalbox', 'wordcount');
+					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+					$returnString =  format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
+
 				/// Decide what to count
 					if ($CFG->assignment_itemstocount == ASSIGNMENT_COUNT_WORDS) {
-						echo ' ('.get_string('numwords', '', count_words(format_text($submission->data1, FORMAT_HTML))).')';
+						$returnString .= ' ('.get_string('numwords', '', count_words(format_text($submission->data1, FORMAT_HTML))).')';
 					} else if ($CFG->assignment_itemstocount == ASSIGNMENT_COUNT_LETTERS) {
-						echo ' ('.get_string('numletters', '', count_letters(format_text($submission->data1, FORMAT_HTML))).')';
+						$returnString  .=   ' ('.get_string('numletters', '', count_letters(format_text($submission->data1, FORMAT_HTML))).')';
 					}
-					print_simple_box_end();
 					
 					//print text
-					print_simple_box(format_text($submission->data1, FORMAT_HTML), 'center', '100%');
+					$returnString .= format_text($submission->data1, FORMAT_HTML);
+
 					
 				}else{
-					echo "No Audio Found.";
+					$returnString = "No Audio Found.";
 				}
 				break;
 			case OM_REPLYVIDEOTHENTEXT:	
 				if (!empty($submission->data2)){ 
-					//print_simple_box(format_text('{FMS:VIDEO='.	$submission->data2.'}', FORMAT_HTML), 'center', '100%');
-					print_simple_box(format_text('{POODLL:type=video,path='.	$submission->data2.',protocol=rtmp}', FORMAT_HTML), 'center', '100%');
-					
-					print_simple_box_start('center', '', '', 0, 'generalbox', 'wordcount');
+					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+					$returnString = format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
+
 				/// Decide what to count
 					if ($CFG->assignment_itemstocount == ASSIGNMENT_COUNT_WORDS) {
-						echo ' ('.get_string('numwords', '', count_words(format_text($submission->data1, FORMAT_HTML))).')';
+						$returnString .= ' ('.get_string('numwords', '', count_words(format_text($submission->data1, FORMAT_HTML))).')';
 					} else if ($CFG->assignment_itemstocount == ASSIGNMENT_COUNT_LETTERS) {
-						echo ' ('.get_string('numletters', '', count_letters(format_text($submission->data1, FORMAT_HTML))).')';
+						$returnString .= ' ('.get_string('numletters', '', count_letters(format_text($submission->data1, FORMAT_HTML))).')';
 					}
-					print_simple_box_end();
-					
+
 					//print text
-					print_simple_box(format_text($submission->data1, FORMAT_HTML), 'center', '100%');
+					$returnString .= format_text($submission->data1, FORMAT_HTML);
+
 					
 				}else{
-					echo "No Video Found.";
+					$returnString .= "No Video Found.";
 				}
 				break;
 			case OM_REPLYTEXTONLY:
 			default:
-				   print_simple_box_start('center', '', '', 0, 'generalbox', 'wordcount');
 				/// Decide what to count
 					if ($CFG->assignment_itemstocount == ASSIGNMENT_COUNT_WORDS) {
-						echo ' ('.get_string('numwords', '', count_words(format_text($submission->data1, FORMAT_HTML))).')';
+						$returnString .=  ' ('.get_string('numwords', '', count_words(format_text($submission->data1, FORMAT_HTML))).')';
 					} else if ($CFG->assignment_itemstocount == ASSIGNMENT_COUNT_LETTERS) {
-						echo ' ('.get_string('numletters', '', count_letters(format_text($submission->data1, FORMAT_HTML))).')';
+						$returnString .=  ' ('.get_string('numletters', '', count_letters(format_text($submission->data1, FORMAT_HTML))).')';
 					}
-					print_simple_box_end();
-					
+		
 					//print text
-					print_simple_box(format_text($submission->data1, FORMAT_HTML), 'center', '100%');
+					$returnString .=  format_text($submission->data1, FORMAT_HTML);
 					
 				
 		}
 		//end of text and audio output switch
+		
+		return $returnString;
 		
     }
 	
