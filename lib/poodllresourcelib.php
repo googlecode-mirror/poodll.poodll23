@@ -434,7 +434,7 @@ $mename=$USER->username;
 		$params['mename'] = $mename;
 		$params['boardname'] = $boardname;
 		$params['imageurl'] = $imageurl;
-		$params['courseid'] = $courseid;
+		$params['courseid'] = $COURSE->id;
 		$params['rooms'] = $rooms;
 
 		//Are  we merely a slave to the admin whiteboard ?
@@ -445,8 +445,13 @@ $mename=$USER->username;
 			//normal mode is a standard scribble with a cpanel
 			//simple mode has a simple double click popup menu
 			if ($mode=='normal'){
-				$widgetstring=  fetchWidgetCode('scribbler.lzx.swf9.swf',
+					if($runtime=='js'){
+						$widgetstring=  fetchJSWidgetCode('scribbler.lzx.js',
+									$params,$width,$height,'#FFFFFF'); 
+					}else{
+						$widgetstring=  fetchWidgetCode('scribbler.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
+					}
 			}else{
 				$widgetstring=  fetchWidgetCode('simplescribble.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
@@ -458,11 +463,6 @@ $mename=$USER->username;
 		
 	
 }
-
-
-
-
-
 
 
 
@@ -572,7 +572,7 @@ $params = array();
 		$params['updatecontrol'] = $updatecontrol;
 		$params['uid'] = $userid;
 	
-    	$returnString=  fetchWidgetCode('PoodLLAudioRecorder.lzx.swf10.swf',
+    	$returnString=  fetchWidgetCode('PoodLLAudioRecorder.lzx.swf9.swf',
     						$params,$width,$height,'#CFCFCF');
     						
     	$returnString .= 	 $savecontrol;
@@ -580,6 +580,81 @@ $params = array();
     	return $returnString ;
 
 }
+
+function fetchAudioRecorderForDraft($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid){
+global $CFG, $USER, $COURSE;
+
+//Set the servername 
+$flvserver = $CFG->poodll_media_server;
+//Set the microphone config params
+$micrate = $CFG->filter_poodll_micrate;
+$micgain = $CFG->filter_poodll_micgain;
+$micsilence = $CFG->filter_poodll_micsilencelevel;
+$micecho = $CFG->filter_poodll_micecho;
+$micloopback = $CFG->filter_poodll_micloopback;
+$micdevice = $CFG->filter_poodll_studentmic;
+
+//removed from params to make way for moodle 2 filesystem params Justin 20120213
+$userid="dummy";
+$width="430";
+$height="220";
+$filename="12345"; 
+$poodllfilelib= $CFG->wwwroot . '/lib/poodllfilelib.php';
+
+//If we are using course ids then lets do that
+//else send -1 to widget (ignore flag)
+if ($CFG->filter_poodll_usecourseid){
+	$courseid = $COURSE->id;
+}else{
+	$courseid = -1;
+} 
+
+//If no user id is passed in, try to get it automatically
+//Not sure if  this can be trusted, but this is only likely to be the case
+//when this is called from the filter. ie not from an assignment.
+if ($userid=="") $userid = $USER->username;
+
+//Stopped using this 
+//$filename = $CFG->filter_poodll_filename;
+ $overwritemediafile = $CFG->filter_poodll_overwrite==1 ? "true" : "false" ;
+if ($updatecontrol == "saveflvvoice"){
+	$savecontrol = "<input name='saveflvvoice' type='hidden' value='' id='saveflvvoice' />";
+}else{
+	$savecontrol = "";
+}
+
+$params = array();
+
+		$params['red5url'] = urlencode($flvserver);
+		$params['overwritefile'] = $overwritemediafile;
+		$params['rate'] = $micrate;
+		$params['gain'] = $micgain;
+		$params['prefdevice'] = $micdevice;
+		$params['loopback'] = $micloopback;
+		$params['echosupression'] = $micecho;
+		$params['silencelevel'] = $micsilence;
+		$params['filename'] = "123456.flv";
+		$params['assigName'] = $assigname;
+		$params['course'] = $courseid;
+		$params['updatecontrol'] = $updatecontrol;
+		$params['uid'] = $userid;
+		//for file system in moodle 2
+		$params['poodllfilelib'] = $poodllfilelib;
+		$params['contextid'] = $contextid;
+		$params['component'] = $component;
+		$params['filearea'] = $filearea;
+		$params['itemid'] = $itemid;
+	
+    	$returnString=  fetchWidgetCode('PoodLLAudioRecorder.lzx.swf9.swf',
+    						$params,$width,$height,'#CFCFCF');
+    						
+    	$returnString .= 	 $savecontrol;
+    						
+    	return $returnString ;
+	
+
+}
+
 
 function fetch_stopwatch($runtime, $width, $height, $fontheight,$mode='normal',$permitfullscreen=false,$uniquename='uniquename'){
 global $CFG, $USER, $COURSE;
@@ -650,24 +725,23 @@ global $CFG;
 
 }
 
-function fetch_explorer($runtime, $width, $height, $moduleid){
+function fetch_explorer($runtime, $width, $height, $moduleid=0){
 global $CFG,$COURSE;
 	
 	//If we are using course ids then lets do that
 	//else send -1 to widget (ignore flag)
-	if ($CFG->filter_poodll_usecourseid){
 		$courseid = $COURSE->id;
-	}else{
-		$courseid = -1;
-	}
+
 	
 	//get the url to the automated medialist maker
 	$filedataurl= $CFG->wwwroot . '/lib/poodllfilelib.php';
+	$componentlist= $CFG->wwwroot . '/filter/poodll/componentlist.xml';
 
 	//merge config data with javascript embed code
 		$params = array();
 		$params['courseid'] = $courseid;
 		$params['filedataurl'] = $filedataurl;
+		$params['componentlist'] = $componentlist;
 		$params['moduleid'] = $moduleid;
 		
 		if($runtime=='js'){
@@ -879,7 +953,81 @@ $params = array();
 		$params['updatecontrol'] = $updatecontrol;
 		$params['uid'] = $userid;
 	
-    	$returnString=  fetchWidgetCode('PoodllVideoRecorder.lzx.swf9.swf',
+    	$returnString=  fetchWidgetCode('PoodLLVideoRecorder.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+    						
+    	$returnString .= 	$savecontrol;
+    						
+    	return $returnString ;
+	
+
+}
+
+function fetchVideoRecorderForDraft($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid){
+global $CFG, $USER, $COURSE;
+
+//Set the servername and a capture settings from config file
+$flvserver = $CFG->poodll_media_server;
+$capturewidth=$CFG->filter_poodll_capturewidth;
+$captureheight=$CFG->filter_poodll_captureheight;
+$capturefps=$CFG->filter_poodll_capturefps;
+$prefcam=$CFG->filter_poodll_studentcam;
+$prefmic=$CFG->filter_poodll_studentmic;
+$bandwidth=$CFG->filter_poodll_bandwidth;
+$picqual=$CFG->filter_poodll_picqual;
+
+//removed from params to make way for moodle 2 filesystem params Justin 20120213
+$userid="dummy";
+$width="350";
+$height="400";
+$filename="12345"; 
+$poodllfilelib= $CFG->wwwroot . '/lib/poodllfilelib.php';
+
+//If we are using course ids then lets do that
+//else send -1 to widget (ignore flag)
+if ($CFG->filter_poodll_usecourseid){
+	$courseid = $COURSE->id;
+}else{
+	$courseid = -1;
+} 
+
+//If no user id is passed in, try to get it automatically
+//Not sure if  this can be trusted, but this is only likely to be the case
+//when this is called from the filter. ie not from an assignment.
+if ($userid=="") $userid = $USER->username;
+
+//Stopped using this 
+//$filename = $CFG->filter_poodll_filename;
+ $overwritemediafile = $CFG->filter_poodll_overwrite==1 ? "true" : "false" ;
+if ($updatecontrol == "saveflvvoice"){
+	$savecontrol = "<input name='saveflvvoice' type='hidden' value='' id='saveflvvoice' />";
+}else{
+	$savecontrol = "";
+}
+
+$params = array();
+		$params['red5url'] = urlencode($flvserver);
+		$params['overwritefile'] = $overwritemediafile;
+		$params['capturefps'] = $capturefps;
+		$params['filename'] = $filename;
+		$params['assigName'] = $assigname;
+		$params['captureheight'] = $captureheight;
+		$params['picqual'] = $picqual;
+		$params['bandwidth'] = $bandwidth;
+		$params['capturewidth'] = $capturewidth;
+		$params['prefmic'] = $prefmic;
+		$params['prefcam'] = $prefcam;
+		$params['course'] = $courseid;
+		$params['updatecontrol'] = $updatecontrol;
+		$params['uid'] = $userid;
+		//for file system in moodle 2
+		$params['poodllfilelib'] = $poodllfilelib;
+		$params['contextid'] = $contextid;
+		$params['component'] = $component;
+		$params['filearea'] = $filearea;
+		$params['itemid'] = $itemid;
+	
+    	$returnString=  fetchWidgetCode('PoodLLVideoRecorder.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
     						
     	$returnString .= 	$savecontrol;

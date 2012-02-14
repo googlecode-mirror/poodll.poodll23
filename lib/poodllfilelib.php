@@ -21,6 +21,7 @@ require_once('../filter/poodll/poodllinit.php');
 require_once($CFG->libdir . '/filelib.php');
 
 	$datatype = optional_param('datatype', "", PARAM_TEXT);    // Type of action/data we are requesting
+	$contextid  = optional_param('contextid', 0, PARAM_INT);  // the id of the course 
 	$courseid  = optional_param('courseid', 0, PARAM_INT);  // the id of the course 
 	$moduleid  = optional_param('moduleid', 0, PARAM_INT);  // the id of the module 
 	$itemid  = optional_param('itemid', 0, PARAM_INT);  // the id of the module
@@ -31,7 +32,14 @@ require_once($CFG->libdir . '/filelib.php');
 	$paramthree  = optional_param('paramthree', "", PARAM_TEXT);  // nature of value depends on datatype, maybe filearea
 
 	switch($datatype){
-
+		
+		case "getlast20files":
+			header("Content-type: text/html");
+			$returnxml="";
+			echo "hi";
+			getLast20Files();
+			break;
+	
 		case "getrepodata": 
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
@@ -133,8 +141,15 @@ require_once($CFG->libdir . '/filelib.php');
 			//paramone=mimetype paramtwo=path paramthree=hash
 			instance_download($paramone,$paramtwo,$hash,$requestid);
 			
-			exit;
-			
+		case "instanceremotedownload":
+			header("Content-type: text/xml");
+			echo "<?xml version=\"1.0\"?>\n";
+			//($contextid,$filename,$component, $filearea,$itemid, $requestid)
+			//e.g (15, '123456789.flv','user','draft','746337947',777777)
+			$returnxml=instance_remotedownload($contextid, $paramone,$paramtwo,$paramthree,$itemid,$requestid);
+			//$returnxml="<hello />";
+			//instance_remotedownload('930884190835059.flv','user','draft',746337947);
+			break;			
 		
 		default:
 			header("Content-type: text/xml");
@@ -530,6 +545,83 @@ function instance_deleteall($moduleid, $courseid, $filearea, $requestid){
 
 }
 */
+/* download file from remote server and stash it in our file area */
+//15,'123456789.flv','user','draft','746337947','99999'
+function instance_remotedownload($contextid,$filename,$component, $filearea,$itemid, $requestid){
+global $CFG,$USER;
+//set up return object	
+//set up return object	
+$return=fetchReturnArray(true);
+	
+$red5_fileurl= "http://" . $CFG->filter_poodll_servername . 
+						":443/poodll/download.jsp?poodllserverid=" . 
+						$CFG->filter_poodll_serverid . "&filename=" . $filename;
+
+						
+	//setup our file manipulators
+		$fs = get_file_storage();
+		$browser = get_file_browser();
+		
+		$filepath='/';
+		
+	//create the file record for our new file
+		$file_record = array(
+		'userid' => $USER->id,
+		'contextid'=>$contextid, 
+		'component'=>$component, 
+		'filearea'=>$filearea,
+        'itemid'=>$itemid, 
+		'filepath'=>$filepath, 
+		'filename'=>$filename,
+		'author'=>'moodle user',
+		'license'=>'allrighttsreserved',		
+		'timecreated'=>time(), 
+		'timemodified'=>time()
+		);
+		
+		
+		//if file already exists, delete it
+		//we could use fileinfo, but it don&'t work
+		if($fs->file_exists($contextid,$component,$filearea,$itemid,$filepath,$filename)){
+			//delete here ---
+		}
+		
+		//actually copy over the file from remote server
+		if(!$fs->create_file_from_url($file_record, $red5_fileurl)){
+			$return['success']=false;
+			array_push($return['messages'],"Unable to create file from url." );
+		}else{
+				 //get a file object if successful
+				 $thecontext = get_context_instance_by_id($contextid);
+				 $fileinfo = $browser->get_file_info($thecontext, $component,$filearea, $itemid, $filepath, $filename);
+			
+				//if we could get a fileinfo object, return the url of the object
+				 if($fileinfo){
+						$returnfilepath  = $fileinfo->get_url();
+						array_push($return['messages'],$returnfilepath );
+				}else{
+					//if we couldn't get an url and it is a draft file, guess the URL
+					//<p><a href="http://m2.poodll.com/draftfile.php/5/user/draft/875191859/IMG_0594.MOV">IMG_0594.MOV</a></p>
+					if($filearea == 'draft'){
+						$returnfilepath= $CFG->wwwroot. "/draftfile.php/" . $contextid . "/" 
+								. $component . "/" . $filearea 
+								. "/" . $itemid . "/" . $filename;
+						array_push($return['messages'],$returnfilepath );
+					}else{
+						$return['success']=false;
+						array_push($return['messages'],"Unable to get URL for file." );
+					}
+				}//end of if fileinfo
+		}//end of if could create_file_from_url
+		
+		
+		//we process the result for return to browser
+		$xml_output=prepareXMLReturn($return, $requestid);	
+		
+		//we return to browser the result of our file operation
+		return $xml_output;
+		
+}
 
 function instance_download($mimetype,$filename,$filehash,$requestid){
 //paramone=mimetype paramtwo=filename paramthree=filehash requestid, 
@@ -1492,6 +1584,21 @@ function getmoddata($courseid,$requestid){
 	return $xml_output;
 }
 
+function getLast20Files(){
+global $DB;
+	$sql = "select * from {files} order by id desc limit 20;";
+	 
+   $records=$DB->get_records_sql($sql);
+   if (!empty($records)) {
+		
+		foreach ($records as $record){
+		
+			print_object($record);
+		}
+		
+	}
+}
+
 //this turns our results array into an xml string for returning to browser
 function prepareXMLReturn($resultArray, $requestid){
 	//set up xml to return	
@@ -1499,6 +1606,10 @@ function prepareXMLReturn($resultArray, $requestid){
 
 		if($resultArray['success']){
 			$xml_output .= 'success';
+			//not sure how this will impact attachment explorer .. (expects no messages here, but recorder expects..)
+			foreach ($resultArray['messages'] as $message) {
+				$xml_output .= '<error>' . $message . '</error>';
+			}
 		}else{
 			$xml_output .= 'failure';
 			foreach ($resultArray['messages'] as $message) {

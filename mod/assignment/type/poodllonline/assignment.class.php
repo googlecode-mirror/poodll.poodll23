@@ -1,6 +1,8 @@
 <?php // $Id: assignment.class.php,v 1.46.2.6 2008/04/15 03:40:09 moodler Exp $
 require_once($CFG->libdir.'/formslib.php');
-require_once($CFG->dirroot.'/mod/assignment/lib.php');
+require_once($CFG->libdir . '/portfoliolib.php');
+require_once($CFG->dirroot . '/mod/assignment/lib.php');
+require_once($CFG->libdir . '/filelib.php');
 
 //Added Justin 2009/06/11 For printing to PDF
 
@@ -38,7 +40,7 @@ class assignment_poodllonline extends assignment_base {
 	
     function view() {
 
-        global $CFG, $USER, $DB , $OUTPUT;
+        global $CFG, $USER, $DB , $OUTPUT, $PAGE;
 
         $edit  = optional_param('edit', 0, PARAM_BOOL);
         $saved = optional_param('saved', 0, PARAM_BOOL);
@@ -155,18 +157,18 @@ class assignment_poodllonline extends assignment_base {
             if ($submission) {
                 $data->sid        = $submission->id;
                 $data->text       = $submission->data1;
-                $data->textformat = $submission->data2;
+                $data->textformat = FORMAT_HTML;
             } else {
                 $data->sid        = NULL;
                 $data->text       = '';
-                $data->textformat = NULL;
+                $data->textformat = FORMAT_HTML;
             }
 		
 		$editoroptions = array('noclean'=>false, 'maxfiles'=>EDITOR_UNLIMITED_FILES, 'maxbytes'=>$this->course->maxbytes);
 		$data = file_prepare_standard_editor($data, 'text', $editoroptions, $this->context, 'mod_assignment', $this->filearea, $data->sid);
 		
-        $mform = new mod_assignment_poodllonline_edit_form(null, array("cm"=>$this->cm,"assignment"=>$this->assignment,"mediapath"=>$mediapath, "editoroptions"=>$editoroptions));
-
+        $mform = new mod_assignment_poodllonline_edit_form(null, array("cm"=>$this->cm,"assignment"=>$this->assignment,"mediapath"=>$mediapath,"data"=>$data, "editoroptions"=>$editoroptions));
+/*
         $defaults = new object();
         $defaults->id = $this->cm->id;
         if (!empty($submission)) {
@@ -185,26 +187,27 @@ class assignment_poodllonline extends assignment_base {
             }
         }
         $mform->set_data($defaults);
-
+*/
         if ($mform->is_cancelled()) {
-            redirect('view.php?id='.$this->cm->id);
-        }
-
-
-        if ($data = $mform->get_data()) {      // No incoming data?
-            if ($editable && $this->update_submission($data)) {
-                //TODO fix log actions - needs db upgrade
-                $submission = $this->get_submission();
-                add_to_log($this->course->id, 'assignment', 'upload',
-                        'view.php?a='.$this->assignment->id, $this->assignment->id, $this->cm->id);
-                $this->email_teachers($submission);
-                //redirect to get updated submission date and word count
-                redirect('view.php?id='.$this->cm->id.'&saved=1');
-            } else {
-                // TODO: add better error message
-                notify(get_string("error")); //submitting not allowed!
+                redirect($PAGE->url);
             }
-        }
+
+            if ($data = $mform->get_data()) {
+                $submission = $this->get_submission($USER->id, true); //create the submission if needed & its id
+				//this step is only required if we are using a text editor, it is to move drft files over Justin 20120208
+				if($this->assignment->var3== OM_REPLYTEXTONLY){
+					$data = file_postupdate_standard_editor($data, 'text', $editoroptions, $this->context, 'mod_assignment', $this->filearea, $submission->id);
+				}
+                $submission = $this->update_submission($data);
+
+                //TODO fix log actions - needs db upgrade
+                add_to_log($this->course->id, 'assignment', 'upload', 'view.php?a='.$this->assignment->id, $this->assignment->id, $this->cm->id);
+                $this->email_teachers($submission);
+
+                //redirect to get updated submission date and word count
+                redirect(new moodle_url($PAGE->url, array('saved'=>1)));
+            }
+        
 
 /// print header, etc. and display form if needed
        
@@ -528,20 +531,17 @@ class assignment_poodllonline extends assignment_base {
         $update->id           = $submission->id;
 		$update->data2        = "";
         if (!empty($data->text)){
-			$update->data1        = $data->text;
+			$update->data1  = $data->text;
 		}else{
 			$update->data1 = "";
 		}
-        
-       
-		
+
 		//update media field with data that our moodle audio filter will pick up
 		if (!empty($filename)){
 			//$update->data2         = $data->saveflvvoice;
 			$update->data2         = $filename;
-			
 		}
-		
+	
 		$update->timemodified = time();
         $DB->update_record('assignment_submissions', $update);
         $submission = $this->get_submission($USER->id);
@@ -818,10 +818,12 @@ class assignment_poodllonline extends assignment_base {
 	}
 
     function preprocess_submission(&$submission) {
+
         if ($this->assignment->var1 && empty($submission->submissioncomment)) {  // comment inline
-            //We always use html editor Justin 20090225
+
 			//if ($this->usehtmleditor) {
-			if (true){
+			//we always use html editor
+			if(true){
                 // Convert to html, clean & copy student data to teacher
                 $submission->submissioncomment = format_text($submission->data1, FORMAT_HTML);
                 $submission->format = FORMAT_HTML;
@@ -857,21 +859,23 @@ class assignment_poodllonline extends assignment_base {
 		
 		$mform->addElement('header', 'onlinemediasettings', get_string('onlinemediasettings', 'assignment_poodllonline'));
 
- 
+
 		//reply method for student
 		$qoptions[OM_REPLYTEXTONLY] = get_string('replytextonly', 'assignment_poodllonline');
 		$qoptions[OM_REPLYVOICEONLY] = get_string('replyvoiceonly', 'assignment_poodllonline');
-		$qoptions[OM_REPLYVOICETHENTEXT] = get_string('replyvoicethentext', 'assignment_poodllonline');
 		$qoptions[OM_REPLYVIDEOONLY] = get_string('replyvideoonly', 'assignment_poodllonline');
-		$qoptions[OM_REPLYVIDEOTHENTEXT] = get_string('replyvideothentext', 'assignment_poodllonline');           
-		$qoptions[OM_REPLYTALKBACK] = get_string('replytalkback', 'assignment_poodllonline');
+		//We may re-enable these in the future. But for PoodLL 2.0 they are on hold Justin 20120208
+		//$qoptions[OM_REPLYVOICETHENTEXT] = get_string('replyvoicethentext', 'assignment_poodllonline');
+		//$qoptions[OM_REPLYVIDEOTHENTEXT] = get_string('replyvideothentext', 'assignment_poodllonline');           
+		//$qoptions[OM_REPLYTALKBACK] = get_string('replytalkback', 'assignment_poodllonline');
         	$mform->addElement('select', 'var3', get_string('replytype', 'assignment_poodllonline'), $qoptions);
 		
 		//feedback method for teacher
 		$qoptions=array();
 		$qoptions[OM_FEEDBACKTEXT] = get_string('feedbacktext', 'assignment_poodllonline');
-		$qoptions[OM_FEEDBACKTEXTVOICE] = get_string('feedbacktextvoice', 'assignment_poodllonline');
-		$qoptions[OM_FEEDBACKTEXTVIDEO] = get_string('feedbacktextvideo', 'assignment_poodllonline');        
+		//We may re-enable these in the future. But for PoodLL 2.0 they are on hold Justin 20120208
+		//$qoptions[OM_FEEDBACKTEXTVOICE] = get_string('feedbacktextvoice', 'assignment_poodllonline');
+		//$qoptions[OM_FEEDBACKTEXTVIDEO] = get_string('feedbacktextvideo', 'assignment_poodllonline');        
         $mform->addElement('select', 'var4', get_string('feedbacktype', 'assignment_poodllonline'), $qoptions);
 
     }
@@ -1015,7 +1019,7 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 						case OM_REPLYVOICEONLY:	
 						case OM_REPLYVIDEOONLY:
 						case OM_REPLYTALKBACK:
-							//We do not need a text box, so we just break
+							//We do not need a text box
 							break;
 						case OM_REPLYTEXTONLY:							
 						default:
@@ -1023,22 +1027,23 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 
 								// visible elements
 								//$mform->addElement('editor', 'text', get_string('submission', 'assignment'), array('cols'=>85, 'rows'=>30));
-								$mform->addElement('editor', 'text', get_string('submission', 'assignment'), null, $this->_customdata['editoroptions']);
-								$mform->setType('text', PARAM_RAW); // to be cleaned before display
-								$mform->addRule('text', get_string('required'), 'required', null, 'client');							
+								$mform->addElement('editor', 'text_editor', get_string('submission', 'assignment'), null, $this->_customdata['editoroptions']);
+								//$mform->addElement('editor', 'text', get_string('submission', 'assignment'));
+								$mform->setType('text_editor', PARAM_RAW); // to be cleaned before display
+								$mform->addRule('text_editor', get_string('required'), 'required', null, 'client');							
 				}
 						
 						
-						
-		
-			
 		
         // hidden params
         $mform->addElement('hidden', 'id', 0);
         $mform->setType('id', PARAM_INT);
 
+		
         // buttons
         $this->add_action_buttons();
+
+		$this->set_data($this->_customdata['data']);
     }
 }
 
