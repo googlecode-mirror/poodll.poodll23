@@ -158,7 +158,20 @@ class qtype_poodllrecording_format_audio_renderer extends plugin_renderer_base {
     protected function class_name() {
         return 'qtype_poodllrecording_audio';
     }
+/*
+	protected function prepare_response($name, question_attempt $qa,
+            question_attempt_step $step, $context) {
+        if (!$step->has_qt_var($name)) {
+            return '';
+        }
 
+        $formatoptions = new stdClass();
+        $formatoptions->para = false;
+        $text = $qa->rewrite_response_pluginfile_urls($step->get_qt_var($name),
+                $context->id, 'answer', $step);
+        return format_text($text, $step->get_qt_var($name . 'format'), $formatoptions);
+    }
+*/
 	protected function textarea($response, $lines, $attributes) {
         $attributes['class'] = $this->class_name() . ' qtype_essay_response';
         $attributes['rows'] = $lines;
@@ -168,19 +181,43 @@ class qtype_poodllrecording_format_audio_renderer extends plugin_renderer_base {
 
 	//When I swapped this out with prepare_reponse_for_editing_with_text the draftfile.php was replaced with pluginfile.php
 	//but no moving files off to better storage was done.
+	/*
 	 protected function prepare_response_for_editing($name,
             question_attempt_step $step, $context) {
         return array(0, $step->get_qt_var($name));
     }
+    */
+    
+    
+       protected function prepare_response_for_editing($name,
+            question_attempt_step $step, $context) {
+        return $step->prepare_response_files_draft_itemid_with_text(
+                $name, $context->id, $step->get_qt_var($name));
+                
+    }
+    
+    
 
-    public function response_area_read_only($name, $qa, $step, $lines, $context) {
-				
-			$pathtofile= $step->get_qt_var($name);
+    public function response_area_read_only($name, $qa, $step, $lines, $context) {	
+    		global $CFG;
+   			//fetch file from storage and figure out URL
+    		$storedfiles=$qa->get_last_qt_files($name,$context->id);
+    		foreach ($storedfiles as $sf){
+    			$pathtofile=$qa->get_response_file_url($sf);
+    			break;
+    		}
+
+			//$pathtofile= $this->prepare_response($name, $qa, $step, $context);
+			//return "path:" . $pathtofile ;
+			//return "path:" . $pathtofile . "<br />" . fetchSimpleAudioPlayer('swf',$pathtofile,"http",400,25);
 			return fetchSimpleAudioPlayer('swf',$pathtofile,"http",400,25);
     }
 
 
     public function response_area_input($name, $qa, $step, $lines, $context) {
+    	global $USER;
+    	$usercontextid=get_context_instance(CONTEXT_USER, $USER->id)->id;
+    	
 		//prepare a draft file id for use
 		list($draftitemid, $response) = $this->prepare_response_for_editing( $name, $step, $context);
 
@@ -188,14 +225,19 @@ class qtype_poodllrecording_format_audio_renderer extends plugin_renderer_base {
 		$inputname = $qa->get_qt_field_name($name);
 		$inputid =  $inputname . '_id';
 		
+		//our answerfield
 		$ret =	html_writer::empty_tag('input', array('type' => 'hidden','id'=>$inputid, 'name' => $inputname));
 		//$ret = $this->textarea($step->get_qt_var($name), $lines, array('name' => $inputname,'id'=>$inputid));
 		
-		$ret .= html_writer::empty_tag('input', array('type' => 'hidden','name' => $inputname . 'format', 'value' => FORMAT_PLAIN));
+		//our answerfield draft id key
+		$ret .=	html_writer::empty_tag('input', array('type' => 'hidden', 'name' => $inputname . ':itemid', 'value'=> $draftitemid));
+		
+		//our answerformat
+		$ret .= html_writer::empty_tag('input', array('type' => 'hidden','name' => $inputname . 'format', 'value' => 1));
 	
 	
 		//the context id $context->id here is wrong, so we just use "5" because it works, why is it wrong ..? J 20120214
-		return $ret . fetchAudioRecorderForDraft('swf','question',$inputid, 5 ,'user','draft',$draftitemid);
+		return $ret . fetchAudioRecorderForDraft('swf','question',$inputid, $usercontextid ,'user','draft',$draftitemid);
 		return $ret;
     }
 }
@@ -215,20 +257,13 @@ class qtype_poodllrecording_format_video_renderer extends qtype_poodllrecording_
 
     public function response_area_read_only($name, $qa, $step, $lines, $context) {
 				
-				$pathtofile= $step->get_qt_var($name);
-				
-				//echo "name:" . $name . "<br />";
-				
-				//echo "stepname_value:" . $pathtofile;
-				//print_object($step);
-			//	echo "----------------------------";
-				//print_object($qa);
-				
-			//$draftitemid= $qa->prepare_response_files_draft_itemid("attachments", $context->id);
-				
-			// $draftitemid= $qa->prepare_response_files_draft_itemid($name, $context->id);
-		
-		
+			//fetch file from storage and figure out URL
+    		$storedfiles=$qa->get_last_qt_files($name,$context->id);
+    		foreach ($storedfiles as $sf){
+    			$pathtofile=$qa->get_response_file_url($sf);
+    			break;
+    		}
+
 			return fetchSimpleVideoPlayer('swf',$pathtofile,400,380,"http");
 	
     }
@@ -236,6 +271,9 @@ class qtype_poodllrecording_format_video_renderer extends qtype_poodllrecording_
 	
 
     public function response_area_input($name, $qa, $step, $lines, $context) {
+    	global $USER;
+    	$usercontextid=get_context_instance(CONTEXT_USER, $USER->id)->id;
+    	
 		//prepare a draft file id for use
 		list($draftitemid, $response) = $this->prepare_response_for_editing( $name, $step, $context);
 
@@ -243,14 +281,18 @@ class qtype_poodllrecording_format_video_renderer extends qtype_poodllrecording_
 		$inputname = $qa->get_qt_field_name($name);
 		$inputid =  $inputname . '_id';
 		
+			//our answerfield
 		$ret =	html_writer::empty_tag('input', array('type' => 'hidden','id'=>$inputid, 'name' => $inputname));
 		//$ret = $this->textarea($step->get_qt_var($name), $lines, array('name' => $inputname,'id'=>$inputid));
 		
+		//our answerfield draft id key
+		$ret .=	html_writer::empty_tag('input', array('type' => 'hidden', 'name' => $inputname . ':itemid', 'value'=> $draftitemid));
+		
 		$ret .= html_writer::empty_tag('input', array('type' => 'hidden','name' => $inputname . 'format', 'value' => FORMAT_PLAIN));
-	
-	
+
+       
 		//the context id $context->id here is wrong, so we just use "5" because it works, why is it wrong ..? J 20120214
-		return $ret . fetchVideoRecorderForDraft('swf','question',$inputid, 5 ,'user','draft',$draftitemid);
+		return $ret . fetchVideoRecorderForDraft('swf','question',$inputid, $usercontextid ,'user','draft',$draftitemid);
 		return $ret;
 		
     }

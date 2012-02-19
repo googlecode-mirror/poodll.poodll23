@@ -56,9 +56,9 @@ class qtype_poodllrecording_question extends question_with_responses {
     public function get_expected_data() {
 
 			//use question_attempt::PARAM_CLEANHTML_FILES when dealing with actual file
-           // $expecteddata = array('answer' => question_attempt::PARAM_CLEANHTML_FILES);
-            //$expecteddata = array('answer' => question_attempt::PARAM_CLEANHTML_FILES);
-			 $expecteddata = array('answer' => PARAM_CLEANHTML);
+           //$expecteddata = array('answer' => PARAM_CLEANHTML);
+			$expecteddata = array('answer' => question_attempt::PARAM_CLEANHTML_FILES);
+			//$expecteddata = array('answer' => question_attempt::PARAM_FILES);
       
         $expecteddata['answerformat'] = PARAM_FORMAT;
         if ($this->attachments != 0) {
