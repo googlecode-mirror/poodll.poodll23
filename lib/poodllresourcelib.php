@@ -1,6 +1,6 @@
 <?php  // $Id: poodllresourcelib.php,v 1.119.2.13 2008/07/10 09:48:44 scyrma Exp $
 /**
- * Code for clients(voice recorder etc)  to use when handling poodllresources
+ * Code for PoodLL clients(widgets), in particular filter setup and plumbing.
  *
  *
  * @author Justin Hunt
@@ -20,6 +20,7 @@ define('MR_TYPEAUDIO',1);
 define('MR_TYPETALKBACK',2);
  
 require_once($CFG->dirroot . '/filter/poodll/poodllinit.php');
+require_once($CFG->dirroot . '/filter/poodll/Browser.php');
 global $PAGE;
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/swfobject.js'));
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/javascript.php'));
@@ -294,7 +295,7 @@ $cameraprefs= '&capturefps=' . $capturefps . '&captureheight=' . $captureheight 
 
 		
 	
-    	$returnString=  fetchWidgetCode('poodllpalette.lzx.swf10.swf',
+    	$returnString=  fetchSWFWidgetCode('poodllpalette.lzx.swf10.swf',
     						$params,$width,$height,'#FFFFFF');
 
     						
@@ -395,7 +396,7 @@ if ($CFG->filter_poodll_usecourseid){
 		
 		
 	
-    	$returnString=  fetchWidgetCode('PoodLLTeachersRecorder.lzx.swf9.swf',
+    	$returnString=  fetchSWFWidgetCode('PoodLLTeachersRecorder.lzx.swf9.swf',
     						$params,$CFG->filter_poodll_talkbackwidth,$CFG->filter_poodll_talkbackheight,'#CCCCCC');
 
     						
@@ -439,7 +440,7 @@ $mename=$USER->username;
 
 		//Are  we merely a slave to the admin whiteboard ?
 		if ($slave){
-			$widgetstring=  fetchWidgetCode('scribbleslave.lzx.swf9.swf',
+			$widgetstring=  fetchSWFWidgetCode('scribbleslave.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
 		}else{
 			//normal mode is a standard scribble with a cpanel
@@ -448,13 +449,24 @@ $mename=$USER->username;
 					if($runtime=='js'){
 						$widgetstring=  fetchJSWidgetCode('scribbler.lzx.js',
 									$params,$width,$height,'#FFFFFF'); 
+					}elseif($runtime=='auto'){
+						$widgetstring=  fetchAutoWidgetCode('scribbler.lzx.swf9.swf',
+									$params,$width,$height,'#FFFFFF'); 
 					}else{
-						$widgetstring=  fetchWidgetCode('scribbler.lzx.swf9.swf',
+						$widgetstring=  fetchSWFWidgetCode('scribbler.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
 					}
 			}else{
-				$widgetstring=  fetchWidgetCode('simplescribble.lzx.swf9.swf',
-    						$params,$width,$height,'#FFFFFF');
+					if($runtime=='js'){
+						$widgetstring=  fetchJSWidgetCode('simplescribble.lzx.js',
+									$params,$width,$height,'#FFFFFF'); 
+					}elseif($runtime=='auto'){
+						$widgetstring=  fetchAutoWidgetCode('simplescribble.lzx.swf9.swf',
+									$params,$width,$height,'#FFFFFF'); 
+					}else{
+						$widgetstring=  fetchSWFWidgetCode('simplescribble.lzx.swf9.swf',
+								$params,$width,$height,'#FFFFFF');
+					}
 				
 			}
 		}
@@ -509,7 +521,7 @@ if ($CFG->filter_poodll_usecourseid){
 		$params['mediadescriptor'] = $basefile . $descriptor_file;
 		
 	
-    	$returnString=  fetchWidgetCode('talkback.lzx.swf9.swf',
+    	$returnString=  fetchSWFWidgetCode('talkback.lzx.swf9.swf',
     						$params,$CFG->filter_poodll_talkbackwidth,$CFG->filter_poodll_talkbackheight,'#FFFFFF');
 
     						
@@ -572,7 +584,7 @@ $params = array();
 		$params['updatecontrol'] = $updatecontrol;
 		$params['uid'] = $userid;
 	
-    	$returnString=  fetchWidgetCode('PoodLLAudioRecorder.lzx.swf9.swf',
+    	$returnString=  fetchSWFWidgetCode('PoodLLAudioRecorder.lzx.swf9.swf',
     						$params,$width,$height,'#CFCFCF');
     						
     	$returnString .= 	 $savecontrol;
@@ -581,7 +593,7 @@ $params = array();
 
 }
 
-function fetchAudioRecorderForDraft($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid){
+function fetchAudioRecorderForSubmission($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid){
 global $CFG, $USER, $COURSE;
 
 //Set the servername 
@@ -645,7 +657,7 @@ $params = array();
 		$params['filearea'] = $filearea;
 		$params['itemid'] = $itemid;
 	
-    	$returnString=  fetchWidgetCode('PoodLLAudioRecorder.lzx.swf9.swf',
+    	$returnString=  fetchSWFWidgetCode('PoodLLAudioRecorder.lzx.swf9.swf',
     						$params,$width,$height,'#CFCFCF');
     						
     	$returnString .= 	 $savecontrol;
@@ -693,10 +705,13 @@ $userid = $USER->username;
 		//LZ string if master/save  mode and not admin => show slave mode
 	//otherwise show stopwatch
 	if ($mode=='master' && !$isadmin) {
-    	$returnString=  fetchWidgetCode('slaveview.lzx.swf9.swf',
+    	$returnString=  fetchSWFWidgetCode('slaveview.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
     }elseif($runtime=='swf'){
-    	$returnString=  fetchWidgetCode('stopwatch.lzx.swf9.swf',
+    	$returnString=  fetchSWFWidgetCode('stopwatch.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+	 }elseif($runtime=='auto'){
+    	$returnString=  fetchAutoWidgetCode('stopwatch.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
     }else{
     	$returnString=  fetchJSWidgetCode('stopwatch.lzx.js',
@@ -715,9 +730,12 @@ global $CFG;
 		$params = array();
 		if($runtime=='js'){
 			$returnString=  fetchJSWidgetCode('poodllcalc.lzx.js',
-    						$params,$width,$height,'#FFFFFF'); 
+    						$params,$width,$height,'#FFFFFF');
+		 }elseif($runtime=='auto'){
+							$returnString=fetchAutoWidgetCode('poodllcalc.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
 		}else{
-    		$returnString=  fetchWidgetCode('poodllcalc.lzx.swf9.swf',
+    		$returnString=  fetchSWFWidgetCode('poodllcalc.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
     	}
    						
@@ -747,8 +765,11 @@ global $CFG,$COURSE;
 		if($runtime=='js'){
 			$returnString=  fetchJSWidgetCode('attachmentexplorer.lzx.js',
     						$params,$width,$height,'#FFFFFF'); 
+		}elseif($runtime=='auto'){
+			$returnString=  fetchAutoWidgetCode('attachmentexplorer.lzx.swf10.swf',
+    						$params,$width,$height,'#FFFFFF');
 		}else{
-    		$returnString=  fetchWidgetCode('attachmentexplorer.lzx.swf10.swf',
+    		$returnString=  fetchSWFWidgetCode('attachmentexplorer.lzx.swf10.swf',
     						$params,$width,$height,'#FFFFFF');
     	}
    						
@@ -800,10 +821,13 @@ $userid = $USER->username;
 		//LZ string if master/save  mode and not admin => show slave mode
 	//otherwise show stopwatch
 	if ($mode=='master' && !$isadmin) {
-    	$returnString=  fetchWidgetCode('slaveview.lzx.swf9.swf',
+    	$returnString=  fetchSWFWidgetCode('slaveview.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
     }elseif($runtime=='swf'){
-    	$returnString=  fetchWidgetCode('countdowntimer.lzx.swf9.swf',
+    	$returnString=  fetchSWFWidgetCode('countdowntimer.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+	}elseif($runtime=='auto'){
+    	$returnString=  fetchAutoWidgetCode('countdowntimer.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
     }else{
     	$returnString=  fetchJSWidgetCode('countdowntimer.lzx.js',
@@ -829,7 +853,10 @@ global $CFG;
 	
     	
     	if($runtime=="swf"){
-    		$returnString=  fetchWidgetCode('counter.lzx.swf9.swf',
+    		$returnString=  fetchSWFWidgetCode('counter.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+		}elseif($runtime=="auto"){
+    		$returnString=  fetchAutoWidgetCode('counter.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
 		}else{
 			$returnString=  fetchJSWidgetCode('counter.lzx.js',
@@ -851,7 +878,10 @@ global $CFG;
 		$params['dicesize'] = $dicesize;
 		
 	if($runtime=="swf"){
-    	$returnString=  fetchWidgetCode('dice.lzx.swf9.swf',
+    	$returnString=  fetchSWFWidgetCode('dice.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+	}elseif($runtime=="auto"){
+    	$returnString=  fetchAutoWidgetCode('dice.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
 	}else{
 		$returnString=  fetchJSWidgetCode('dice.lzx.js',
@@ -892,8 +922,12 @@ global $CFG,$COURSE;
 	if($runtime=="js"){
     	$returnString=  fetchJSWidgetCode('flashcards.lzx.js',
     						$params,$width,$height,'#FFFFFF');
+	}elseif($runtime=="auto"){
+    	$returnString=  fetchAutoWidgetCode('flashcards.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+	
 	}else{
-		$returnString=  fetchWidgetCode('flashcards.lzx.swf9.swf',
+		$returnString=  fetchSWFWidgetCode('flashcards.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
 	}
     						
@@ -953,7 +987,7 @@ $params = array();
 		$params['updatecontrol'] = $updatecontrol;
 		$params['uid'] = $userid;
 	
-    	$returnString=  fetchWidgetCode('PoodLLVideoRecorder.lzx.swf9.swf',
+    	$returnString=  fetchSWFWidgetCode('PoodLLVideoRecorder.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
     						
     	$returnString .= 	$savecontrol;
@@ -963,7 +997,7 @@ $params = array();
 
 }
 
-function fetchVideoRecorderForDraft($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid){
+function fetchVideoRecorderForSubmission($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid){
 global $CFG, $USER, $COURSE;
 
 //Set the servername and a capture settings from config file
@@ -1027,7 +1061,7 @@ $params = array();
 		$params['filearea'] = $filearea;
 		$params['itemid'] = $itemid;
 	
-    	$returnString=  fetchWidgetCode('PoodLLVideoRecorder.lzx.swf9.swf',
+    	$returnString=  fetchSWFWidgetCode('PoodLLVideoRecorder.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
     						
     	$returnString .= 	$savecontrol;
@@ -1063,7 +1097,7 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 		$params['playertype'] = $protocol;
 		$params['playlist']=urlencode($fetchdataurl);
 	
-    	$returnString=  fetchWidgetCode('poodllaudiotestplayer.lzx.swf9.swf',
+    	$returnString=  fetchSWFWidgetCode('poodllaudiotestplayer.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
     						
     	return $returnString;
@@ -1106,7 +1140,7 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 		$params['sequentialplay'] = $sequentialplay;
 		$params['playlist']=urlencode($fetchdataurl);
 	
-    	$returnString=  fetchWidgetCode('poodllaudiolistplayer.lzx.swf9.swf',
+    	$returnString=  fetchSWFWidgetCode('poodllaudiolistplayer.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
     						
     	return $returnString;
@@ -1235,7 +1269,7 @@ $courseid= $COURSE->id;
 							
 		}else{
 	
-				$returnString=  fetchWidgetCode('poodllaudioplayer.lzx.swf9.swf',
+				$returnString=  fetchSWFWidgetCode('poodllaudioplayer.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
 							
 		}
@@ -1362,7 +1396,7 @@ $courseid= $COURSE->id;
 							
 		}else{
 	
-			$returnString=  fetchWidgetCode('poodllvideoplayer.lzx.swf9.swf',
+			$returnString=  fetchSWFWidgetCode('poodllvideoplayer.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
     	}					
 							
@@ -1416,7 +1450,7 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 	$params['protocol'] = urlencode($protocol);
 	$params['permitfullscreen'] = urlencode($permitfullscreen);
 
-    $returnString=  fetchWidgetCode('smallvideogallery.lzx.swf9.swf',
+    $returnString=  fetchSWFWidgetCode('smallvideogallery.lzx.swf9.swf',
     						$params,$width,$height,'#D5FFFA');
 
 	return $returnString;
@@ -1460,7 +1494,7 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 	if($runtime=='swf'){
 		//set the flash widget suffix
 		$widget = "bigvideogallery.lzx.swf9.swf";
-    	$returnString=  fetchWidgetCode($widget, $params,$width,$height,'#D5FFFA');
+    	$returnString=  fetchSWFWidgetCode($widget, $params,$width,$height,'#D5FFFA');
 	}else{
 		//set the JS widget suffix
 		$widget = "bigvideogallery.lzx.js";
@@ -1558,8 +1592,31 @@ function fetch_filter_properties($filterstring){
 
 }
 
+function fetchAutoWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF"){
+	global $CFG, $PAGE;
+	$ret="";
+	 $browser = new Browser();
+	 switch($browser->getBrowser()){
+		case Browser::BROWSER_IPAD:
+		case Browser::BROWSER_IPOD:
+		case Browser::BROWSER_IPHONE:
+		case Browser::BROWSER_ANDROID:
+			
+			$pos =strPos($widget,".lzx.");
+			if ($pos > 0){
+					$basestring = substr($widget,0,$pos+4);
+					$widget=$basestring . ".js";
+					$ret= fetchJSWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF");	
+			}
+			break;
+		default:
+			//$ret=$browser->getPlatform();
+			$ret = fetchSWFWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF");	
+	 }
+	 return $ret;
+}
 
-function fetchWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF"){
+function fetchSWFWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF"){
 	global $CFG, $PAGE;
 	
 	//build the parameter string out of the passed in array
@@ -1619,7 +1676,3 @@ function fetchJSWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFF
 
 
 }
-
-
-
-?>

@@ -1,10 +1,7 @@
 <?php
 include('../../../../config.php');
 include('../../../../filter/poodll/poodllinit.php');
-?>
-
-
-//<![CDATA[
+?>//<![CDATA[
 
 		var currentDivContents = '';
 		var currentPlayerID    = '';
@@ -17,10 +14,7 @@ include('../../../../filter/poodll/poodllinit.php');
 
 		var flvserver = '<?php echo $CFG->poodll_media_server ?>';
 
-		
-		
-		
-		
+	
 		
       function loadAudioPlayer(rtmp_file, playerid, sampleid, width, height) {
 	  
@@ -97,5 +91,3 @@ include('../../../../filter/poodll/poodllinit.php');
 	  
 	  
 //]]>
-
-

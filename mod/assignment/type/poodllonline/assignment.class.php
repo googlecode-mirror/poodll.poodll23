@@ -1,4 +1,5 @@
 <?php // $Id: assignment.class.php,v 1.46.2.6 2008/04/15 03:40:09 moodler Exp $
+
 require_once($CFG->libdir.'/formslib.php');
 require_once($CFG->libdir . '/portfoliolib.php');
 require_once($CFG->dirroot . '/mod/assignment/lib.php');
@@ -8,6 +9,8 @@ require_once($CFG->libdir . '/filelib.php');
 
 //Get our poodll resource handling lib
 require_once($CFG->libdir . '/poodllresourcelib.php');
+require_once($CFG->libdir . '/poodllfilelib.php');
+//require_once('lib.php');
 
 
 //some constants for the type of online poodll assignment
@@ -22,6 +25,8 @@ define('OM_FEEDBACKTEXTVOICE',1);
 define('OM_FEEDBACKTEXTVIDEO',2);
 define('HTML_FORMAT',1);
 define('TCPPDF_OLD',0);
+
+define('FILENAMECONTROL','saveflvvoice');
 
 /**
  * Extend the base assignment class 
@@ -51,15 +56,14 @@ class assignment_poodllonline extends assignment_base {
 
         $submission = $this->get_submission();
 		
-		//We need to add an extra field to the submissions table, for feedback using video or audio
-		//we check if it exists here, and if not we add it. Justin 20100324
-		if($submission){
+		//We added an extra field to the submissions table, for feedback using video or audio
+		//and this was where we added it. But we will no longer do this in PoodLL 2. It was hacky.
+		//can just drop in a video from a recording repo if want to do this.  But never say never so 
+		//am leaving the code around. Justin 20120302
+		if(false && $submission){
 				$dbman = $DB->get_manager();
 				$table = new xmldb_table('assignment_submissions');
 				if (!$dbman->field_exists($table,'poodllfeedback')){
-					// add field to store media comments (audio or video) filename to students submissions
-			       // $sql= "ALTER TABLE {assignment_submissions} ADD poodllfeedback TEXT";
-					//$result = $dbman->execute_sql($sql);
 					
 					$field = new xmldb_field('poodllfeedback', XMLDB_TYPE_TEXT, 'medium', null, null, null, null, null);
 					$result = $dbman->add_field($table,$field);
@@ -143,7 +147,7 @@ class assignment_poodllonline extends assignment_base {
         add_to_log($this->course->id, "assignment", "view", "view.php?id={$this->cm->id}", $this->assignment->id, $this->cm->id);
 
 	/// prepare form and process submitted data
-	//load it with some info it needs to determine the params for chosho recorder.
+	//load it with some info it needs to determine the params for PoodLL recorder.
 		//for voice then text, we need to know if we already have voice or not
 		if(empty($submission)){
 				$mediapath="";
@@ -164,7 +168,8 @@ class assignment_poodllonline extends assignment_base {
                 $data->textformat = FORMAT_HTML;
             }
 		
-		$editoroptions = array('noclean'=>false, 'maxfiles'=>EDITOR_UNLIMITED_FILES, 'maxbytes'=>$this->course->maxbytes);
+		
+		$editoroptions = array('noclean'=>false, 'maxfiles'=>EDITOR_UNLIMITED_FILES, 'maxbytes'=>$this->course->maxbytes,'context'  => $this->context);
 		$data = file_prepare_standard_editor($data, 'text', $editoroptions, $this->context, 'mod_assignment', $this->filearea, $data->sid);
 		
         $mform = new mod_assignment_poodllonline_edit_form(null, array("cm"=>$this->cm,"assignment"=>$this->assignment,"mediapath"=>$mediapath,"data"=>$data, "editoroptions"=>$editoroptions));
@@ -240,28 +245,29 @@ class assignment_poodllonline extends assignment_base {
 					 echo $OUTPUT->box_start('generalbox boxaligncenter', 'mysubmission');
 					 //print_simple_box_start('center', '50%', '', 0, 'generalbox', 'mysubmission');
 					  
-				
+				echo $this->fetchResponses($this->context->id,$submission->id,$this->assignment->var3,$submission->data1,$submission->data2);
+				/*
 				//check if we need media output
 					switch($this->assignment->var3){
 						
 						case OM_REPLYVOICEONLY:
-							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;							
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2 . '?forcedownload=1';							
 							echo format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 							break;						
 
 						case OM_REPLYVIDEOONLY:
-							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2 . '?forcedownload=1';								
 							echo format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);						
 							break;
 
 						
 						case OM_REPLYVOICETHENTEXT:						
-							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;							
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2 . '?forcedownload=1';							
 							echo format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 							break;
 
 						case OM_REPLYVIDEOTHENTEXT:						
-							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2 . '?forcedownload=1';								
 							echo format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 							break;
 			
@@ -281,7 +287,7 @@ class assignment_poodllonline extends assignment_base {
 						default:	
 							echo format_text($submission->data1, FORMAT_HTML);
 					}
-
+					*/
 
 					//Close our students answer box
 					//print_simple_box_end();
@@ -298,11 +304,14 @@ class assignment_poodllonline extends assignment_base {
 					echo $OUTPUT->box_start('generalbox boxaligncenter', 'mysubmission');
 					//print_simple_box_start('center', '50%', '', 0, 'generalbox', 'mysubmission');
 					
+					echo $this->fetchResponses($this->context->id,$submission->id,$this->assignment->var3,$submission->data1,$submission->data2);
+					
+					/*
 					switch($this->assignment->var3){
 						
 						case OM_REPLYVOICEONLY:
 						
-							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;							
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2 . '?forcedownload=1';							
 							//echo $mediapath . "<br />";
 							echo format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);							
 							break;
@@ -310,21 +319,21 @@ class assignment_poodllonline extends assignment_base {
 						case OM_REPLYVIDEOONLY:
 							
 							
-							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2 . '?forcedownload=1';								
 							//echo $mediapath . "<br />";	
 							
 						//for debugging get a list of files	
-						/*
-						$fs = get_file_storage();
-						if (($submission) && $files = $fs->get_area_files($this->context->id, 'mod_assignment', 'submission', $submission->id, "timemodified", false)) {
-							foreach ($files as $file) {
-								$filename = $file->get_filename();
-								echo "<br />filename:" . $filename;
-								echo "<br />path:" . $file->get_contextid() . "/" . $file->get_component()  . "/" . $file->get_filearea()   . "/" . $file->get_itemid()  . "/" . $file->get_filename();
-							}
-							echo "<br />finished" ;
-						}
-						*/
+						//
+						//$fs = get_file_storage();
+						//if (($submission) && $files = $fs->get_area_files($this->context->id, 'mod_assignment', 'submission', $submission->id, "timemodified", false)) {
+						//	foreach ($files as $file) {
+						//		$filename = $file->get_filename();
+						//		echo "<br />filename:" . $filename;
+						//	echo "<br />path:" . $file->get_contextid() . "/" . $file->get_component()  . "/" . $file->get_filearea()   . "/" . $file->get_itemid()  . "/" . $file->get_filename();
+						//	}
+						//	echo "<br />finished" ;
+						//}
+						 ///
 						//over debugging
 
 					
@@ -333,13 +342,13 @@ class assignment_poodllonline extends assignment_base {
 
 						
 						case OM_REPLYVOICETHENTEXT:						
-							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;							
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2 . '?forcedownload=1';							
 							//echo $mediapath . "<br />";
 							echo format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 							break;
 
 						case OM_REPLYVIDEOTHENTEXT:						
-							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2 . '?forcedownload=1';								
 							echo format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 							break;
 						
@@ -363,7 +372,7 @@ class assignment_poodllonline extends assignment_base {
 							echo format_text($submission->data1, FORMAT_HTML);
 					}
 					
-					
+					*/
 					
 					//Close out students answer box
 					//print_simple_box_end();
@@ -451,17 +460,49 @@ class assignment_poodllonline extends assignment_base {
     }
 
     function update_submission($data) {
-        global $CFG, $USER, $DB;
+        global $CFG, $USER, $DB,$COURSE;
 
         $submission = $this->get_submission($USER->id, true);
 		
 		//a hack into moodle form system to have moodle get the filename of the file we recorded. 
-		//When we add the recorder via the poodll filter, it adds a hidden form field of the name "saveflvvoice"
+		//When we add the recorder via the poodll filter, it adds a hidden form field of the name FILENAMECONTROL
 		//the recorder updates that field with the filename of the audio/video it recorded. We pick up that filename here.
-		$filename = optional_param('saveflvvoice', '', PARAM_RAW);
+		
+		
+		$filename = optional_param(FILENAMECONTROL, '', PARAM_RAW);
+		$draftitemid = optional_param('draftitemid', '', PARAM_RAW);
+		$usercontextid = optional_param('usercontextid', '', PARAM_RAW);
+		 $fs = get_file_storage();
+		 $browser = get_file_browser();
+         $fs->delete_area_files($this->context->id, 'mod_assignment', 'submission', $submission->id);
 
+		//$filehash = sha1('/' . $usercontextid . '/user/draft/' . $draftitemid . '/'. $filename);
+		//$ret = instance_duplicatefile('mod_assignment', $COURSE->id, $submission->id, 'submission', $filename, $filehash, '1234567'){
+		
+		
+		
+			//fetch the file info object for our original file
+		$original_context = get_context_instance_by_id($usercontextid);
+		$draft_fileinfo = $browser->get_file_info($original_context, 'user','draft', $draftitemid, '/', $filename);
+	
+		//perform the copy	
+		if($draft_fileinfo){
+			$ret = $draft_fileinfo->copy_to_storage($this->context->id, 'mod_assignment', 'submission', $submission->id, '/', $filename);
+			//$return['success'] =false;
+			
+		}//end of if $original_fileinfo
 
 		
+		
+	//	$filesaved = $mform->save_stored_file(FILENAMECONTROL, $this->context->id, 'mod_assignment', 'submission',
+     //              $submission->id, '/', $filename);
+
+
+		//instance_remotedownload params = $contextid,$filename,$component, $filearea,$itemid, $requestid(this can be random)
+		//$sid=$submission->id;
+        //$filesaved = instance_remotedownload($this->context->id,$filename,"mod_assignment", "submission",$sid, "1234523");
+		
+		/* ================================= start of old filecopy logic
 		$red5_fileurl="http://" . $CFG->filter_poodll_servername . 
 						":443/poodll/download.jsp?poodllserverid=" . 
 						$CFG->filter_poodll_serverid . "&filename=" . $filename;
@@ -525,8 +566,10 @@ class assignment_poodllonline extends assignment_base {
 		$fs->create_file_from_url($file_record, $red5_fileurl);
 
 		//=====================================================
+		
 	}//end of if (!empty($filename)){
-	
+	//===================================================== end of old file copy logic
+	*/
 	   $update = new stdClass();
         $update->id           = $submission->id;
 		$update->data2        = "";
@@ -536,7 +579,7 @@ class assignment_poodllonline extends assignment_base {
 			$update->data1 = "";
 		}
 
-		//update media field with data that our moodle audio filter will pick up
+		//update media field with data that the PoodLL filter will pick up
 		if (!empty($filename)){
 			//$update->data2         = $data->saveflvvoice;
 			$update->data2         = $filename;
@@ -558,6 +601,7 @@ class assignment_poodllonline extends assignment_base {
       */
     function send_file($filearea, $args) {
         global $CFG, $DB, $USER;
+		ob_start();
         require_once($CFG->libdir.'/filelib.php');
 
         require_login($this->course, false, $this->cm);
@@ -584,12 +628,12 @@ class assignment_poodllonline extends assignment_base {
         if (!$file = $fs->get_file_by_hash(sha1($fullpath)) or $file->is_directory()) {
             return false;
         }
-
+		ob_clean();
         send_stored_file($file, 0, 0, true); // download MUST be forced - security!
     }
 
 	
-	  function can_manage_responsefiles() {
+	 function can_manage_responsefiles() {
         if (has_capability('mod/assignment:grade', $this->context)) {
             return true;
         } else {
@@ -639,13 +683,29 @@ class assignment_poodllonline extends assignment_base {
         if (!$submission = $this->get_submission($userid)) {
             return '';
         }
-        		  
+		
+		
+		if($this->assignment->var3==OM_REPLYTEXTONLY){
+			$showtext =shorten_text(trim(strip_tags(format_text($submission->data1,FORMAT_HTML))), 15);
+				   
+			$link = new moodle_url("/mod/assignment/type/poodllonline/file.php?id={$this->cm->id}&userid={$submission->userid}");
+			$action = new popup_action('click', $link, 'file'.$userid, array('height' => 450, 'width' => 580));
+			$showtext = $OUTPUT->action_link($link, $showtext, $action, array('title'=>get_string('submission', 'assignment')));
+            $showtext=  '<img src="'.$OUTPUT->pix_url('f/html') . '" class="icon" alt="html" />'. $showtext ;
+		
+		}else{
+		
+			$showtext = $this->fetchResponses($this->context->id,$submission->id,$this->assignment->var3,$submission->data1,$submission->data2, true, false);
+		
+		}
+
+	/*   		  
 		//Output user input Audio and Text, depending on assignment type.
 		switch($this->assignment->var3){
 			
 			case OM_REPLYVOICEONLY:
 				if (!empty($submission->data2)){ 
-							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+							$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2 . '?forcedownload=1';								
 							$showtext = format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http,embed=true}', FORMAT_HTML);
 				}else{
 					$showtext= "No Audio Found.";
@@ -654,7 +714,7 @@ class assignment_poodllonline extends assignment_base {
 
 			case OM_REPLYVIDEOONLY:
 				if (!empty($submission->data2)){ 
-					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2 . '?forcedownload=1';								
 					$showtext = format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 				}else{
 					$showtext= "No Video Found.";
@@ -663,7 +723,7 @@ class assignment_poodllonline extends assignment_base {
 			
 			case OM_REPLYVOICETHENTEXT:	
 				if (!empty($submission->data2)){ 					
-					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2 . '?forcedownload=1';								
 					$showtext = format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 
 				}else{
@@ -684,17 +744,14 @@ class assignment_poodllonline extends assignment_base {
 				   
 				   $link = new moodle_url("/mod/assignment/type/poodllonline/file.php?id={$this->cm->id}&userid={$submission->userid}");
 					$action = new popup_action('click', $link, 'file'.$userid, array('height' => 450, 'width' => 580));
-				$popup = $OUTPUT->action_link($link, $showtext, $action, array('title'=>get_string('submission', 'assignment')));
+				$showtext = $OUTPUT->action_link($link, $showtext, $action, array('title'=>get_string('submission', 'assignment')));
 
-				$output = '<div class="files">'.
-                  '<img src="'.$OUTPUT->pix_url('f/html') . '" class="icon" alt="html" />'.
-                  $popup .
-                  '</div>';
-				  return $output;
+                 $showtext=  '<img src="'.$OUTPUT->pix_url('f/html') . '" class="icon" alt="html" />'. $popup ;
+                 
 		}				  
 				  
-	
-		
+	*/
+
 
 		// we use this in place of popup if you want to show little play links, have to do some javascript fixing though
 		$output = '<div class="files">';
@@ -714,7 +771,8 @@ class assignment_poodllonline extends assignment_base {
             return $returnString;
         }
 
-
+		$returnstring = $this->fetchResponses($this->context->id,$submission->id,$this->assignment->var3,$submission->data1,$submission->data2, true, true);
+     /*  
      
 		//Output user input Audio and Text, depending on assignment type.
 		switch($this->assignment->var3){
@@ -722,7 +780,7 @@ class assignment_poodllonline extends assignment_base {
 			case OM_REPLYVOICEONLY:
 				if (!empty($submission->data2)){ 
 				
-				$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+				$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2 . '?forcedownload=1';								
 			//	 echo $OUTPUT->box_start('generalbox boxaligncenter', 'online');
 				$returnString = format_text('{POODLL:type=audio,path='. $mediapath .',protocol=http}', FORMAT_HTML);
 			//	echo $OUTPUT->box_end();
@@ -736,7 +794,7 @@ class assignment_poodllonline extends assignment_base {
 
 			case OM_REPLYVIDEOONLY:
 				if (!empty($submission->data2)){ 
-					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2 . '?forcedownload=1';								
 					$returnString =  format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 				}else{
 					$returnString =   "No Video Found.";
@@ -745,7 +803,7 @@ class assignment_poodllonline extends assignment_base {
 			
 			case OM_REPLYVOICETHENTEXT:	
 				if (!empty($submission->data2)){ 
-					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2 . '?forcedownload=1';								
 					$returnString =  format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 
 				/// Decide what to count
@@ -765,7 +823,7 @@ class assignment_poodllonline extends assignment_base {
 				break;
 			case OM_REPLYVIDEOTHENTEXT:	
 				if (!empty($submission->data2)){ 
-					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2;								
+					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$this->context->id.'/mod_assignment/submission/'.$submission->id.'/'. $submission->data2 . '?forcedownload=1';								
 					$returnString = format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 
 				/// Decide what to count
@@ -798,10 +856,86 @@ class assignment_poodllonline extends assignment_base {
 				
 		}
 		//end of text and audio output switch
+		*/
 		
 		return $returnString;
 		
     }
+	
+	
+	function fetchResponses($contextid, $submissionid, $submissiontype, $submissiontext, $submissionfile,$checkfordata=false, $fromuserfiles=false){
+		global $CFG;
+		
+		$responsestring = "";
+		
+		//if this is a playback area, for teacher, show a string if no file
+		if ($checkfordata  && empty($submissionfile) && $submissiontype != OM_REPLYTEXTONLY){ 
+					$responsestring .= "Nothing to play";
+		}else{	
+			//check if we need media output
+			switch($submissiontype){
+							
+				case OM_REPLYVOICEONLY:
+						$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'. $contextid .'/mod_assignment/submission/'.$submissionid.'/'. $submissionfile . '?forcedownload=1';							
+						$responsestring .= format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
+						break;						
+					
+				case OM_REPLYVIDEOONLY:
+					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$contextid.'/mod_assignment/submission/'.$submissionid.'/'. $submissionfile . '?forcedownload=1';								
+					$responsestring .= format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);						
+					break;
+
+				
+				case OM_REPLYVOICETHENTEXT:						
+					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$contextid.'/mod_assignment/submission/'. $submissionid.'/'. $submissionfile . '?forcedownload=1';							
+					$responsestring .= format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
+					break;
+
+				case OM_REPLYVIDEOTHENTEXT:						
+					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$contextid.'/mod_assignment/submission/'. $submissionid.'/'. $submissionfile . '?forcedownload=1';								
+					$responsestring .= format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
+					break;
+				
+			}//end of switch
+		}//end of if (checkfordata ...) 
+		
+					
+		//check if we need text output	
+		switch($submissiontype){
+			case OM_REPLYVOICETHENTEXT:
+			case OM_REPLYVIDEOTHENTEXT:	
+				//add a clear line if we have text after audio or video player
+				if(empty($submissiontext)){
+					break;
+				}else{
+					$responsestring .= "<br />";
+				}
+				
+			case OM_REPLYTEXTONLY:
+			default:	
+				//if we are coming from print user files we also print the word count.
+				if($fromuserfiles){
+						/// Decide what to count
+						if ($CFG->assignment_itemstocount == ASSIGNMENT_COUNT_WORDS) {
+							$responsestring .= ' ('.get_string('numwords', '', count_words(format_text($submissiontext, FORMAT_HTML))).')';
+						} else if ($CFG->assignment_itemstocount == ASSIGNMENT_COUNT_LETTERS) {
+							$responsestring .= ' ('.get_string('numletters', '', count_letters(format_text($submissiontext, FORMAT_HTML))).')';
+						}
+				}
+			
+					//finally we print the text response
+					$responsestring .= format_text($submissiontext, FORMAT_HTML);
+
+			
+				
+		}//end of switch
+
+		
+		return $responsestring;
+		
+	}//end of fetchResponses
+	
+
 	
 	/*
 	*	Here we print out to pdf
@@ -864,7 +998,7 @@ class assignment_poodllonline extends assignment_base {
 		$qoptions[OM_REPLYTEXTONLY] = get_string('replytextonly', 'assignment_poodllonline');
 		$qoptions[OM_REPLYVOICEONLY] = get_string('replyvoiceonly', 'assignment_poodllonline');
 		$qoptions[OM_REPLYVIDEOONLY] = get_string('replyvideoonly', 'assignment_poodllonline');
-		//We may re-enable these in the future. But for PoodLL 2.0 they are on hold Justin 20120208
+		//We may re-enable these in the future. But for now in PoodLL 2.0 they are on hold Justin 20120208
 		//$qoptions[OM_REPLYVOICETHENTEXT] = get_string('replyvoicethentext', 'assignment_poodllonline');
 		//$qoptions[OM_REPLYVIDEOTHENTEXT] = get_string('replyvideothentext', 'assignment_poodllonline');           
 		//$qoptions[OM_REPLYTALKBACK] = get_string('replytalkback', 'assignment_poodllonline');
@@ -937,31 +1071,47 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
         $mform =& $this->_form;
 		
 				//Do we need audio or text? or both?
-				//the customdata is info we passed in up around line 53 in the view method.
+				//the customdata is info we passed in up around line 175 in the view method.
 				switch($this->_customdata['assignment']->var3){
 					
 					case OM_REPLYVOICEONLY:
 						//$mediadata= fetchSimpleAudioRecorder('onlinemedia' . $this->_customdata['cm']->id , $USER->id);
 						$mediadata= fetchSimpleAudioRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
+						
 						//Add the PoodllAudio recorder. Theparams are the def filename and the DOM id of the filename html field to update
 						//$mform->addElement('static', 'description', get_string('voicerecorder', 'assignment_poodllonline'),$mediadata);
 						$mform->addElement('static', 'description', '',$mediadata);
 						//chosho recorder needs to know the id of the checkobox to set it.
 						//moodle uses unpredictable ids, so we make our own checkbox when we fetch chosho recorder
-						//$mform->addElement('checkbox', 'saveflvvoice', get_string('saverecording', 'assignment_poodllonline'));
-						//$mform->addRule('saveflvvoice', get_string('required'), 'required', null, 'client');
+						//$mform->addElement('checkbox', FILENAMECONTROL, get_string('saverecording', 'assignment_poodllonline'));
+						//$mform->addRule(FILENAMECONTROL, get_string('required'), 'required', null, 'client');
 						break;
 
 					case OM_REPLYVIDEOONLY:
-						//$mediadata= fetchSimpleVideoRecorder('onlinemedia' . $this->_customdata['cm']->id , $USER->id);	
-						$mediadata= fetchSimpleVideoRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);			
-						$mform->addElement('static', 'description', '',$mediadata);						
-						//Add the PoodllAudio recorder. Theparams are the def filename and the DOM id of the filename html field to update
-						//$mform->addElement('static', 'description', get_string('videorecorder', 'assignment_poodllonline'),$mediadata);
-						//recorder needs to know the id of the checkobox to set it.
-						//moodle uses unpredictable ids, so we make our own checkbox when we fetch chosho recorder
-						//$mform->addElement('checkbox', 'saveflvvoice', get_string('saverecording', 'assignment_poodllonline'));
-						//$mform->addRule('saveflvvoice', get_string('required'), 'required', null, 'client');
+						
+						//$mediadata= fetchSimpleVideoRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);	
+						
+						//if filenamecontrol is saveflvvoice the filter will add the form control
+						//the problem is that we set the fields value by ID from the widget but the mform only deals with name attribute
+						//$mform->addElement('hidden', FILENAMECONTROL, '');
+						$draftitemid = file_get_submitted_draft_itemid(FILENAMECONTROL);
+    					//file_prepare_draft_area($draftitemid, $contextid, $component, $filearea, $itemid, $options);
+    					//draftitemid should get updated(its a pointer) contextid component and filearea maybe should be submission?
+    					//whats context id? if we know submissionid we could pass it in
+						$contextid=$this->_customdata['editoroptions']['context']->id;
+						$submissionid=$this->_customdata['data']->sid;
+    					file_prepare_draft_area($draftitemid, $contextid, 'mod_assignment', 'submission', $submissionid, null,null);
+						
+						 // $draftid_editor = file_get_submitted_draft_itemid($field.'_filemanager');
+						//	file_prepare_draft_area($draftid_editor, $contextid, $component, $filearea, $itemid, $options);
+						//$data->{$field.'_filemanager'} = $draftid_editor;
+						
+						
+						$usercontextid=get_context_instance(CONTEXT_USER, $USER->id)->id;
+						$mediadata= fetchVideoRecorderForSubmission('swf','poodllonline',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid);
+						$mform->addElement('static', 'description', '',$mediadata);			
+						$mform->addElement('hidden', 'draftitemid', $draftitemid);
+						$mform->addElement('hidden', 'usercontextid', $usercontextid);						
 						break;
 					
 					case OM_REPLYVOICETHENTEXT:
@@ -971,8 +1121,8 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 							//$mediadata= fetchSimpleAudioRecorder('onlinemedia' . $this->_customdata['cm']->id , $USER->id);
 							$mediadata= fetchSimpleAudioRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
 							//moodle uses unpredictable ids, so we make our own checkbox when we fetch chosho recorder
-							//$mform->addElement('checkbox', 'saveflvvoice', get_string('saverecording', 'assignment_poodllonline'));
-							//$mform->addRule('saveflvvoice', get_string('required'), 'required', null, 'client');
+							//$mform->addElement('checkbox', FILENAMECONTROL, get_string('saverecording', 'assignment_poodllonline'));
+							//$mform->addRule(FILENAMECONTROL, get_string('required'), 'required', null, 'client');
 							$mform->addElement('static', 'description', '',$mediadata);
 							//$mform->addElement('static', 'description', get_string('voicerecorder', 'assignment_poodllonline'),$mediadata);
 							//we don't give option to write text, so break here
@@ -991,8 +1141,8 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 							//$mediadata= fetchSimpleVideoRecorder('onlinemedia' . $this->_customdata['cm']->id , $USER->id);
 							$mediadata= fetchSimpleVideoRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
 							//moodle uses unpredictable ids, so we make our own checkbox when we fetch video recorder
-							//$mform->addElement('checkbox', 'saveflvvoice', get_string('saverecording', 'assignment_poodllonline'));
-							//$mform->addRule('saveflvvoice', get_string('required'), 'required', null, 'client');
+							//$mform->addElement('checkbox', FILENAMECONTROL, get_string('saverecording', 'assignment_poodllonline'));
+							//$mform->addRule(FILENAMECONTROL, get_string('required'), 'required', null, 'client');
 							$mform->addElement('static', 'description', '',$mediadata);
 							//$mform->addElement('static', 'description', get_string('videorecorder', 'assignment_poodllonline'),$mediadata);
 							//we don't give option to write text, so break here							
@@ -1046,5 +1196,3 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 		$this->set_data($this->_customdata['data']);
     }
 }
-
-?>

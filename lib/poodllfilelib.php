@@ -13,8 +13,19 @@
 /**
 * Includes and requires
 */
+ob_start();
+global $CFG;
+
+//we need to do this, because when called from a widet, cfg is not set
+//but the relative path fails from a quiz but it has already been set in that case
+//, so we check before we call it, to cover both bases
+
+if(!$CFG){
 require_once("../config.php");
-require_once('../filter/poodll/poodllinit.php');
+}
+//require_once('../filter/poodll/poodllinit.php');
+require_once($CFG->dirroot . "/filter/poodll/poodllinit.php");
+
 //commented just while getting other mods working
 
 //added for moodle 2
@@ -142,21 +153,26 @@ require_once($CFG->libdir . '/filelib.php');
 			instance_download($paramone,$paramtwo,$hash,$requestid);
 			
 		case "instanceremotedownload":
-			header("Content-type: text/xml");
-			echo "<?xml version=\"1.0\"?>\n";
 			//($contextid,$filename,$component, $filearea,$itemid, $requestid)
 			//e.g (15, '123456789.flv','user','draft','746337947',777777)
 			$returnxml=instance_remotedownload($contextid, $paramone,$paramtwo,$paramthree,$itemid,$requestid);
+			
+			//move the output to here so that there is no trace of stray characters entering output before file downloaded
+			header("Content-type: text/xml");
+			echo "<?xml version=\"1.0\"?>";
+			
 			//$returnxml="<hello />";
 			//instance_remotedownload('930884190835059.flv','user','draft',746337947);
 			break;			
-		
+
 		default:
+			return;
+			/*
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
 			$returnxml="";
 			break;	
-		
+		*/
 
 	}
 
@@ -551,11 +567,15 @@ function instance_remotedownload($contextid,$filename,$component, $filearea,$ite
 global $CFG,$USER;
 //set up return object	
 //set up return object	
+
 $return=fetchReturnArray(true);
-	
+/*	
 $red5_fileurl= "http://" . $CFG->filter_poodll_servername . 
 						":443/poodll/download.jsp?poodllserverid=" . 
 						$CFG->filter_poodll_serverid . "&filename=" . $filename;
+						*/
+	$red5_fileurl= "http://" . $CFG->filter_poodll_servername . 
+						":443/poodll/" . $filename;
 
 						
 	//setup our file manipulators
@@ -586,26 +606,48 @@ $red5_fileurl= "http://" . $CFG->filter_poodll_servername .
 			//delete here ---
 		}
 		
+		//download options
+	$options = array();
+	$options['headers']=null;
+	$options['postdata']=null;
+	$options['fullresponse']=false;
+	$options['timeout']=300;
+	$options['connecttimeout']=20;
+	$options['skipcertverify']=false;
+	$options['calctimeout']=false;
+	
+		//clear the output buffer, otherwise strange characters can get in to our file
+		//seems to have no effect though ...
+		while (ob_get_level()) {
+                        ob_end_clean();
+                } 
+
 		//actually copy over the file from remote server
-		if(!$fs->create_file_from_url($file_record, $red5_fileurl)){
+		if(!$fs->create_file_from_url($file_record, $red5_fileurl,$options, false)){
+		//	echo "boo:" . $red5_fileurl;
 			$return['success']=false;
 			array_push($return['messages'],"Unable to create file from url." );
 		}else{
+			// echo "yay:" . $red5_fileurl;
 				 //get a file object if successful
 				 $thecontext = get_context_instance_by_id($contextid);
 				 $fileinfo = $browser->get_file_info($thecontext, $component,$filearea, $itemid, $filepath, $filename);
 			
 				//if we could get a fileinfo object, return the url of the object
 				 if($fileinfo){
-						$returnfilepath  = $fileinfo->get_url();
+						//$returnfilepath  = $fileinfo->get_url();
+						$returnfilepath = $filename;
 						array_push($return['messages'],$returnfilepath );
 				}else{
 					//if we couldn't get an url and it is a draft file, guess the URL
 					//<p><a href="http://m2.poodll.com/draftfile.php/5/user/draft/875191859/IMG_0594.MOV">IMG_0594.MOV</a></p>
 					if($filearea == 'draft'){
+						/*
 						$returnfilepath= $CFG->wwwroot. "/draftfile.php/" . $contextid . "/" 
 								. $component . "/" . $filearea 
 								. "/" . $itemid . "/" . $filename;
+								*/
+						$returnfilepath = $filename;		
 						array_push($return['messages'],$returnfilepath );
 					}else{
 						$return['success']=false;
@@ -614,12 +656,13 @@ $red5_fileurl= "http://" . $CFG->filter_poodll_servername .
 				}//end of if fileinfo
 		}//end of if could create_file_from_url
 		
-		
+
 		//we process the result for return to browser
 		$xml_output=prepareXMLReturn($return, $requestid);	
 		
 		//we return to browser the result of our file operation
 		return $xml_output;
+
 		
 }
 
@@ -1619,7 +1662,7 @@ function prepareXMLReturn($resultArray, $requestid){
 	
 	
 	//close off xml to return	
-	$xml_output .= "</result>\n";	
+	$xml_output .= "</result>";	
 	return $xml_output;
 }
 
@@ -1735,6 +1778,3 @@ function cmpDirnames($a, $b)
 {
     return strcasecmp(poodllBasename($a['dirfile']->get_filepath()), poodllBasename($b['dirfile']->get_filepath()));
 }
-
-	
-?>

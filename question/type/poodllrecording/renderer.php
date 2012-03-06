@@ -52,15 +52,6 @@ class qtype_poodllrecording_renderer extends qtype_renderer {
                     $step, $question->responsefieldlines, $options->context);
         }
 
-        $files = '';
-        if ($question->attachments) {
-            if (empty($options->readonly)) {
-                $files = $this->files_input($qa, $question->attachments, $options);
-
-            } else {
-                $files = $this->files_read_only($qa, $options);
-            }
-        }
 		
         $result = '';
         $result .= html_writer::tag('div', $question->format_questiontext($qa),
@@ -68,12 +59,13 @@ class qtype_poodllrecording_renderer extends qtype_renderer {
 
         $result .= html_writer::start_tag('div', array('class' => 'ablock'));
         $result .= html_writer::tag('div', $answer, array('class' => 'answer'));
-        $result .= html_writer::tag('div', $files, array('class' => 'attachments'));
         $result .= html_writer::end_tag('div');
 
         return $result;
     }
 
+	
+	
     /**
      * Displays any attached files when the question is in read-only mode.
      * @param question_attempt $qa the question attempt to display.
@@ -196,21 +188,29 @@ class qtype_poodllrecording_format_audio_renderer extends plugin_renderer_base {
                 
     }
     
-    
+  
+	
+
 
     public function response_area_read_only($name, $qa, $step, $lines, $context) {	
     		global $CFG;
    			//fetch file from storage and figure out URL
+			$pathtofile="";
     		$storedfiles=$qa->get_last_qt_files($name,$context->id);
     		foreach ($storedfiles as $sf){
     			$pathtofile=$qa->get_response_file_url($sf);
     			break;
     		}
-
+			
 			//$pathtofile= $this->prepare_response($name, $qa, $step, $context);
 			//return "path:" . $pathtofile ;
 			//return "path:" . $pathtofile . "<br />" . fetchSimpleAudioPlayer('swf',$pathtofile,"http",400,25);
-			return fetchSimpleAudioPlayer('swf',$pathtofile,"http",400,25);
+			if($pathtofile!=""){
+				 $files = fetchSimpleAudioPlayer('swf',$pathtofile,"http",400,25);
+			}else{
+				$files = "No recording found";
+			}
+			return $files;
     }
 
 
@@ -220,13 +220,15 @@ class qtype_poodllrecording_format_audio_renderer extends plugin_renderer_base {
     	
 		//prepare a draft file id for use
 		list($draftitemid, $response) = $this->prepare_response_for_editing( $name, $step, $context);
-
+		
 		//prepare the tags for our hidden( or shown ) input
 		$inputname = $qa->get_qt_field_name($name);
+		//$inputname="answer";
 		$inputid =  $inputname . '_id';
 		
 		//our answerfield
 		$ret =	html_writer::empty_tag('input', array('type' => 'hidden','id'=>$inputid, 'name' => $inputname));
+		//this is just for testing purposes so we can see the value the recorder is writing
 		//$ret = $this->textarea($step->get_qt_var($name), $lines, array('name' => $inputname,'id'=>$inputid));
 		
 		//our answerfield draft id key
@@ -237,7 +239,7 @@ class qtype_poodllrecording_format_audio_renderer extends plugin_renderer_base {
 	
 	
 		//the context id $context->id here is wrong, so we just use "5" because it works, why is it wrong ..? J 20120214
-		return $ret . fetchAudioRecorderForDraft('swf','question',$inputid, $usercontextid ,'user','draft',$draftitemid);
+		return $ret . fetchAudioRecorderForSubmission('swf','question',$inputid, $usercontextid ,'user','draft',$draftitemid);
 		return $ret;
     }
 }
@@ -292,7 +294,7 @@ class qtype_poodllrecording_format_video_renderer extends qtype_poodllrecording_
 
        
 		//the context id $context->id here is wrong, so we just use "5" because it works, why is it wrong ..? J 20120214
-		return $ret . fetchVideoRecorderForDraft('swf','question',$inputid, $usercontextid ,'user','draft',$draftitemid);
+		return $ret . fetchVideoRecorderForSubmission('swf','question',$inputid, $usercontextid ,'user','draft',$draftitemid);
 		return $ret;
 		
     }
@@ -330,5 +332,3 @@ class qtype_poodllrecording_format_picture_renderer extends qtype_poodllrecordin
                     'name' => $inputname . 'format', 'value' => FORMAT_PLAIN));
     }
 }
-
-

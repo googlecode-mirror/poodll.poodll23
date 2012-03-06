@@ -7,5 +7,3 @@
 
 $plugin->version   = 2010112400;
 $plugin->requires  = 2010112400;
-
-?>

@@ -31,5 +31,3 @@ function xmldb_assignment_type_poodllonline_upgrade($oldversion=0) {
 
     return $result;
 }
-
-?>

@@ -67,5 +67,3 @@
 } else {
     print_string('emptysubmission', 'assignment');
 }
-
-?>
