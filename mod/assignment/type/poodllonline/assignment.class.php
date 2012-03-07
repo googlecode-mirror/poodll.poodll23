@@ -872,29 +872,30 @@ class assignment_poodllonline extends assignment_base {
 		if ($checkfordata  && empty($submissionfile) && $submissiontype != OM_REPLYTEXTONLY){ 
 					$responsestring .= "Nothing to play";
 		}else{	
+			//The path to any media file we should play
+			//temporatily disable he pluginfile because of a bug
+			//$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$contextid.'/mod_assignment/submission/'.$submissionid.'/'. $submissionfile . '?forcedownload=1';								
+			$mediapath = $CFG->wwwroot.'/lib/poodllfilelib.php?datatype=poodllpluginfile&contextid='. $contextid .'&itemid='.$submissionid.'&paramone='. $submissionfile;							
+			$mediapath = urlencode($mediapath);
+		
 			//check if we need media output
 			switch($submissiontype){
 							
-				case OM_REPLYVOICEONLY:
-						$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'. $contextid .'/mod_assignment/submission/'.$submissionid.'/'. $submissionfile . '?forcedownload=1';							
+				case OM_REPLYVOICEONLY:					
 						$responsestring .= format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
 						break;						
 					
 				case OM_REPLYVIDEOONLY:
-					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$contextid.'/mod_assignment/submission/'.$submissionid.'/'. $submissionfile . '?forcedownload=1';								
-					$responsestring .= format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);						
-					break;
+						$responsestring .= format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);						
+						break;
 
-				
 				case OM_REPLYVOICETHENTEXT:						
-					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$contextid.'/mod_assignment/submission/'. $submissionid.'/'. $submissionfile . '?forcedownload=1';							
-					$responsestring .= format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
-					break;
+						$responsestring .= format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
+						break;
 
 				case OM_REPLYVIDEOTHENTEXT:						
-					$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$contextid.'/mod_assignment/submission/'. $submissionid.'/'. $submissionfile . '?forcedownload=1';								
-					$responsestring .= format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
-					break;
+						$responsestring .= format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
+						break;
 				
 			}//end of switch
 		}//end of if (checkfordata ...) 
@@ -1069,6 +1070,16 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 		global $USER;
 	
         $mform =& $this->_form;
+        
+        		$draftitemid = file_get_submitted_draft_itemid(FILENAMECONTROL);
+				$contextid=$this->_customdata['editoroptions']['context']->id;
+				$submissionid=$this->_customdata['data']->sid;
+    			file_prepare_draft_area($draftitemid, $contextid, 'mod_assignment', 'submission', $submissionid, null,null);
+				$usercontextid=get_context_instance(CONTEXT_USER, $USER->id)->id;
+		
+				$mform->addElement('hidden', 'draftitemid', $draftitemid);
+				$mform->addElement('hidden', 'usercontextid', $usercontextid);	
+		
 		
 				//Do we need audio or text? or both?
 				//the customdata is info we passed in up around line 175 in the view method.
@@ -1076,11 +1087,12 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 					
 					case OM_REPLYVOICEONLY:
 						//$mediadata= fetchSimpleAudioRecorder('onlinemedia' . $this->_customdata['cm']->id , $USER->id);
-						$mediadata= fetchSimpleAudioRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
-						
+						//$mediadata= fetchSimpleAudioRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
+						$mediadata= fetchAudioRecorderForSubmission('swf','poodllonline',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid);
+						$mform->addElement('static', 'description', '',$mediadata);
 						//Add the PoodllAudio recorder. Theparams are the def filename and the DOM id of the filename html field to update
 						//$mform->addElement('static', 'description', get_string('voicerecorder', 'assignment_poodllonline'),$mediadata);
-						$mform->addElement('static', 'description', '',$mediadata);
+						
 						//chosho recorder needs to know the id of the checkobox to set it.
 						//moodle uses unpredictable ids, so we make our own checkbox when we fetch chosho recorder
 						//$mform->addElement('checkbox', FILENAMECONTROL, get_string('saverecording', 'assignment_poodllonline'));
@@ -1094,36 +1106,34 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 						//if filenamecontrol is saveflvvoice the filter will add the form control
 						//the problem is that we set the fields value by ID from the widget but the mform only deals with name attribute
 						//$mform->addElement('hidden', FILENAMECONTROL, '');
-						$draftitemid = file_get_submitted_draft_itemid(FILENAMECONTROL);
+						
     					//file_prepare_draft_area($draftitemid, $contextid, $component, $filearea, $itemid, $options);
     					//draftitemid should get updated(its a pointer) contextid component and filearea maybe should be submission?
     					//whats context id? if we know submissionid we could pass it in
-						$contextid=$this->_customdata['editoroptions']['context']->id;
-						$submissionid=$this->_customdata['data']->sid;
-    					file_prepare_draft_area($draftitemid, $contextid, 'mod_assignment', 'submission', $submissionid, null,null);
-						
+    					
 						 // $draftid_editor = file_get_submitted_draft_itemid($field.'_filemanager');
 						//	file_prepare_draft_area($draftid_editor, $contextid, $component, $filearea, $itemid, $options);
 						//$data->{$field.'_filemanager'} = $draftid_editor;
 						
 						
-						$usercontextid=get_context_instance(CONTEXT_USER, $USER->id)->id;
+						
 						$mediadata= fetchVideoRecorderForSubmission('swf','poodllonline',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid);
 						$mform->addElement('static', 'description', '',$mediadata);			
-						$mform->addElement('hidden', 'draftitemid', $draftitemid);
-						$mform->addElement('hidden', 'usercontextid', $usercontextid);						
+											
 						break;
 					
 					case OM_REPLYVOICETHENTEXT:
 						//if we have no audio, we force user to make audio before text
-						if(empty($this->_customdata['mediapath'])){			
+						if(empty($this->_customdata['mediapath'])){	
+							$mediadata= fetchAudioRecorderForSubmission('swf','poodllonline',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid);
+							$mform->addElement('static', 'description', '',$mediadata);
 							//Add the PoodllAudio recorder. Theparams are the def filename and the DOM id of the filename html field to update
 							//$mediadata= fetchSimpleAudioRecorder('onlinemedia' . $this->_customdata['cm']->id , $USER->id);
-							$mediadata= fetchSimpleAudioRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
+							//$mediadata= fetchSimpleAudioRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
 							//moodle uses unpredictable ids, so we make our own checkbox when we fetch chosho recorder
 							//$mform->addElement('checkbox', FILENAMECONTROL, get_string('saverecording', 'assignment_poodllonline'));
 							//$mform->addRule(FILENAMECONTROL, get_string('required'), 'required', null, 'client');
-							$mform->addElement('static', 'description', '',$mediadata);
+							//$mform->addElement('static', 'description', '',$mediadata);
 							//$mform->addElement('static', 'description', get_string('voicerecorder', 'assignment_poodllonline'),$mediadata);
 							//we don't give option to write text, so break here
 						}else{
@@ -1136,14 +1146,17 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 
 					case OM_REPLYVIDEOTHENTEXT:
 						//if we have no video, we force user to make video before text
-						if(empty($this->_customdata['mediapath'])){			
+						if(empty($this->_customdata['mediapath'])){	
+							$mediadata= fetchVideoRecorderForSubmission('swf','poodllonline',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid);
+							$mform->addElement('static', 'description', '',$mediadata);	
+						
 							//Add the Video recorder. Theparams are the def filename and the DOM id of the filename html field to update
 							//$mediadata= fetchSimpleVideoRecorder('onlinemedia' . $this->_customdata['cm']->id , $USER->id);
-							$mediadata= fetchSimpleVideoRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
+							//$mediadata= fetchSimpleVideoRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
 							//moodle uses unpredictable ids, so we make our own checkbox when we fetch video recorder
 							//$mform->addElement('checkbox', FILENAMECONTROL, get_string('saverecording', 'assignment_poodllonline'));
 							//$mform->addRule(FILENAMECONTROL, get_string('required'), 'required', null, 'client');
-							$mform->addElement('static', 'description', '',$mediadata);
+							//$mform->addElement('static', 'description', '',$mediadata);
 							//$mform->addElement('static', 'description', get_string('videorecorder', 'assignment_poodllonline'),$mediadata);
 							//we don't give option to write text, so break here							
 						}else{

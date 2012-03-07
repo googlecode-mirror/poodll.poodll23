@@ -13,7 +13,7 @@
 /**
 * Includes and requires
 */
-ob_start();
+//ob_start();
 global $CFG;
 
 //we need to do this, because when called from a widet, cfg is not set
@@ -44,6 +44,12 @@ require_once($CFG->libdir . '/filelib.php');
 
 	switch($datatype){
 		
+		case "poodllpluginfile":
+			//poodllpluginfile($contextid,$component,$filearea,$itemid,$filepath,$filename);
+			//lets hard code this for now, very very mild security
+			poodllpluginfile($contextid,"mod_assignment","submission",$itemid,"/",$paramone);
+			return;
+	
 		case "getlast20files":
 			header("Content-type: text/html");
 			$returnxml="";
@@ -561,6 +567,38 @@ function instance_deleteall($moduleid, $courseid, $filearea, $requestid){
 
 }
 */
+
+/*
+* This function is a simple replacement for pluginfile.php when called from assignemnets
+* There is whitespace, newline chars, added at present(20120306) so need to bypass
+*
+*/
+function poodllpluginfile($contextid,$component,$filearea,$itemid,$filepath,$filename){
+	
+	$fs = get_file_storage();
+	$br = get_file_browser();
+	$f = $fs->get_file($contextid, $component, $filearea, $itemid, $filepath, $filename);
+	
+	//if no file we just quit.
+	if(!$f){return;}
+	
+	//get permission info for this file: but it doesn't work oh no.....another moodle bug?
+	/*
+	$thecontext = get_context_instance_by_id($contextid);
+	$fileinfo = $br->get_file_info($thecontext, $component,$filearea, $itemid, $filepath, $filename);	
+
+	//if we don't have permission to read, exit
+	if(!$fileinfo || !$fileinfo->is_readable()){echo "crap"; return;}
+		*/
+	
+	//send_stored_file also works: but we are using send file, for no reason really
+	//send_stored_file($f, 0, 0, true); // download MUST be forced - security!
+	
+	$fcontent = $f->get_content();
+	send_file($fcontent, $filename, 0, 0, true, true, "video/x-flv");
+	return;
+}
+
 /* download file from remote server and stash it in our file area */
 //15,'123456789.flv','user','draft','746337947','99999'
 function instance_remotedownload($contextid,$filename,$component, $filearea,$itemid, $requestid){
