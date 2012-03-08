@@ -245,7 +245,7 @@ class assignment_poodllonline extends assignment_base {
 					 echo $OUTPUT->box_start('generalbox boxaligncenter', 'mysubmission');
 					 //print_simple_box_start('center', '50%', '', 0, 'generalbox', 'mysubmission');
 					  
-				echo $this->fetchResponses($this->context->id,$submission->id,$this->assignment->var3,$submission->data1,$submission->data2);
+				echo $this->fetchResponses($this->context->id,$submission->id,$this->assignment->var3,$submission->data1,$submission->data2,false,false,false);
 				/*
 				//check if we need media output
 					switch($this->assignment->var3){
@@ -304,7 +304,7 @@ class assignment_poodllonline extends assignment_base {
 					echo $OUTPUT->box_start('generalbox boxaligncenter', 'mysubmission');
 					//print_simple_box_start('center', '50%', '', 0, 'generalbox', 'mysubmission');
 					
-					echo $this->fetchResponses($this->context->id,$submission->id,$this->assignment->var3,$submission->data1,$submission->data2);
+					echo $this->fetchResponses($this->context->id,$submission->id,$this->assignment->var3,$submission->data1,$submission->data2,false,false,false);
 					
 					/*
 					switch($this->assignment->var3){
@@ -695,7 +695,7 @@ class assignment_poodllonline extends assignment_base {
 		
 		}else{
 		
-			$showtext = $this->fetchResponses($this->context->id,$submission->id,$this->assignment->var3,$submission->data1,$submission->data2, true, false);
+			$showtext = $this->fetchResponses($this->context->id,$submission->id,$this->assignment->var3,$submission->data1,$submission->data2, true, true,false);
 		
 		}
 
@@ -761,17 +761,24 @@ class assignment_poodllonline extends assignment_base {
 	
     }
 	
-	
-	
-
     function print_user_files($userid, $return=false) {
-        global $CFG, $OUTPUT;
-		$returnString="";
-        if (!$submission = $this->get_submission($userid)) {
+        global $CFG, $OUTPUT, $USER, $DB;
+		
+		$returnString="No User Files";
+
+        if (!$userid) {
+            if (!isloggedin()) {
+                return $returnString;
+            }
+            $userid = $USER->id;
+        }
+
+		$submission = $this->get_submission($userid);		
+        if (!$submission) {
             return $returnString;
         }
 
-		$returnstring = $this->fetchResponses($this->context->id,$submission->id,$this->assignment->var3,$submission->data1,$submission->data2, true, true);
+		$returnString = $this->fetchResponses($this->context->id,$submission->id,$this->assignment->var3,$submission->data1,$submission->data2, true, false,true);
      /*  
      
 		//Output user input Audio and Text, depending on assignment type.
@@ -861,12 +868,27 @@ class assignment_poodllonline extends assignment_base {
 		return $returnString;
 		
     }
-	
-	
-	function fetchResponses($contextid, $submissionid, $submissiontype, $submissiontext, $submissionfile,$checkfordata=false, $fromuserfiles=false){
+	/*
+	* Fetch the player to show the submitted recording(s)
+	*
+	*
+	*
+	*/
+	function fetchResponses($contextid, $submissionid, $submissiontype, $submissiontext, $submissionfile,$checkfordata=false, $embed=false,$countwords=false){
 		global $CFG;
 		
 		$responsestring = "";
+		
+		//if we are showing a list of files we want to use text links not players
+		//a whole page of players will crash a browser.
+		if($embed){
+			$embed = 'true';
+			$embedstring = get_string('clicktoplay', 'assignment_poodllonline');
+		}else{
+			$embedstring = 'clicktoplay';
+			$embed='false';
+		}
+		
 		
 		//if this is a playback area, for teacher, show a string if no file
 		if ($checkfordata  && empty($submissionfile) && $submissiontype != OM_REPLYTEXTONLY){ 
@@ -882,7 +904,7 @@ class assignment_poodllonline extends assignment_base {
 			switch($submissiontype){
 							
 				case OM_REPLYVOICEONLY:					
-						$responsestring .= format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http}', FORMAT_HTML);
+						$responsestring .= format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http,embed=' . $embed . ',embedstring='. $embedstring .'}', FORMAT_HTML);
 						break;						
 					
 				case OM_REPLYVIDEOONLY:
@@ -903,6 +925,10 @@ class assignment_poodllonline extends assignment_base {
 					
 		//check if we need text output	
 		switch($submissiontype){
+			case OM_REPLYVIDEOONLY:
+			case OM_REPLYVOICEONLY:
+				break;
+		
 			case OM_REPLYVOICETHENTEXT:
 			case OM_REPLYVIDEOTHENTEXT:	
 				//add a clear line if we have text after audio or video player
@@ -915,7 +941,7 @@ class assignment_poodllonline extends assignment_base {
 			case OM_REPLYTEXTONLY:
 			default:	
 				//if we are coming from print user files we also print the word count.
-				if($fromuserfiles){
+				if($countwords){
 						/// Decide what to count
 						if ($CFG->assignment_itemstocount == ASSIGNMENT_COUNT_WORDS) {
 							$responsestring .= ' ('.get_string('numwords', '', count_words(format_text($submissiontext, FORMAT_HTML))).')';

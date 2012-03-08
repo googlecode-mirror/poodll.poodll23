@@ -607,13 +607,13 @@ global $CFG,$USER;
 //set up return object	
 
 $return=fetchReturnArray(true);
-/*	
+
 $red5_fileurl= "http://" . $CFG->filter_poodll_servername . 
 						":443/poodll/download.jsp?poodllserverid=" . 
-						$CFG->filter_poodll_serverid . "&filename=" . $filename;
-						*/
-	$red5_fileurl= "http://" . $CFG->filter_poodll_servername . 
-						":443/poodll/" . $filename;
+						$CFG->filter_poodll_serverid . "&filename=" . $filename . "&caller=" . urlencode($CFG->wwwroot);
+					
+//	$red5_fileurl= "http://" . $CFG->filter_poodll_servername . 
+//						":443/poodll/" . $filename;
 
 						
 	//setup our file manipulators

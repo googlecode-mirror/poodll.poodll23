@@ -21,3 +21,4 @@ $string['feedbacktextvideo'] = 'Text or Video';
 $string['feedbacktype'] = 'Feedback Type';
 $string['replytalkback'] = 'Voice via Talkback Widget';
 $string['printthissubmission'] = 'Print Out';
+$string['clicktoplay'] = 'Click to Play';
