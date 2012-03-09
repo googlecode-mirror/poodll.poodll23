@@ -17,9 +17,10 @@
 // The commands in here will all be database-neutral,
 // using the functions defined in lib/ddllib.php
 
-function xmldb_assignment_type_poodllonline_upgrade($oldversion=0) {
+function xmldb_assignment_poodllonline_upgrade($oldversion=0) {
 
-    global $CFG, $THEME;
+    /*
+	global $CFG, $THEME;
 	$dbman = $DB->get_manager();
 	
     if ($oldversion < 2010030312) {
@@ -27,7 +28,7 @@ function xmldb_assignment_type_poodllonline_upgrade($oldversion=0) {
         $sql= "ALTER TABLE {assignment_submissions} ADD poodllfeedback TEXT";
 		$result = $DB->execute_sql($sql);
     }
+*/
 
-
-    return $result;
+    return true;
 }
