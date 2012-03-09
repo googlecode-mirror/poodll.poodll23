@@ -64,7 +64,7 @@ class repository_poodll extends repository {
         $search->id   = 'filename';
         $search->name = 's';
 		//$search->label = '<object data="' .$CFG->wwwroot . '/repository/poodll/recorder.php?repo_id=' . $this->id . '" style="height: 400px; width: 640px; border: 0; overflow: hidden;"  id="poodll-embed" ></object>';
-		$search->label = "<iframe scrolling=\"no\" frameBorder=\"0\" src=\"{$CFG->wwwroot}/repository/poodll/recorder.php?repo_id={$this->id}\" height=\"350\" width=\"640\"></iframe>"; 
+		$search->label = "<iframe scrolling=\"no\" frameBorder=\"0\" src=\"{$CFG->wwwroot}/repository/poodll/recorder.php?repo_id={$this->id}\" height=\"350\" width=\"450\"></iframe>"; 
 		//$search->label = "hi";
 
 
@@ -184,15 +184,20 @@ class repository_poodll extends repository {
 		global $CFG;
 	
         $list = array();
+		
+		//if user did not record anything, or the recording copy failed can out sadly.
+		if(!$filename){return $list;}
+		
         $source="http://" . $CFG->filter_poodll_servername . 
 						":443/poodll/download.jsp?poodllserverid=" . 
 						$CFG->filter_poodll_serverid . "&filename=" . $filename . "&caller=" . urlencode($CFG->wwwroot);
+						
 
             $list[] = array(
                 'title'=>$filename,
                 'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/bigicon.png",
-                'thumbnail_width'=>400,
-                'thumbnail_height'=>400,
+                'thumbnail_width'=>440,
+                'thumbnail_height'=>180,
                 'size'=>'',
                 'date'=>'',
                 'source'=>$source
