@@ -19,15 +19,13 @@
  *
  * @package    qtype
  * @subpackage poodllrecording
- * @copyright  2005 Mark Nielsen
+ * @copyright  2012 Justin Hunt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'qtype_poodllrecording';
-$plugin->version   = 2011102700;
-
-$plugin->requires  = 2011102700;
-
+$plugin->version   = 2012030900;
+$plugin->requires  = 2011070100.00 ;
 $plugin->maturity  = MATURITY_STABLE;

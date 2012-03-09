@@ -15,17 +15,16 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
+ * Media filter
  *
- * @package    repository
- * @subpackage upload
- * @copyright  2012 Justin hunt
- * @author     Justin Hunt <bitwalkerjapan@gmail.com>
+ * @package    filter
+ * @subpackage poodllonline
+ * @copyright  2012 Justin Hunt bitwalkerjapan@gmail.com
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2012030801;        // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2011070100.00;          // Requires this Moodle version
-$plugin->component = 'repository_poodll'; // Full name of the plugin (used for diagnostics)
+$plugin->version   = 2012030901;        // The current plugin version (Date: YYYYMMDDXX)
+$plugin->requires  = 2011070100.00;        // Requires this Moodle version
+$plugin->component = 'filter_poodll'; // Full name of the plugin (used for diagnostics)

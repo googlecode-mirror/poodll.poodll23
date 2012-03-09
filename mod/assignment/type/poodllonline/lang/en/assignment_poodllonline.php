@@ -1,7 +1,8 @@
 <?PHP // $Id: assignment.php,v 1.14.2.11 2008/02/27 05:05:01 moodler Exp $ 
       // assignment.php - created with Moodle 1.7 beta + (2006101003)
 
-$string['typepoodllonline'] = 'PoodLL Online (with media)';
+$string['pluginname'] = 'PoodLL Online';
+$string['typepoodllonline'] = 'PoodLL Online';
 $string['poodllresourcename'] = 'PoodLL Resource Name';
 $string['nopoodllresource'] = '--- Select PoodLL Resource ---';
 $string['onlinemediasettings'] = 'Online (with media) Settings';
