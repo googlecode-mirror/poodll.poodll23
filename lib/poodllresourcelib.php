@@ -1072,8 +1072,10 @@ $params = array();
 }
 
 //Audio playltest player with defaults, for use with directories of audio files
-function fetchAudioTestPlayer($runtime, $playlist, $protocol="", $width="400",$height="150"){
+function fetchAudioTestPlayer($runtime, $playlist,$protocol="", $width="400",$height="150"){
 global $CFG, $USER, $COURSE;
+
+$moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current module (eg moodleurl/view.php?id=X )
 
 //Set our servername .
 $flvserver = $CFG->poodll_media_server;
@@ -1085,9 +1087,12 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 	$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $playlist;
 }else{
 	//get the url to the automated medialist maker
-	$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllaudiolist&courseid=' . $COURSE->id 
+	$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllaudiolist'
+		. '&courseid=' . $COURSE->id
+		. '&moduleid=' . $moduleid
 		. '&paramone=' . $playlist 
 		. '&paramtwo=' . $protocol 
+		. '&paramthree=' . $filearea
 		. '&cachekiller=' . rand(10000,999999);
 }
 

@@ -361,7 +361,6 @@ function fetch_course_menu($courseid){
 function fetch_poodllmedialist($moduleid, $courseid, $path="/", $playertype, $filearea){
 global $CFG, $DB;	
 
-
 	
 	//FIlter could submit submission/draft/content/intro as options here
 	if($filearea == "") {$filearea ="content";}
@@ -518,6 +517,15 @@ global $CFG, $DB, $COURSE;
 	*/
 
 	//==================================================================
+	
+	//if a single file was passed in, just play that alone.
+	//for PoodlL 2 this is all we can do in a question right now
+	if(strlen($path) > 4 && substr($path,-4)==".flv"){
+		$xml_output = "<audios>\n";
+		$xml_output .=  "\t<audio audioname='" . basename($path) ."' playertype='" . $playertype . "' url='" . trim($path) . "'/>\n";
+		$xml_output .= "</audios>\n";
+		return $xml_output;
+	}
 
 
 	
