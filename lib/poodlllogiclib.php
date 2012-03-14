@@ -375,7 +375,7 @@ global $CFG, $DB;
 		if(substr($path,-1) !='/'){
 			$path .= "/";
 		}
-		if(substr($path,1) !='/'){
+		if(substr($path,0,1) !='/'){
 			$path = "/" . $path;
 		}
 	}else{
@@ -542,12 +542,13 @@ global $CFG, $DB, $COURSE;
 		if(substr($path,-1) !='/'){
 			$path .= "/";
 		}
-		if(substr($path,1) !='/'){
+		if(substr($path,0,1) !='/'){
 			$path = "/" . $path;
 		}
 	}else{
 		$path = "/";
 	}
+	
 
 	//set up xml to return	
 	$xml_output = "<audios>\n";
@@ -574,7 +575,7 @@ global $CFG, $DB, $COURSE;
 					if($ext==".mp3" || $ext==".mp4" || $ext==".flv"){
 						//fetch our info object
 						$fileinfo = $browser->get_file_info($thiscontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
-						
+
 						//if we are at the dir level
 						if($f->get_filepath()==$path){
 							//get the url to the file and add it to the XML
