@@ -17,7 +17,7 @@ if(empty($repo)) {
 // we output a simple HTML page with the poodll recorder code in it
 //$PAGE->set_generaltype('popup');
 $PAGE->set_context(get_context_instance(CONTEXT_USER, $USER->id));
-$PAGE->set_url($CFG->dirroot.'/repository/poodll/record.php', array('repo_id' => $repo_id));
+$PAGE->set_url($CFG->wwwroot.'/repository/poodll/record.php', array('repo_id' => $repo_id));
 //print_header(null, get_string('recordnew', 'repository_poodll'),null, null, null, false);
 ?>
 
