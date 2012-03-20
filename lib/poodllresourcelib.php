@@ -22,10 +22,10 @@ define('MR_TYPETALKBACK',2);
 require_once($CFG->dirroot . '/filter/poodll/poodllinit.php');
 require_once($CFG->dirroot . '/filter/poodll/Browser.php');
 global $PAGE;
-$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/swfobject.js'));
-$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/javascript.php'));
-//require_js ($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/swfobject.js');
-//require_js ($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/javascript.php');
+//$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/swfobject.js'));
+//$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/javascript.php'));
+$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/swfobject.js'));
+$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/javascript.php'));
 
 //added for moodle 2
 require_once($CFG->libdir . '/filelib.php');
@@ -1351,7 +1351,7 @@ $courseid= $COURSE->id;
         $type = 'http';
 	}
 	
-	//If we want to avoid loading 20 players on the screen, we use this script
+	//If we want to avoid loading multiple players on the screen, we use this script
 	//to load players ondemand
 	//this does screw up updating the entry on the page,
 	//which is seen after marking a single audio/vide assignment and returning to the list
