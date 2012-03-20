@@ -20,7 +20,7 @@
  * @since      2.0
  * @package    qtype
  * @subpackage poodllrecording
- * @copyright  Dongsheng Cai <dongsheng@moodle.com>
+ * @copyright  2012 Justin Hunt 
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

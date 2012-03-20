@@ -19,7 +19,7 @@
  *
  * @package    qtype
  * @subpackage poodllrecording
- * @copyright  2009 The Open University
+ * @copyright  2012 Justin Hunt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,16 +28,14 @@ defined('MOODLE_INTERNAL') || die();
 
 
 /**
- * Represents an poodllrecording question.
+ * Represents a poodllrecording question.
  *
- * @copyright  2009 The Open University
+ * @copyright  2012 Justin Hunt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_poodllrecording_question extends question_with_responses {
     public $responseformat;
-    public $responsefieldlines;
-    public $attachments;
-    public $graderinfo;
+	public $graderinfo;
     public $graderinfoformat;
 
     public function make_behaviour(question_attempt $qa, $preferredbehaviour) {
@@ -52,18 +50,16 @@ class qtype_poodllrecording_question extends question_with_responses {
     public function get_format_renderer(moodle_page $page) {
         return $page->get_renderer('qtype_poodllrecording', 'format_' . $this->responseformat);
     }
-
+	
+	/**
+	*	This tells Moodle what fields to expect, in particular it tells it 
+	*   to look for uploaded file URLs in the answer field
+	*/
     public function get_expected_data() {
 
-			//use question_attempt::PARAM_CLEANHTML_FILES when dealing with actual file
-           //$expecteddata = array('answer' => PARAM_CLEANHTML);
 			$expecteddata = array('answer' => question_attempt::PARAM_CLEANHTML_FILES);
-			//$expecteddata = array('answer' => question_attempt::PARAM_FILES);
-      
-        $expecteddata['answerformat'] = PARAM_FORMAT;
-        if ($this->attachments != 0) {
-            $expecteddata['attachments'] = question_attempt::PARAM_FILES;
-        }
+			$expecteddata['answerformat'] = PARAM_FORMAT;
+
         return $expecteddata;
     }
 
@@ -96,23 +92,18 @@ class qtype_poodllrecording_question extends question_with_responses {
 
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
      	//print_object($qa);
-        if ($component == 'question' && $filearea == 'response_attachments') {
-            // Response attachments visible if the question has them.
-            return $this->attachments != 0;
-
-        } else if ($component == 'question' && $filearea == 'response_answer') {
-            // Response attachments visible if the question has them.
-           // return $this->responseformat === 'editorfilepicker';
-		   //since we will put files in attached area, this is likely to be always true.
+        if ($component == 'question' && $filearea == 'response_answer') {
+		   //since we will put files in respnse_answer, this is likely to be always true.
 		   return true;
 		 
-
+			
         } else if ($component == 'qtype_poodllrecording' && $filearea == 'graderinfo') {
             return $options->manualcomment;
-
+			
         } else {
             return parent::check_file_access($qa, $options, $component,
                     $filearea, $args, $forcedownload);
+					
         }
     }
 }

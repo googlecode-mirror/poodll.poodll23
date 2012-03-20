@@ -31,7 +31,7 @@ require_once($CFG->libdir . '/poodllfilelib.php');
 /**
  * Generates the output for poodllrecording questions.
  *
- * @copyright  2009 The Open University
+ * @copyright  Justin Hunt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_poodllrecording_renderer extends qtype_renderer {
@@ -45,11 +45,11 @@ class qtype_poodllrecording_renderer extends qtype_renderer {
         $step = $qa->get_last_step_with_qt_var('answer');
         if (empty($options->readonly)) {
             $answer = $responseoutput->response_area_input('answer', $qa,
-                    $step, $question->responsefieldlines, $options->context);
+                    $step, 1, $options->context);
 
         } else {
             $answer = $responseoutput->response_area_read_only('answer', $qa,
-                    $step, $question->responsefieldlines, $options->context);
+                    $step, 1, $options->context);
         }
 
 		
@@ -64,26 +64,6 @@ class qtype_poodllrecording_renderer extends qtype_renderer {
         return $result;
     }
 
-	
-	
-    /**
-     * Displays any attached files when the question is in read-only mode.
-     * @param question_attempt $qa the question attempt to display.
-     * @param question_display_options $options controls what should and should
-     *      not be displayed. Used to get the context.
-     */
-    public function files_read_only(question_attempt $qa, question_display_options $options) {
-        $files = $qa->get_last_qt_files('attachments', $options->context->id);
-        $output = array();
-
-        foreach ($files as $file) {
-            $mimetype = $file->get_mimetype();
-            $output[] = html_writer::tag('p', html_writer::link($qa->get_response_file_url($file),
-                    $this->output->pix_icon(file_mimetype_icon($mimetype), $mimetype,
-                    'moodle', array('class' => 'icon')) . ' ' . s($file->get_filename())));
-        }
-        return implode($output);
-    }
 
   
     public function manual_comment(question_attempt $qa, question_display_options $options) {
@@ -103,12 +83,12 @@ class qtype_poodllrecording_renderer extends qtype_renderer {
  * A base class to abstract out the differences between different type of
  * response format.
  *
- * @copyright  2011 The Open University
+ * @copyright  2012 Justin Hunt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class qtype_poodllrecording_format_renderer_base extends plugin_renderer_base {
     /**
-     * Render the students respone when the question is in read-only mode.
+     * Render the students response when the question is in read-only mode.
      * @param string $name the variable name this input edits.
      * @param question_attempt $qa the question attempt being display.
      * @param question_attempt_step $step the current step.
@@ -120,7 +100,7 @@ abstract class qtype_poodllrecording_format_renderer_base extends plugin_rendere
             question_attempt_step $step, $lines, $context);
 
     /**
-     * Render the students respone when the question is in read-only mode.
+     * Render the students input area: ie show a recorder
      * @param string $name the variable name this input edits.
      * @param question_attempt $qa the question attempt being display.
      * @param question_attempt_step $step the current step.
@@ -141,7 +121,7 @@ abstract class qtype_poodllrecording_format_renderer_base extends plugin_rendere
 /**
  * An poodllrecording format renderer for poodllrecordings for audio
  *
- * @copyright  2011 The Open University
+ * @copyright  2012 Justin Hunt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_poodllrecording_format_audio_renderer extends plugin_renderer_base {
@@ -150,20 +130,8 @@ class qtype_poodllrecording_format_audio_renderer extends plugin_renderer_base {
     protected function class_name() {
         return 'qtype_poodllrecording_audio';
     }
-/*
-	protected function prepare_response($name, question_attempt $qa,
-            question_attempt_step $step, $context) {
-        if (!$step->has_qt_var($name)) {
-            return '';
-        }
 
-        $formatoptions = new stdClass();
-        $formatoptions->para = false;
-        $text = $qa->rewrite_response_pluginfile_urls($step->get_qt_var($name),
-                $context->id, 'answer', $step);
-        return format_text($text, $step->get_qt_var($name . 'format'), $formatoptions);
-    }
-*/
+	//This is not necessary, but when testing it can be handy to display this
 	protected function textarea($response, $lines, $attributes) {
         $attributes['class'] = $this->class_name() . ' qtype_essay_response';
         $attributes['rows'] = $lines;
@@ -171,14 +139,6 @@ class qtype_poodllrecording_format_audio_renderer extends plugin_renderer_base {
         return html_writer::tag('textarea', s($response), $attributes);
 	}
 
-	//When I swapped this out with prepare_reponse_for_editing_with_text the draftfile.php was replaced with pluginfile.php
-	//but no moving files off to better storage was done.
-	/*
-	 protected function prepare_response_for_editing($name,
-            question_attempt_step $step, $context) {
-        return array(0, $step->get_qt_var($name));
-    }
-    */
     
     
        protected function prepare_response_for_editing($name,
@@ -187,10 +147,6 @@ class qtype_poodllrecording_format_audio_renderer extends plugin_renderer_base {
                 $name, $context->id, $step->get_qt_var($name));
                 
     }
-    
-  
-	
-
 
     public function response_area_read_only($name, $qa, $step, $lines, $context) {	
     		global $CFG;
@@ -247,7 +203,7 @@ class qtype_poodllrecording_format_audio_renderer extends plugin_renderer_base {
 /**
  * An poodllrecording format renderer for poodllrecordings for video
  *
- * @copyright  2011 The Open University
+ * @copyright  2012 Justin Hunt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_poodllrecording_format_video_renderer extends qtype_poodllrecording_format_audio_renderer {
@@ -269,8 +225,6 @@ class qtype_poodllrecording_format_video_renderer extends qtype_poodllrecording_
 			return fetchSimpleVideoPlayer('swf',$pathtofile,400,380,"http");
 	
     }
-
-	
 
     public function response_area_input($name, $qa, $step, $lines, $context) {
     	global $USER;
@@ -303,7 +257,7 @@ class qtype_poodllrecording_format_video_renderer extends qtype_poodllrecording_
 /**
  * An poodllrecording format renderer for poodllrecordings for picture *Not implemented yet Justin 20120214*
  *
- * @copyright  Justin Huny
+ * @copyright  2012 Justin Hunt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_poodllrecording_format_picture_renderer extends qtype_poodllrecording_format_audio_renderer {

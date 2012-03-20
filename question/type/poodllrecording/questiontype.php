@@ -30,7 +30,7 @@ defined('MOODLE_INTERNAL') || die();
 /**
  * The poodllrecording question type.
  *
- * @copyright  2005 Mark Nielsen
+ * @copyright  2012 Justin Hunt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_poodllrecording extends question_type {
@@ -39,7 +39,7 @@ class qtype_poodllrecording extends question_type {
     }
 
     public function response_file_areas() {
-        return array('attachments', 'answer');
+        return array('answer');
     }
 
     public function get_question_options($question) {
@@ -61,9 +61,7 @@ class qtype_poodllrecording extends question_type {
         }
 
         $options->responseformat = $formdata->responseformat;
-        $options->responsefieldlines = $formdata->responsefieldlines;
-        $options->attachments = $formdata->attachments;
-        $options->graderinfo = $this->import_or_save_files($formdata->graderinfo,
+		$options->graderinfo = $this->import_or_save_files($formdata->graderinfo,
                 $context, 'qtype_poodllrecording', 'graderinfo', $formdata->id);
         $options->graderinfoformat = $formdata->graderinfo['format'];
         $DB->update_record('qtype_poodllrecording_options', $options);
@@ -72,9 +70,7 @@ class qtype_poodllrecording extends question_type {
     protected function initialise_question_instance(question_definition $question, $questiondata) {
         parent::initialise_question_instance($question, $questiondata);
         $question->responseformat = $questiondata->options->responseformat;
-        $question->responsefieldlines = $questiondata->options->responsefieldlines;
-        $question->attachments = $questiondata->options->attachments;
-        $question->graderinfo = $questiondata->options->graderinfo;
+		$question->graderinfo = $questiondata->options->graderinfo;
         $question->graderinfoformat = $questiondata->options->graderinfoformat;
     }
 

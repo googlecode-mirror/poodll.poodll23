@@ -19,7 +19,7 @@
  *
  * @package    qtype
  * @subpackage poodllrecording
- * @copyright  2007 Jamie Pratt me@jamiep.org
+ * @copyright  2012 Justin Hunt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,9 +28,9 @@ defined('MOODLE_INTERNAL') || die();
 
 
 /**
- * Essay question type editing form.
+ * PoodLL Recording question type editing form.
  *
- * @copyright  2007 Jamie Pratt me@jamiep.org
+ * @copyright  2012 PoodLL Recording Question 
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class qtype_poodllrecording_edit_form extends question_edit_form {
@@ -41,14 +41,6 @@ class qtype_poodllrecording_edit_form extends question_edit_form {
         $mform->addElement('select', 'responseformat',
                 get_string('responseformat', 'qtype_poodllrecording'), $qtype->response_formats());
         $mform->setDefault('responseformat', 'editor');
-
-        $mform->addElement('select', 'responsefieldlines',
-                get_string('responsefieldlines', 'qtype_poodllrecording'), $qtype->response_sizes());
-        $mform->setDefault('responsefieldlines', 15);
-
-        $mform->addElement('select', 'attachments',
-                get_string('allowattachments', 'qtype_poodllrecording'), $qtype->attachment_options());
-        $mform->setDefault('attachments', 0);
 
         $mform->addElement('editor', 'graderinfo', get_string('graderinfo', 'qtype_poodllrecording'),
                 array('rows' => 10), $this->editoroptions);
