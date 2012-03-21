@@ -1,0 +1,50 @@
+PoodLL Filter
+========================================
+Thanks for downloading PoodLL.
+
+Installation instructions and a video can be found at http://www.poodll.com .
+
+There should be only one folder "poodll" in the poodllfilter folder after you unzip the zip file.
+Place this folder into your moodle installation under the [site_root]/filter folder.
+
+Then login to your site as admin and go to your Moodle site's top page. Moodle should then guide you through the installation or upgrade of the PoodLL filter. *Please be aware that the repository relies on the PoodLL Filter being installed, and won't work properly otherwise*
+When Moodle shows you the PoodLL Filter Settings page, you can probably just accept the defaults and press "save."
+
+All of the PoodLL mods require the PoodLL filter to be installed. If you are only interesting in audio and video recording, then you don't need to know much more. If you are interested in the stopwatch,flashcards etc widgets, consult the PoodLL website for the besrt information about using them.
+For now, here are some sample filter strings you can use. It is probably easy enough to cut and paste from the strings below, and modify them as needed.
+
+Stopwatch
+{POODLL:type=stopwatch,fontsize=48,permitfullscreen=false,mode=normal,uniquename=ignorethis,runtime=swf,width=400,height=265}
+
+Whiteboard
+{POODLL:type=whiteboard,slave=false,standalone=true,mode=normal,boardname=,backimage=,rooms=,runtime=swf,width=600,height=350}
+
+Countdown Timer
+{POODLL:type=countdown,usepresets=false,initseconds=30,fontheight=48,permitfullscreen=false,mode=normal,uniquename=ignorethis,runtime=swf,width=400,height=265}
+
+Calculator
+{POODLL:type=calculator,runtime=swf,width=300,height=400}
+
+Video Player(MP4/FLV)
+{POODLL:type=video,path=http://path.to.video.mp4,protocol=http,embed=false,embedstring=Play,permitfullscreen=false,runtime=swf,width=320,height=240}
+
+Audio Player(FLV only)
+{POODLL:type=audio,path=http://path.to.audio.flv,protocol=http,embed=false,embedstring=Play,runtime=swf,width=320,height=25}
+
+Audio List Player(FLV only)
+{POODLL:type=audiolist,filearea=content,path=/,protocol=http,sequentialplay=true,width=400,height=250}
+Note: In Moodle 2.x managing multiple files within a single activity is harder. But if  one or more flv files have been added to this activity via the filepicker or the PoodLL File explorer, they will be displayed in the list player. Currently it will not work in a question.
+
+Flashcards
+{POODLL:type=flashcards,cardset=id_number_of_matching_question,qname=justtohelpyouremember,cardwidth=300,cardheight=150,randomize=yes,runtime=swf,width=400,height=252}
+Note: In Moodle 2 we recommend you set up a standard matching question as the data for each set of flashcards. You will need to set the id no. of that question as the cardset parameter. Later it will be hard to know which question that was when you want to edit. So put the question name with no spaces in the qname parameter. (We are going to make this easier!) 
+
+Dice
+{POODLL:type=dice,dicecount=2,dicesize=200,runtime=swf,width=300,height=300}
+
+Whiteboard
+{POODLL:type=whiteboard,slave=false,standalone=true,mode=normal,boardname=,backimage=,rooms=,runtime=swf,width=600,height=350
+
+Good luck.
+
+Justin Hunt

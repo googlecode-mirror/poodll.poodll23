@@ -29,6 +29,7 @@
 	    </delete>
 		<zip destfile="${path.dist}/${dist.filter}_${dist.version}.zip" whenempty="fail">
 			<zipfileset dir="filter/poodll" prefix="poodll"/>
+			<zipfileset dir="lib" includes="poodllresourcelib.php,poodlllogiclib.php,poodllfilelib.php" prefix="lib"/>
 			<zipfileset dir="readmes" prefix="poodll" includes="readme_${dist.filter}.txt" />
 		</zip>
 	</target>
@@ -40,6 +41,7 @@
 	    </delete>
 		<zip destfile="${path.dist}/${dist.filterxjs}_${dist.version}.zip" whenempty="fail">
 			<zipfileset dir="filter/poodll" prefix="poodll" excludes="**/js/**" />
+			<zipfileset dir="lib" includes="poodllresourcelib.php,poodlllogiclib.php,poodllfilelib.php" prefix="lib"/>
 			<zipfileset dir="readmes" prefix="poodll" includes="readme_${dist.filter}.txt" />
 		</zip>
 	</target>
@@ -84,6 +86,7 @@
 	        </delete>
 	        <zip destfile="${path.dist}/${dist.all}_${dist.version}.zip" whenempty="fail">
 				<zipfileset dir="filter/poodll" prefix="${dist.all}_${dist.version}/filter/poodll"/>
+				<zipfileset dir="lib" includes="poodllresourcelib.php,poodlllogiclib.php,poodllfilelib.php" prefix="${dist.all}_${dist.version}/lib"/>
 				<zipfileset dir="repository/poodll" prefix="${dist.all}_${dist.version}/repository/poodll"/>
 				<zipfileset dir="mod/assignment/type/poodllonline" prefix="${dist.all}_${dist.version}/mod/assignment/type/poodllonline"/>
 				<zipfileset dir="question/type/poodllrecording" prefix="${dist.all}_${dist.version}/question/type/poodllrecording"/>
