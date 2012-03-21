@@ -1,40 +1,55 @@
 <?php
-      
-/**
-* @author Justin Hunt
-* @param        int            course id
-* @param        string         text to be filtered
-*/
- //Justin 20081224
+/*
+ * __________________________________________________________________________
+ *
+ * PoodLL filter for Moodle 2.x
+ *
+ *  This filter will replace any PoodLL filter string with the appropriate PoodLL widget
+ *
+ * @package    filter
+ * @subpackage poodll
+ * @copyright  2012 Justin Hunt  {@link http://www.poodll.com}
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ *
+ * __________________________________________________________________________
+ */
+ 
 //Get our library for handling media
 require_once($CFG->libdir . '/poodllresourcelib.php');
 
+class filter_poodll extends moodle_text_filter {
 
 
+		function filter($text, array $options = array()) {
+			global $CFG;
+			   
+			if (!is_string($text)) {
+				// non string data can not be filtered anyway
+				return $text;
+			}
+			
+			$newtext = $text; // fullclone is slow and not needed here
+			
+			$search = '/{POODLL:.*?}/is';
 
-function poodll_filter($courseid, $text) {
-    global $CFG;
-       
-    if (!is_string($text)) {
-        // non string data can not be filtered anyway
-        return $text;
-    }
-    
-    $newtext = $text; // fullclone is slow and not needed here
-    
-    $search = '/{POODLL:.*?}/is';
-    $newtext = preg_replace_callback($search, 'poodll_callback', $newtext);
-    
-    if (is_null($newtext) or $newtext === $text) {
-        // error or not filtered
-        return $text;
-    }
+			$newtext = preg_replace_callback($search, 'filter_poodll_callback', $newtext);
+			
+			if (is_null($newtext) or $newtext === $text) {
+				// error or not filtered
+				return $text;
+			}
 
-    return $newtext;
-}
+			return $newtext;
+		}
+}//end of class
 
-function poodll_callback($link) {
-    global $CFG, $COURSE, $USER;
+
+/*
+*	Callback function , exists outside of class definition(because its a callback ...)
+*
+*/
+function filter_poodll_callback(array $link){
+	global $CFG, $COURSE, $USER;
 	//get our filter props
 	//we use a function in the poodll poodllresourcelib, because
 	//parsing will also need to be done by the html editor
@@ -209,24 +224,19 @@ function poodll_callback($link) {
 					
 			//if we have a role and hence a session.
 			if ($studentalias != ""){			
-			 	$me = get_record('user', 'username', $username);
-			 	$partner = get_record('user', 'username', $pairmap->partnername);
-			 	$partnerpic = fetch_user_picture($partner,35);
-			 	$mepic = fetch_user_picture($me,35);
-			 	$poodllpairworkplayer =  "<h4>" . get_string("yourpartneris", "poodllpairwork") . fullname($partner) . "</h4>";
-			 	$poodllpairworkplayer .= fetchPairworkPlayer($pairmap->username,$pairmap->partnername,$mepic, fullname($me),$partnerpic,fullname($partner));					
+				$me = get_record('user', 'username', $username);
+				$partner = get_record('user', 'username', $pairmap->partnername);
+				$partnerpic = fetch_user_picture($partner,35);
+				$mepic = fetch_user_picture($me,35);
+				$poodllpairworkplayer =  "<h4>" . get_string("yourpartneris", "poodllpairwork") . fullname($partner) . "</h4>";
+				$poodllpairworkplayer .= fetchPairworkPlayer($pairmap->username,$pairmap->partnername,$mepic, fullname($me),$partnerpic,fullname($partner));					
 		
 			}
 			
 			$returnHtml="<BR />" . $poodllpairworkplayer;
 			break;
 
-
-
 		default:
-
-
-
 
 	
 	}
@@ -234,7 +244,4 @@ function poodll_callback($link) {
 	//return our html
 	return $returnHtml;
 
-}
-?>
-
-
+}//end of callback function

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!--    Copyright 2009 Justin Hunt -->
+
+<project name="poodll-dist" default="makeall" basedir=".">
+
+	<description>
+	        This is the poodll Ant build file for php moodle mods and flash widgets. Version 2.0        
+	        Copyright 2009 Justin Hunt
+	</description>
+
+	<target name="init"  description="Initialize environment">
+		<property name="path.dist" value="dist"/>
+		<property name="dist.filter" value="poodllfilter"/>
+		<property name="dist.filterxjs" value="poodllfilterxjs"/>
+		<property name="dist.repo" value="poodllrepository"/>
+		<property name="dist.assig" value="poodllonline"/>
+		<property name="dist.question" value="poodllrecording"/>
+		<property name="dist.all" value="poodllall"/>
+		<property name="dist.version" value="2012032100"/>
+	</target>
+	
+	<!-- Make All PoodLL package for this version -->
+	<target name="makeall" depends="init,zip-filter,zip-filter-xjs,zip-repo,zip-assig,zip-question,zip-all" description="Creates distros for PoodLL 2 Online Question" />
+	
+	<!-- The PoodLL Filter (complete flash AND JS) package -->
+	<target name="zip-filter" depends="init" description="Creates distro for PoodLL 2 filter">
+		<delete>
+	            <fileset dir="${path.dist}" includes="${dist.filter}_${dist.version}.zip"/>
+	    </delete>
+		<zip destfile="${path.dist}/${dist.filter}_${dist.version}.zip" whenempty="fail">
+			<zipfileset dir="filter/poodll" prefix="poodll"/>
+			<zipfileset dir="readmes" prefix="poodll" includes="readme_${dist.filter}.txt" />
+		</zip>
+	</target>
+	
+	<!-- The PoodLL Filter (flash widgets only) package -->
+	<target name="zip-filter-xjs" depends="init" description="Creates distro for PoodLL 2 filter: No JS widgets">
+		<delete>
+	            <fileset dir="${path.dist}" includes="${dist.filterxjs_${dist.version}.zip"/>
+	    </delete>
+		<zip destfile="${path.dist}/${dist.filterxjs}_${dist.version}.zip" whenempty="fail">
+			<zipfileset dir="filter/poodll" prefix="poodll" excludes="filter/poodll/js" />
+			<zipfileset dir="readmes" prefix="poodll" includes="readme_${dist.filter}.txt" />
+		</zip>
+	</target>
+	
+	<!-- The PoodLL Repository package -->
+	<target name="zip-repo" depends="init" description="Creates distro for PoodLL 2 repo">
+		<delete>
+	            <fileset dir="${path.dist}" includes="${dist.repo}_${dist.version}.zip"/>
+	    </delete>
+		<zip destfile="${path.dist}/${dist.repo}_${dist.version}.zip" whenempty="fail">
+			<zipfileset dir="repository/poodll" prefix="poodll"/>
+			<zipfileset dir="readmes" prefix="poodll" includes="readme_${dist.repo}.txt" />
+		</zip>
+	</target>
+	
+	<!-- The PoodLL Online Assignment package -->
+	<target name="zip-assig" depends="init" description="Creates distro for PoodLL 2 Online Assignment">
+		<delete>
+	            <fileset dir="${path.dist}" includes="${dist.assig}_${dist.version}.zip"/>
+	    </delete>
+		<zip destfile="${path.dist}/${dist.assig}_${dist.version}.zip" whenempty="fail">
+			<zipfileset dir="mod/assignment/type/poodllonline" prefix="poodllonline"/>
+			<zipfileset dir="readmes" prefix="poodllonline" includes="readme_${dist.assig}.txt" />
+		</zip>
+	</target>
+	
+	<!-- The PoodLL Recording Question package -->
+	<target name="zip-question" depends="init" description="Creates distro for PoodLL 2 Online Question">
+		<delete>
+	            <fileset dir="${path.dist}" includes="${dist.question}_${dist.version}.zip"/>
+	    </delete>
+		<zip destfile="${path.dist}/${dist.question}_${dist.version}.zip" whenempty="fail">
+			<zipfileset dir="question/type/poodllrecording" prefix="poodllrecording"/>
+			<zipfileset dir="readmes" prefix="poodllrecording" includes="readme_${dist.question}.txt" />
+		</zip>
+	</target>
+	
+	<!-- The PoodLL All package -->
+	<target name="zip-all" depends="init" description="Creates distro for PoodLL 2 All">
+	        <delete>
+	            <fileset dir="${path.dist}" includes="${dist.all}_${dist.version}.zip"/>
+	        </delete>
+	        <zip destfile="${path.dist}/${dist.all}_${dist.version}.zip" whenempty="fail">
+				<zipfileset dir="filter/poodll" prefix="${dist.all}_${dist.version}/filter/poodll"/>
+				<zipfileset dir="repository/poodll" prefix="${dist.all}_${dist.version}/repository/poodll"/>
+				<zipfileset dir="mod/assignment/type/poodllonline" prefix="${dist.all}_${dist.version}/mod/assignment/type/poodllonline"/>
+				<zipfileset dir="question/type/poodllrecording" prefix="${dist.all}_${dist.version}/question/type/poodllrecording"/>
+				<zipfileset dir="readmes" prefix="${dist.all}_${dist.version}" includes="${dist.all}_${dist.version}/readme_${dist.all}.txt" />
+	        </zip>
+	</target>
+
+</project>
