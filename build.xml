@@ -36,10 +36,10 @@
 	<!-- The PoodLL Filter (flash widgets only) package -->
 	<target name="zip-filter-xjs" depends="init" description="Creates distro for PoodLL 2 filter: No JS widgets">
 		<delete>
-	            <fileset dir="${path.dist}" includes="${dist.filterxjs_${dist.version}.zip"/>
+	            <fileset dir="${path.dist}" includes="${dist.filterxjs}_${dist.version}.zip"/>
 	    </delete>
 		<zip destfile="${path.dist}/${dist.filterxjs}_${dist.version}.zip" whenempty="fail">
-			<zipfileset dir="filter/poodll" prefix="poodll" excludes="filter/poodll/js" />
+			<zipfileset dir="filter/poodll" prefix="poodll" excludes="**/js/**" />
 			<zipfileset dir="readmes" prefix="poodll" includes="readme_${dist.filter}.txt" />
 		</zip>
 	</target>
