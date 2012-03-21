@@ -25,8 +25,8 @@
 
 
 defined('MOODLE_INTERNAL') || die();
-require_once($CFG->libdir . '/poodllresourcelib.php');
-require_once($CFG->libdir . '/poodllfilelib.php');
+require_once($CFG->datadir . '/filter/poodll/poodllresourcelib.php');
+require_once($CFG->datadir . '/filter/poodll/poodllfilelib.php');
 
 /**
  * Generates the output for poodllrecording questions.

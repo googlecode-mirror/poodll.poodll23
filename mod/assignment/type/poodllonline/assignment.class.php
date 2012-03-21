@@ -6,8 +6,8 @@ require_once($CFG->dirroot . '/mod/assignment/lib.php');
 require_once($CFG->libdir . '/filelib.php');
 
 //Get our poodll resource handling lib
-require_once($CFG->libdir . '/poodllresourcelib.php');
-require_once($CFG->libdir . '/poodllfilelib.php');
+require_once($CFG->datadir . '/filter/poodll/poodllresourcelib.php');
+require_once($CFG->datadir . '/filter/poodll/poodllfilelib.php');
 //require_once('lib.php');
 
 
@@ -546,7 +546,7 @@ class assignment_poodllonline extends assignment_base {
 			//The path to any media file we should play
 			//temporatily disable he pluginfile because of a bug
 			//$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$contextid.'/mod_assignment/submission/'.$submissionid.'/'. $submissionfile . '?forcedownload=1';								
-			$mediapath = $CFG->wwwroot.'/lib/poodllfilelib.php?datatype=poodllpluginfile&contextid='. $contextid .'&itemid='.$submissionid.'&paramone='. $submissionfile;							
+			$mediapath = $CFG->wwwroot.'/filter/poodll/poodllfilelib.php?datatype=poodllpluginfile&contextid='. $contextid .'&itemid='.$submissionid.'&paramone='. $submissionfile;							
 			$mediapath = urlencode($mediapath);
 		
 			//check if we need media output

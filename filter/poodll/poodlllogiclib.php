@@ -266,7 +266,7 @@ function fetch_poodllcastdata_jnlpapplet($courseid){
 	
 	$html_output =  "<HTML>\n<HEAD>\n<TITLE>Poodllcast</TITLE>\n</HEAD>\n<BODY bgcolor='#$backcolor'>\n";
 	$html_output .= "<APPLET CODE='org.redfire.screen.ScreencastApplet.class' WIDTH='300' HEIGHT='380'>";
-    $html_output .= "<PARAM NAME='jnlp_href'    VALUE='" .$baseUrl . "/lib/poodlllogiclib.php?datatype=poodllcastjnlp&courseid=" .$courseid . "'>";
+    $html_output .= "<PARAM NAME='jnlp_href'    VALUE='" .$baseUrl . "/filter/poodll/poodlllogiclib.php?datatype=poodllcastjnlp&courseid=" .$courseid . "'>";
 	$html_output .= "</APPLET> ";
 	
 	
@@ -294,7 +294,7 @@ function fetch_poodllcastdata_jnlp($courseid){
 	
 
 
-	$html_output =  "<jnlp spec='1.0+' codebase='$baseUrl' href='lib/poodlllogiclib.php?datatype=poodllcastjnlp&courseid=$courseid'> ";
+	$html_output =  "<jnlp spec='1.0+' codebase='$baseUrl' href='filter/poodll/poodlllogiclib.php?datatype=poodllcastjnlp&courseid=$courseid'> ";
 	$html_output .= "<information> 
 			<title>Poodll Screencast</title> 
 			<vendor>Justin Hunt</vendor> 

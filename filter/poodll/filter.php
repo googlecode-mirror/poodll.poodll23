@@ -15,7 +15,7 @@
  */
  
 //Get our library for handling media
-require_once($CFG->libdir . '/poodllresourcelib.php');
+require_once($CFG->datadir . '/filter/poodll/poodllresourcelib.php');
 
 class filter_poodll extends moodle_text_filter {
 

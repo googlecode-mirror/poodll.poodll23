@@ -94,7 +94,7 @@ function fetch_poodllconsole($runtime, $coursedataurl="",$mename="", $courseid=-
 	}
 	
 	//put in a coursedataurl if we need one
-	if ($coursedataurl=="") $coursedataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php%3F';
+	if ($coursedataurl=="") $coursedataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php%3F';
 	
 	
 	//Show the buttons window if we are admin
@@ -142,7 +142,7 @@ function fetch_poodllheader($runtime){
 	}else{
 		$mename="guest_" + rand(100000, 999999);
 	}
-	$coursedataurl=$CFG->wwwroot . "/lib/poodlllogiclib.php";
+	$coursedataurl=$CFG->wwwroot . "/filter/poodll/poodlllogiclib.php";
 	$flvserver = $CFG->poodll_media_server;
 	$bcsturl =urlencode(fetch_screencast_subscribe($runtime,$mename));
 	//$clnturl =urlencode(fetch_clientconsole($coursedataurl,,false));
@@ -266,10 +266,10 @@ $width=800;
 // The ID of the current module (eg moodleurl/view.php?id=X ) or in edit mode update=X
 $moduleid = optional_param('update', "-1", PARAM_INT);    
 if($moduleid==-1) {$moduleid = optional_param('id', "-1", PARAM_INT); }
-$coursefilesurl = $CFG->wwwroot . '/lib/poodlllogiclib.php?courseid=' . $COURSE->id . '&datatype=instancedirlist&paramone=ignore&paramtwo=content&moduleid=' . $moduleid;
+$coursefilesurl = $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?courseid=' . $COURSE->id . '&datatype=instancedirlist&paramone=ignore&paramtwo=content&moduleid=' . $moduleid;
 
 $componentlist = $CFG->wwwroot . '/filter/poodll/flash/componentlist.xml';
-$poodlllogicurl = $CFG->wwwroot . '/lib/poodlllogiclib.php';
+$poodlllogicurl = $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php';
 
 //Set the camera prefs
 $capturewidth=$CFG->filter_poodll_capturewidth;
@@ -611,7 +611,7 @@ $userid="dummy";
 $width="430";
 $height="220";
 $filename="12345"; 
-$poodllfilelib= $CFG->wwwroot . '/lib/poodllfilelib.php';
+$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
 
 //If we are using course ids then lets do that
 //else send -1 to widget (ignore flag)
@@ -752,7 +752,7 @@ global $CFG,$COURSE;
 
 	
 	//get the url to the automated medialist maker
-	$filedataurl= $CFG->wwwroot . '/lib/poodllfilelib.php';
+	$filedataurl= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
 	$componentlist= $CFG->wwwroot . '/filter/poodll/componentlist.xml';
 
 	//merge config data with javascript embed code
@@ -906,7 +906,7 @@ global $CFG,$COURSE;
 		$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $COURSE->id . "/" . $cardset;
 	}else{
 		//get the url to the automated medialist maker
-		$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllflashcards&courseid=' . $COURSE->id 
+		$fetchdataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?datatype=poodllflashcards&courseid=' . $COURSE->id 
 			. '&paramone=' . $cardset 
 			. '&cachekiller=' . rand(10000,999999);
 	}
@@ -1015,7 +1015,7 @@ $userid="dummy";
 $width="350";
 $height="400";
 $filename="12345"; 
-$poodllfilelib= $CFG->wwwroot . '/lib/poodllfilelib.php';
+$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
 
 //If we are using course ids then lets do that
 //else send -1 to widget (ignore flag)
@@ -1087,7 +1087,7 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 	$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $playlist;
 }else{
 	//get the url to the automated medialist maker
-	$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllaudiolist'
+	$fetchdataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?datatype=poodllaudiolist'
 		. '&courseid=' . $COURSE->id
 		. '&moduleid=' . $moduleid
 		. '&paramone=' . $playlist 
@@ -1128,7 +1128,7 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 	$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $playlist;
 }else{
 	//get the url to the automated medialist maker
-	$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllaudiolist'
+	$fetchdataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?datatype=poodllaudiolist'
 		. '&courseid=' . $COURSE->id
 		. '&moduleid=' . $moduleid
 		. '&paramone=' . $playlist 
@@ -1440,7 +1440,7 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 }else{
 	
 	//get the url to the automated medialist maker
-	$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllmedialist'
+	$fetchdataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?datatype=poodllmedialist'
 		. '&courseid=' . $COURSE->id
 		. '&moduleid=' . $moduleid
 		. '&paramone=' . $playlist 
@@ -1483,7 +1483,7 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 }else{
 	//get the url to the automated medialist maker
 		//get the url to the automated medialist maker
-	$fetchdataurl= $CFG->wwwroot . '/lib/poodlllogiclib.php?datatype=poodllmedialist'
+	$fetchdataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?datatype=poodllmedialist'
 		. '&courseid=' . $COURSE->id
 		. '&moduleid=' . $moduleid
 		. '&paramone=' . $playlist 

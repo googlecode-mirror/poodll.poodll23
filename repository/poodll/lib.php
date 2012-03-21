@@ -8,7 +8,7 @@
  */
  
 //Get our poodll resource handling lib
-require_once($CFG->libdir . '/poodllresourcelib.php'); 
+require_once($CFG->datadir . '/filter/poodll/poodllresourcelib.php');
  
 class repository_poodll extends repository {
     /*
