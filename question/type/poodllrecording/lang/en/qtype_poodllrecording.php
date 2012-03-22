@@ -30,6 +30,7 @@ $string['formataudio'] = 'Audio response';
 $string['formatpicture'] = 'Picture response';
 $string['graderinfo'] = 'Information for graders';
 $string['nlines'] = '{$a} lines';
+$string['poodllrecording'] = 'PoodLL Recording';
 $string['pluginname'] = 'PoodLL Recording';
 $string['pluginname_help'] = 'In response to a question (that may include an image) the respondent records an answer. The poodllrecording question will not be assigned a grade until it has been reviewed by a teacher and manually graded.';
 $string['pluginname_link'] = 'question/type/poodllrecording';

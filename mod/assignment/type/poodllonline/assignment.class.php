@@ -6,8 +6,8 @@ require_once($CFG->dirroot . '/mod/assignment/lib.php');
 require_once($CFG->libdir . '/filelib.php');
 
 //Get our poodll resource handling lib
-require_once($CFG->datadir . '/filter/poodll/poodllresourcelib.php');
-require_once($CFG->datadir . '/filter/poodll/poodllfilelib.php');
+require_once($CFG->dirroot . '/filter/poodll/poodllresourcelib.php');
+require_once($CFG->dirroot . '/filter/poodll/poodllfilelib.php');
 //require_once('lib.php');
 
 

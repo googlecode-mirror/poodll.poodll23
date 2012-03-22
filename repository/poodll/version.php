@@ -18,7 +18,7 @@
  * Version details
  *
  * @package    repository
- * @subpackage upload
+ * @subpackage poodll
  * @copyright  2012 Justin hunt
  * @author     Justin Hunt <bitwalkerjapan@gmail.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -26,6 +26,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2012030901;        // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2011070100.00;          // Requires this Moodle version
-$plugin->component = 'repository_poodll'; // Full name of the plugin (used for diagnostics)
+$plugin->version   = 2012032200; 
+$plugin->requires  = 2011070100.00; 
+$plugin->component = 'repository_poodll'; 
+$plugin->maturity  = MATURITY_BETA;
+$plugin->release   = '2.1 (Build 2012032200)';
+$plugin->dependencies = array('filter_poodll' => 2012032200);

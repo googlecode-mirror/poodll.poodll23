@@ -21,7 +21,7 @@ global $CFG;
 //, so we check before we call it, to cover both bases
 
 if(!$CFG){
-require_once("../config.php");
+require_once("../../config.php");
 }
 //require_once('../filter/poodll/poodllinit.php');
 require_once($CFG->dirroot . "/filter/poodll/poodllinit.php");

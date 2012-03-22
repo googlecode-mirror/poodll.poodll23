@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Media filter
+ * PoodLL filter
  *
  * @package    filter
  * @subpackage poodllonline
@@ -25,6 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2012032100;        // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2011070100.00;        // Requires this Moodle version
-$plugin->component = 'filter_poodll'; // Full name of the plugin (used for diagnostics)
+$plugin->version   = 2012032200; 
+$plugin->requires  = 2011070100.00; 
+$plugin->component = 'filter_poodll'; 
+$plugin->maturity  = MATURITY_BETA;
+$plugin->release   = '2.1 (Build 2012032200)';

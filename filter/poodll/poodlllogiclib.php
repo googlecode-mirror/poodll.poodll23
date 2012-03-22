@@ -13,11 +13,11 @@
 /**
 * Includes and requires
 */
-require_once("../config.php");
-require_once('../filter/poodll/poodllinit.php');
+require_once("../../config.php");
+require_once($CFG->dirroot . '/filter/poodll/poodllinit.php');
 //commented just while getting other mods working
 //require_once('../mod/poodllpairwork/locallib.php');
-require_once('poodllresourcelib.php');
+require_once($CFG->dirroot . '/filter/poodll/poodllresourcelib.php');
 //added for moodle 2
 require_once($CFG->libdir . '/filelib.php');
 
