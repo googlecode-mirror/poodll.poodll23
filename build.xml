@@ -5,7 +5,7 @@
 
 	<description>
 	        This is the poodll Ant build file for php moodle mods and flash widgets. Version 2.0        
-	        Copyright 2009 Justin Hunt
+	        Copyright 2012 Justin Hunt
 	</description>
 
 	<target name="init"  description="Initialize environment">
@@ -16,7 +16,7 @@
 		<property name="dist.assig" value="poodllonline"/>
 		<property name="dist.question" value="poodllrecording"/>
 		<property name="dist.all" value="poodllall"/>
-		<property name="dist.version" value="2012032100"/>
+		<property name="dist.version" value="2012032200"/>
 	</target>
 	
 	<!-- Make All PoodLL package for this version -->

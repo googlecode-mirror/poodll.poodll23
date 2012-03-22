@@ -4,11 +4,17 @@ Thanks for downloading PoodLL.
 
 Installation instructions and a video can be found at http://www.poodll.com .
 
-There should be only one folder "poodll" in the poodllfilter folder after you unzip the zip file.
+There should be only one folder "poodll" expanded after you unzip the zip file.
 Place this folder into your moodle installation under the [site_root]/filter folder.
 
 Then login to your site as admin and go to your Moodle site's top page. Moodle should then guide you through the installation or upgrade of the PoodLL filter. *Please be aware that the repository relies on the PoodLL Filter being installed, and won't work properly otherwise*
 When Moodle shows you the PoodLL Filter Settings page, you can probably just accept the defaults and press "save."
+
+You will then have to enable the filter. Go to:
+"Site Administration->Plugins->Filters->Manage Filters"
+And set the PoodLL Filter to "On."
+
+Also set the "Multimedia Plugins" filter to "On." The PoodLL filter should be higher in the list.
 
 All of the PoodLL mods require the PoodLL filter to be installed. If you are only interesting in audio and video recording, then you don't need to know much more. If you are interested in the stopwatch,flashcards etc widgets, consult the PoodLL website for the besrt information about using them.
 For now, here are some sample filter strings you can use. It is probably easy enough to cut and paste from the strings below, and modify them as needed.
