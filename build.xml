@@ -29,7 +29,7 @@
 	    </delete>
 		<zip destfile="${path.dist}/${dist.filter}_${dist.version}.zip" whenempty="fail">
 			<zipfileset dir="filter/poodll" prefix="poodll"/>
-			<zipfileset dir="readmes" prefix="poodll" includes="readme_${dist.filter}.txt" />
+			<zipfileset dir="readmes" prefix="poodll" includes="readme.${dist.filter}.txt" />
 		</zip>
 	</target>
 	
@@ -40,7 +40,7 @@
 	    </delete>
 		<zip destfile="${path.dist}/${dist.filterxjs}_${dist.version}.zip" whenempty="fail">
 			<zipfileset dir="filter/poodll" prefix="poodll" excludes="**/js/**" />
-			<zipfileset dir="readmes" prefix="poodll" includes="readme_${dist.filter}.txt" />
+			<zipfileset dir="readmes" prefix="poodll" includes="readme.${dist.filter}.txt" />
 		</zip>
 	</target>
 	
@@ -51,7 +51,7 @@
 	    </delete>
 		<zip destfile="${path.dist}/${dist.repo}_${dist.version}.zip" whenempty="fail">
 			<zipfileset dir="repository/poodll" prefix="poodll"/>
-			<zipfileset dir="readmes" prefix="poodll" includes="readme_${dist.repo}.txt" />
+			<zipfileset dir="readmes" prefix="poodll" includes="readme.${dist.repo}.txt" />
 		</zip>
 	</target>
 	
@@ -62,7 +62,7 @@
 	    </delete>
 		<zip destfile="${path.dist}/${dist.assig}_${dist.version}.zip" whenempty="fail">
 			<zipfileset dir="mod/assignment/type/poodllonline" prefix="poodllonline"/>
-			<zipfileset dir="readmes" prefix="poodllonline" includes="readme_${dist.assig}.txt" />
+			<zipfileset dir="readmes" prefix="poodllonline" includes="readme.${dist.assig}.txt" />
 		</zip>
 	</target>
 	
@@ -73,7 +73,7 @@
 	    </delete>
 		<zip destfile="${path.dist}/${dist.question}_${dist.version}.zip" whenempty="fail">
 			<zipfileset dir="question/type/poodllrecording" prefix="poodllrecording"/>
-			<zipfileset dir="readmes" prefix="poodllrecording" includes="readme_${dist.question}.txt" />
+			<zipfileset dir="readmes" prefix="poodllrecording" includes="readme.${dist.question}.txt" />
 		</zip>
 	</target>
 	
@@ -87,7 +87,7 @@
 				<zipfileset dir="repository/poodll" prefix="${dist.all}_${dist.version}/repository/poodll"/>
 				<zipfileset dir="mod/assignment/type/poodllonline" prefix="${dist.all}_${dist.version}/mod/assignment/type/poodllonline"/>
 				<zipfileset dir="question/type/poodllrecording" prefix="${dist.all}_${dist.version}/question/type/poodllrecording"/>
-				<zipfileset dir="readmes" prefix="${dist.all}_${dist.version}" includes="${dist.all}_${dist.version}/readme_${dist.all}.txt" />
+				<zipfileset dir="readmes" prefix="${dist.all}_${dist.version}" includes="readme.${dist.all}.txt" />
 	        </zip>
 	</target>
 

@@ -7,8 +7,11 @@ Installation instructions and a video can be found at http://www.poodll.com .
 There should be only one folder "poodll" expanded after you unzip the zip file.
 Place this folder into your moodle installation under the [site_root]/filter folder.
 
-Then login to your site as admin and go to your Moodle site's top page. Moodle should then guide you through the installation or upgrade of the PoodLL filter. *Please be aware that the repository relies on the PoodLL Filter being installed, and won't work properly otherwise*
-When Moodle shows you the PoodLL Filter Settings page, you can probably just accept the defaults and press "save."
+Then login to your site as admin and go to your Moodle site's top page. Moodle should then guide you through the installation or upgrade of the PoodLL filter. 
+You can probably accept the defaults, scroll to the bottom of the page and press save.
+(When Moodle shows you the PoodLL Filter Settings page, the second property from the top of the page is the PoodLL Server Port Number property. 
+This defaults to 443, which allows users to make recordings through firewalls. 
+If you experience instability when recording, come back here try setting the PoodLL Server Port Number to 1935.)
 
 You will then have to enable the filter. Go to:
 "Site Administration->Plugins->Filters->Manage Filters"
@@ -20,7 +23,7 @@ All of the PoodLL mods require the PoodLL filter to be installed. If you are onl
 If however you are interested in the stopwatch,flashcards etc widgets, consult the PoodLL website for the more information about using them.
 For now, here are some sample filter strings you can use. It is probably easy enough to cut and paste from the strings below, and modify them as needed.
 
-*In this release the HTML5 widgets have been excluded. They will be back in the next release*
+*In this release the HTML5 widgets have been excluded. They will be back in the next release we hope*
 
 Stopwatch
 {POODLL:type=stopwatch,fontheight=48,permitfullscreen=false,mode=normal,uniquename=ignorethis,runtime=swf,width=400,height=265}
