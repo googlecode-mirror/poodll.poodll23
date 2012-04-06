@@ -949,6 +949,13 @@ $prefmic=$CFG->filter_poodll_studentmic;
 $bandwidth=$CFG->filter_poodll_bandwidth;
 $picqual=$CFG->filter_poodll_picqual;
 
+//Set the microphone config params
+$micrate = $CFG->filter_poodll_micrate;
+$micgain = $CFG->filter_poodll_micgain;
+$micsilence = $CFG->filter_poodll_micsilencelevel;
+$micecho = $CFG->filter_poodll_micecho;
+$micloopback = $CFG->filter_poodll_micloopback;
+
 //If we are using course ids then lets do that
 //else send -1 to widget (ignore flag)
 if ($CFG->filter_poodll_usecourseid){
@@ -974,6 +981,11 @@ if ($updatecontrol == "saveflvvoice"){
 $params = array();
 		$params['red5url'] = urlencode($flvserver);
 		$params['overwritefile'] = $overwritemediafile;
+		$params['rate'] = $micrate;
+		$params['gain'] = $micgain;
+		$params['loopback'] = $micloopback;
+		$params['echosupression'] = $micecho;
+		$params['silencelevel'] = $micsilence;
 		$params['capturefps'] = $capturefps;
 		$params['filename'] = $filename;
 		$params['assigName'] = $assigname;
@@ -1010,6 +1022,13 @@ $prefmic=$CFG->filter_poodll_studentmic;
 $bandwidth=$CFG->filter_poodll_bandwidth;
 $picqual=$CFG->filter_poodll_picqual;
 
+//Set the microphone config params
+$micrate = $CFG->filter_poodll_micrate;
+$micgain = $CFG->filter_poodll_micgain;
+$micsilence = $CFG->filter_poodll_micsilencelevel;
+$micecho = $CFG->filter_poodll_micecho;
+$micloopback = $CFG->filter_poodll_micloopback;
+
 //removed from params to make way for moodle 2 filesystem params Justin 20120213
 $userid="dummy";
 $width="350";
@@ -1042,6 +1061,11 @@ if ($updatecontrol == "saveflvvoice"){
 $params = array();
 		$params['red5url'] = urlencode($flvserver);
 		$params['overwritefile'] = $overwritemediafile;
+		$params['rate'] = $micrate;
+		$params['gain'] = $micgain;
+		$params['loopback'] = $micloopback;
+		$params['echosupression'] = $micecho;
+		$params['silencelevel'] = $micsilence;
 		$params['capturefps'] = $capturefps;
 		$params['filename'] = $filename;
 		$params['assigName'] = $assigname;

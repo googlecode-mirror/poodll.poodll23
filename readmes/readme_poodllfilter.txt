@@ -16,11 +16,14 @@ And set the PoodLL Filter to "On."
 
 Also set the "Multimedia Plugins" filter to "On." The PoodLL filter should be higher in the list.
 
-All of the PoodLL mods require the PoodLL filter to be installed. If you are only interesting in audio and video recording, then you don't need to know much more. If you are interested in the stopwatch,flashcards etc widgets, consult the PoodLL website for the besrt information about using them.
+All of the PoodLL mods require the PoodLL filter to be installed. If you are only interesting in audio and video recording, then you don't need to know much more. 
+If however you are interested in the stopwatch,flashcards etc widgets, consult the PoodLL website for the more information about using them.
 For now, here are some sample filter strings you can use. It is probably easy enough to cut and paste from the strings below, and modify them as needed.
 
+*In this release the HTML5 widgets have been excluded. They will be back in the next release*
+
 Stopwatch
-{POODLL:type=stopwatch,fontsize=48,permitfullscreen=false,mode=normal,uniquename=ignorethis,runtime=swf,width=400,height=265}
+{POODLL:type=stopwatch,fontheight=48,permitfullscreen=false,mode=normal,uniquename=ignorethis,runtime=swf,width=400,height=265}
 
 Whiteboard
 {POODLL:type=whiteboard,slave=false,standalone=true,mode=normal,boardname=,backimage=,rooms=,runtime=swf,width=600,height=350}
