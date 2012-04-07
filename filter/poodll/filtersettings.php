@@ -11,7 +11,7 @@ $items[] = new admin_setting_heading('filter_poodll_settings', get_string('setti
 
 $items[] = new admin_setting_configtext('filter_poodll_servername', get_string('servername', 'filter_poodll'), '', 'tokyo.poodll.com');
 $items[] = new admin_setting_configtext('filter_poodll_serverid', get_string('serverid', 'filter_poodll'), '', 'poodll');
-$items[] = new admin_setting_configtext('filter_poodll_serverport', get_string('serverport', 'filter_poodll'), '', '443', PARAM_INT);
+$items[] = new admin_setting_configtext('filter_poodll_serverport', get_string('serverport', 'filter_poodll'), '', '80', PARAM_INT);
 
 
 	//audio player and capture settings.	
