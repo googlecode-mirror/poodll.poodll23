@@ -1668,7 +1668,7 @@ function fetchSWFWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFF
         <script type=\"text/javascript\" src=\"{$CFG->wwwroot}/filter/poodll/flash/embed-compressed.js\"></script>
         <script type=\"text/javascript\">
 " . '	lz.embed.swf({url: \'' . $CFG->wwwroot . '/filter/poodll/flash/' . $widget . $params . 
-		 '\', bgcolor: \'' . $bgcolor . '\', allowfullscreen: \'true\', width: \'' .$width . '\', height: \'' . $height . '\', id: \'lzapp_' . rand(100000, 999999) . '\', accessible: \'false\'});	
+		 '\', bgcolor: \'' . $bgcolor . '\', cancelmousewheel: true, allowfullscreen: true, width: \'' .$width . '\', height: \'' . $height . '\', id: \'lzapp_' . rand(100000, 999999) . '\', accessible: \'false\'});	
 		
 ' . "
         </script>
