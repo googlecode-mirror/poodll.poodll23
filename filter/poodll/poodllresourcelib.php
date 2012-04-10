@@ -1536,7 +1536,7 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 
 
 //WMV player with defaults, for use with PoodLL filter
-function fetchWMVPlayer($wmv_file, $width="400",$height="380"){
+function fetchWMVPlayer($runtime,$wmv_file, $width="400",$height="380"){
 global $CFG, $USER, $COURSE;
 
 	//Massage the media file name if we have a username variable passed in.	
@@ -1545,8 +1545,15 @@ global $CFG, $USER, $COURSE;
 
 
 
+
+	
 	//Add course id and full path to url 
+	$wmv_name = $wmv_file;
 	$wmv_file= $CFG->wwwroot . "/file.php/" . $COURSE->id . "/" .   $wmv_file ;
+	
+	//In Moodle2 we rely on multi media plugins to handle this
+	//but the legacy code directly below would probably work too
+	return '<a href="' .$wmv_file . '">' . $wmv_name . '</a>';
 
 	
 		 return("
