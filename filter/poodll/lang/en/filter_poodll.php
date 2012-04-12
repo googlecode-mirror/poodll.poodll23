@@ -30,7 +30,8 @@ $string['journal_video'] = 'PoodLL Journal: Video?';
 
 $string['servername'] = 'PoodLL Host Address';
 $string['serverid'] = 'PoodLL Server Id';
-$string['serverport'] = 'PoodLL Server Port Number';
+$string['serverport'] = 'PoodLL Server Port (RTMP)';
+$string['serverhttpport'] = 'PoodLL Server Port (HTTP)';
 
 //$string['useproxy'] = 'Use Moodle Proxy?';
 

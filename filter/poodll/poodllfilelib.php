@@ -609,7 +609,7 @@ global $CFG,$USER;
 $return=fetchReturnArray(true);
 
 $red5_fileurl= "http://" . $CFG->filter_poodll_servername . 
-						":443/poodll/download.jsp?poodllserverid=" . 
+						":"  .  $CFG->filter_poodll_serverhttpport . "/poodll/download.jsp?poodllserverid=" . 
 						$CFG->filter_poodll_serverid . "&filename=" . $filename . "&caller=" . urlencode($CFG->wwwroot);
 					
 //	$red5_fileurl= "http://" . $CFG->filter_poodll_servername . 
