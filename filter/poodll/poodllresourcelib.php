@@ -1179,7 +1179,7 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 }
 
 //Audio player with defaults, for use with PoodLL filter
-function fetchSimpleAudioPlayer($runtime, $rtmp_file, $protocol="", $width="450",$height="40",$embed=false, $embedstring="Play",$permitfullscreen=false){
+function fetchSimpleAudioPlayer($runtime, $rtmp_file, $protocol="", $width="450",$height="25",$embed=false, $embedstring="Play",$permitfullscreen=false){
 global $CFG, $USER, $COURSE;
 
 //Set our servername .
@@ -1285,22 +1285,23 @@ $courseid= $COURSE->id;
 		if($runtime=='js'){
 				$returnString="";
 				
-				//The HTML5 Code
+				//The HTML5 Code (can be used on its own OR with the mediaelement code below it
+				
 				$returnString .="<audio controls width='" . $width . "' height='" . $height . "'>
 								<source src='" .$rtmp_file . "'/>
 								</audio>";
 				
 				//=======================
 				//if we are using mediaelement js use this. We use JQuery which is not ideal, in moodle yui environment
-				//$mediajsroot = $CFG->wwwroot . '/filter/poodll/js/mediaelementjs/';
-				//$returnString .="<script src='" . $mediajsroot .  "jquery.js'></script>";
-				//$returnString .="<script src='" . $mediajsroot .  "mediaelement-and-player.min.js'></script>";
-				//$returnString .="<link rel='stylesheet' href='" . $mediajsroot .  "mediaelementplayer.css' />	";
-				//$returnString .="<script src='" . $mediajsroot .  "mep-feature-loop.js'></script>";
-				//$returnString .="<script src='" . $mediajsroot .  "mep-feature-speed.js'></script>";
-				//$returnString .="<script src='" . $mediajsroot .  "mep-feature-progress.js'></script>";
-				////$returnString .="<script>$('audio,video').mediaelementplayer({features:['playpause','loop','speed','progess','volume']});</script>";
-				//$returnString .="<script>$('audio,video').mediaelementplayer();</script>";
+				$mediajsroot = $CFG->wwwroot . '/filter/poodll/js/mediaelementjs/';
+				$returnString .="<script src='" . $mediajsroot .  "jquery.js'></script>";
+				$returnString .="<script src='" . $mediajsroot .  "mediaelement-and-player.min.js'></script>";
+				$returnString .="<link rel='stylesheet' href='" . $mediajsroot .  "mediaelementplayer.css' />	";
+				$returnString .="<script src='" . $mediajsroot .  "mep-feature-loop.js'></script>";
+				$returnString .="<script src='" . $mediajsroot .  "mep-feature-speed.js'></script>";
+				$returnString .="<script src='" . $mediajsroot .  "mep-feature-progress.js'></script>";
+				//$returnString .="<script>$('audio,video').mediaelementplayer({features:['playpause','loop','speed','progess','volume']});</script>";
+				$returnString .="<script>$('audio,video').mediaelementplayer();</script>";
 				//=======================
 			
 				//=======================
