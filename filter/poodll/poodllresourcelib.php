@@ -1221,6 +1221,7 @@ $courseid= $COURSE->id;
 					break;			
 				case "http":
 				case "rtmp":
+				case "legacy":
 				default:
 					$type=$protocol;				
 
@@ -1234,7 +1235,7 @@ $courseid= $COURSE->id;
 
 	//If we are using the legacy coursefiles, we want to fall into this code
 	//this is just a temporary fix to achieve this. Justin 20111213
-	if($protocol=='rtmp'){
+	if($protocol=='rtmp' || $protocol=='legacy'){
 		$rtmp_file= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $rtmp_file;
         $type = 'http';
 	}
@@ -1262,6 +1263,23 @@ $courseid= $COURSE->id;
 		$params['playertype'] = $type;
 		$params['mediapath'] = $rtmp_file;
 		$params['permitfullscreen'] = $permitfullscreen;
+		
+		
+		//if we are on mobile we want to play mp3 using html5 tags
+		if($runtime=='auto'){
+			 $browser = new Browser();
+	 		switch($browser->getBrowser()){
+				case Browser::BROWSER_IPAD:
+				case Browser::BROWSER_IPOD:
+				case Browser::BROWSER_IPHONE:
+				case Browser::BROWSER_ANDROID:
+					$runtime='js';
+					break;
+					
+				default:
+					$runtime='swf';
+			}//end of switch
+		}//end of if runtime=auto
 	
 	
 		if($runtime=='js'){
@@ -1297,9 +1315,13 @@ $courseid= $COURSE->id;
 				
 							
 		}else{
-	
-				$returnString=  fetchSWFWidgetCode('poodllaudioplayer.lzx.swf9.swf',
-    						$params,$width,$height,'#FFFFFF');
+				//if the file is an mp3, just pass it on to the multi media plugins filter for now.
+				if(substr($rtmp_file,-4)=='.mp3'){
+					$returnString= "<a href=\"$rtmp_file\">$rtmp_file</a>";
+				}else{
+					$returnString=  fetchSWFWidgetCode('poodllaudioplayer.lzx.swf9.swf',
+								$params,$width,$height,'#FFFFFF');
+				}
 							
 		}
     						
@@ -1362,6 +1384,7 @@ $courseid= $COURSE->id;
 				case "yutu":		
 				case "http":
 				case "rtmp":
+				case "legacy":
 				default:
 					$type=$protocol;				
 
@@ -1370,7 +1393,7 @@ $courseid= $COURSE->id;
 	
 	//If we are using the legacy coursefiles, we want to fall into this code
 	//this is just a temporary fix to achieve this. Justin 20111213
-	if($protocol=='rtmp'){
+	if($protocol=='rtmp' || $protocol=='legacy'){
 		$rtmp_file= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $rtmp_file;
         $type = 'http';
 	}
