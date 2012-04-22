@@ -26,6 +26,7 @@ global $PAGE;
 //$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/javascript.php'));
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/swfobject.js'));
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/javascript.php'));
+$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/embed-compressed.js'));
 
 //added for moodle 2
 require_once($CFG->libdir . '/filelib.php');
@@ -1185,6 +1186,7 @@ global $CFG, $USER, $COURSE;
 //Set our servername .
 $flvserver = $CFG->poodll_media_server;
 $courseid= $COURSE->id;
+$useplayer="pd";
 
 	//Set our use protocol type
 	//if one was not passed, then it may have been tagged to the url
@@ -1318,7 +1320,19 @@ $courseid= $COURSE->id;
 		}else{
 				//if the file is an mp3, just pass it on to the multi media plugins filter for now.
 				if(substr($rtmp_file,-4)=='.mp3'){
+				//if(false){
 					$returnString= "<a href=\"$rtmp_file\">$rtmp_file</a>";
+				}else if($useplayer=="jw"){
+					$flashvars = array();
+					$flashvars['file'] = $rtmp_file;
+					$flashvars['autostart'] = 'false';
+					$returnString=  fetchSWFObjectWidgetCode('jwplayer.swf',
+								$flashvars,$width,$height,'#FFFFFF',false);
+				}else if($useplayer=="fp"){
+					$flashvars = array();
+					$flashvars['clip'] = $rtmp_file;
+					$returnString=  fetchSWFObjectWidgetCode('flowplayer.swf',
+								$flashvars,$width,$height,'#FFFFFF',true);
 				}else{
 					$returnString=  fetchSWFWidgetCode('poodllaudioplayer.lzx.swf9.swf',
 								$params,$width,$height,'#FFFFFF');
@@ -1711,7 +1725,40 @@ function fetchSWFWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFF
 		
 		return $retcode;
 
+}
 
+function fetchSWFObjectWidgetCode($widget,$flashvarsArray,$width,$height,$bgcolor,$usesuperconfig=false){
+	global $CFG, $PAGE;
+	//this doesn't work here or at top of file!!
+	//$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/swfobject_22.js'));
+	
+	$containerid = 'swfobject_' . rand(100000, 999999); 
+	$widgetid = $containerid . '_widget';
+	
+	$flashvars="";
+	foreach ($flashvarsArray as $key => $value) {
+		if($flashvars !=""){$flashvars .= ",";}
+    	$flashvars .= $key . ":'" . $value . "'";
+	}
+	
+	//this is really just for flowpayer which does a nested json thing
+	//if($usesuperconfig){
+	if(false){
+		$flashvars="config: \"{" . $flashvars ."}\"";
+	}
+	
+
+	$retcode="<p id='" .$containerid . "'>Please install the Flash Plugin</p>
+		<script type='text/javascript' src='/filter/poodll/flash/swfobject_22.js'></script>
+		<script type='text/javascript'>
+		  var flashvars = { " . $flashvars . " };
+		  var params = { allowfullscreen:'true', allowscriptaccess:'always' };
+		  var attributes = { id:'" .$widgetid . "', name:'" .$widgetid . "' };
+		  swfobject.embedSWF('" . $CFG->wwwroot . '/filter/poodll/flash/' . $widget . "','" .$containerid . "','" . $width . "','" . $height . "','9.0.115','false',
+			flashvars, params, attributes);
+		</script>
+		";
+	return $retcode;
 }
 
 function fetchJSWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF", $usemastersprite="false"){
