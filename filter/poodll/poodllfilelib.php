@@ -347,7 +347,7 @@ function fetch_instancedir_contents($thedir, &$thecontext, $recursive=false){
 	//first process subdirectories (if recursive)
 	if(!empty($thedir['subdirs']) && $recursive){
 	
-		usort($thedir['subdirs'], "cmpDirnames");
+		usort($thedir['subdirs'], "compareDirnames");
 		
 		 foreach ($thedir['subdirs'] as $subdir) {
 			 //this is only necessary of you deleted the dirfile without deleting the subfiles
@@ -401,7 +401,7 @@ function fetch_instancedir_contents($thedir, &$thecontext, $recursive=false){
 	//then process files
 	$files = $thedir['files'];
 	if (!empty($files)) {
-		usort($files, "cmpFilenames");
+		usort($files, "compareFilenames");
 			foreach ($files as $f) {
 				$filename =$f->get_filename();
 				if ($filename == "." || $filename == "..") {
@@ -1806,13 +1806,13 @@ function pathIsWritable($moduleid, $courseid, $itemid, $filearea,$filepath=DIREC
 
 
 //This is used to sort an array of filenames alphabetically
-function cmpFilenames($a, $b)
+function compareFilenames($a, $b)
 {
     return strcasecmp($a->get_filename(), $b->get_filename());
 }
 
 //This is used to sort an array of directory names alphabetically
-function cmpDirnames($a, $b)
+function compareDirnames($a, $b)
 {
     return strcasecmp(poodllBasename($a['dirfile']->get_filepath()), poodllBasename($b['dirfile']->get_filepath()));
 }

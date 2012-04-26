@@ -21,6 +21,9 @@ define('MR_TYPETALKBACK',2);
  
 require_once($CFG->dirroot . '/filter/poodll/poodllinit.php');
 require_once($CFG->dirroot . '/filter/poodll/Browser.php');
+//added Justin 20120424 
+require_once($CFG->dirroot . '/filter/poodll/poodlllogiclib.php');
+
 global $PAGE;
 //$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/swfobject.js'));
 //$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/javascript.php'));
@@ -1142,41 +1145,66 @@ function fetchAudioListPlayer($runtime, $playlist, $filearea="content",$protocol
 global $CFG, $USER, $COURSE;
 
 $moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current module (eg moodleurl/view.php?id=X )
+$useplayer="fp";
 
-//Set our servername .
-$flvserver = $CFG->poodll_media_server;
+//determine if we are mobile or not
+ $browser = new Browser();
+	 switch($browser->getBrowser()){
+		case Browser::BROWSER_IPAD:
+		case Browser::BROWSER_IPOD:
+		case Browser::BROWSER_IPHONE:
+		case Browser::BROWSER_ANDROID:
+			$ismobile = true;
+			break;
+				
+		default: 
+			$ismobile = false;
+	}
 
 
-//determine which of, automated or manual playlists to use
-if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
-	//get a manually made playlist
-	$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $playlist;
-}else{
-	//get the url to the automated medialist maker
-	$fetchdataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?datatype=poodllaudiolist'
-		. '&courseid=' . $COURSE->id
-		. '&moduleid=' . $moduleid
-		. '&paramone=' . $playlist 
-		. '&paramtwo=' . $protocol 
-		. '&paramthree=' . $filearea
-		. '&cachekiller=' . rand(10000,999999);
-}
-
+	//If this is a flowplayer playlist
+	if($useplayer=="fp"){
+		 //This is alternate code for making an audio playlist using flowplayer Justin 20120424
+		 $returnString = fetch_poodllaudiolist($moduleid,$COURSE->id,$playlist, "http", $filearea,"alist");
+		 $returnString .= "<br clear='all'/>";
+		 //Because CSS for play list is defined elsewhere lets, hardcode the size to match it
+		 $returnString .= fetchFlowPlayerCode($width,40,"/","audiolist", $ismobile);
+		 //$returnString .= fetchFlowPlayerCode($width,$height,"/","audiolist");
+		 
+		 return $returnString;
 	
-
-	$params = array();
-		$params['red5url'] = urlencode($flvserver);
-		$params['playertype'] = $protocol;
-		$params['sequentialplay'] = $sequentialplay;
-		$params['playlist']=urlencode($fetchdataurl);
-	
-    	$returnString=  fetchSWFWidgetCode('poodllaudiolistplayer.lzx.swf9.swf',
-    						$params,$width,$height,'#FFFFFF');
-    						
-    	return $returnString;
+	//If this is a poodll player playlist
+	}else{
+		//Set our servername .
+		$flvserver = $CFG->poodll_media_server;
 
 
-	
+		//determine which of, automated or manual playlists to use
+		if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
+			//get a manually made playlist
+			$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $playlist;
+		}else{
+			//get the url to the automated medialist maker
+			$fetchdataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?datatype=poodllaudiolist'
+				. '&courseid=' . $COURSE->id
+				. '&moduleid=' . $moduleid
+				. '&paramone=' . $playlist 
+				. '&paramtwo=' . $protocol 
+				. '&paramthree=' . $filearea
+				. '&cachekiller=' . rand(10000,999999);
+		}
+		
+		$params = array();
+			$params['red5url'] = urlencode($flvserver);
+			$params['playertype'] = $protocol;
+			$params['sequentialplay'] = $sequentialplay;
+			$params['playlist']=urlencode($fetchdataurl);
+		
+			$returnString=  fetchSWFWidgetCode('poodllaudiolistplayer.lzx.swf9.swf',
+								$params,$width,$height,'#FFFFFF');
+								
+			return $returnString;
+	}
 }
 
 //Audio player with defaults, for use with PoodLL filter
@@ -1187,6 +1215,20 @@ global $CFG, $USER, $COURSE;
 $flvserver = $CFG->poodll_media_server;
 $courseid= $COURSE->id;
 $useplayer="fp";
+
+//determine if we are mobile or not
+ $browser = new Browser();
+	 switch($browser->getBrowser()){
+		case Browser::BROWSER_IPAD:
+		case Browser::BROWSER_IPOD:
+		case Browser::BROWSER_IPHONE:
+		case Browser::BROWSER_ANDROID:
+			$ismobile = true;
+			break;
+				
+		default: 
+			$ismobile = false;
+	}
 
 	//Set our use protocol type
 	//if one was not passed, then it may have been tagged to the url
@@ -1230,10 +1272,8 @@ $useplayer="fp";
 			}
 	}
 
-
-
 	//some common variables for the embedding stage.	
-	$playerLoc = $CFG->wwwroot . '/filter/poodll/flash/poodllaudioplayer.lzx.swf9.swf';
+	//$playerLoc = $CFG->wwwroot . '/filter/poodll/flash/poodllaudioplayer.lzx.swf9.swf';
 
 	//If we are using the legacy coursefiles, we want to fall into this code
 	//this is just a temporary fix to achieve this. Justin 20111213
@@ -1242,9 +1282,7 @@ $useplayer="fp";
         $type = 'http';
 	}
 	
-	//If we want to avoid javascript we do it this way
-	//embedding via javascript screws updating the entry on the page,
-	//which is seen after marking a single audio assignment from a list
+	//If we want to avoid loading many players per page, this loads the player only after a text link is clicked
 	if ($embed ){
 		$lzid = "lzapp_audioplayer_" . rand(100000, 999999) ;
 		$returnString="		
@@ -1252,13 +1290,9 @@ $useplayer="fp";
         <a href='#' onclick=\"javascript:loadAudioPlayer('$rtmp_file', '$lzid', 'sample_$lzid', '$width', '$height'); return false;\">$embedstring </a>
       </div>		
 		";
-
-
-			return $returnString;
-
-	//if we do not want to use embedding, ie use javascript to detect and insert (probably best..?)	
-	}else{
-	
+		return $returnString;
+	}
+	//if we are using javascript to detect and insert (probably best..?)	
 	
 		$params = array();
 		$params['red5url'] = urlencode($flvserver);
@@ -1268,19 +1302,12 @@ $useplayer="fp";
 		
 		
 		//if we are on mobile we want to play mp3 using html5 tags
-		if($runtime=='auto'){
-			 $browser = new Browser();
-	 		switch($browser->getBrowser()){
-				case Browser::BROWSER_IPAD:
-				case Browser::BROWSER_IPOD:
-				case Browser::BROWSER_IPHONE:
-				case Browser::BROWSER_ANDROID:
+		if($runtime=='auto' ){
+			if($ismobile){		
 					$runtime='js';
-					break;
-					
-				default:
+			}else{
 					$runtime='swf';
-			}//end of switch
+			}
 		}//end of if runtime=auto
 	
 	
@@ -1288,13 +1315,13 @@ $useplayer="fp";
 				$returnString="";
 				
 				//The HTML5 Code (can be used on its own OR with the mediaelement code below it
-				
 				$returnString .="<audio controls width='" . $width . "' height='" . $height . "'>
 								<source src='" .$rtmp_file . "'/>
 								</audio>";
 				
 				//=======================
 				//if we are using mediaelement js use this. We use JQuery which is not ideal, in moodle yui environment
+				/*
 				$mediajsroot = $CFG->wwwroot . '/filter/poodll/js/mediaelementjs/';
 				$returnString .="<script src='" . $mediajsroot .  "jquery.js'></script>";
 				$returnString .="<script src='" . $mediajsroot .  "mediaelement-and-player.min.js'></script>";
@@ -1304,36 +1331,38 @@ $useplayer="fp";
 				$returnString .="<script src='" . $mediajsroot .  "mep-feature-progress.js'></script>";
 				//$returnString .="<script>$('audio,video').mediaelementplayer({features:['playpause','loop','speed','progess','volume']});</script>";
 				$returnString .="<script>$('audio,video').mediaelementplayer();</script>";
-				//=======================
+				*/
+			//=======================
+			
 			
 				//=======================
 				//If we use Kaltura, use this			
 				//$returnString .="<script src='http://html5.kaltura.org/js'></script>";
 				//=======================
-				
-				
-
-
-			
-				
-							
+		
+		//if we are using SWF		
 		}else{
-				//if the file is an mp3, just pass it on to the multi media plugins filter for now.
-				if(substr($rtmp_file,-4)=='.mp3'){
-				//if(false){
-					$returnString= "<a href=\"$rtmp_file\">$rtmp_file</a>";
-				}else if($useplayer=="jw"){
+				//JW player
+				if($useplayer=="jw"){
 					$flashvars = array();
 					$flashvars['file'] = $rtmp_file;
 					$flashvars['autostart'] = 'false';
 					$returnString=  fetchSWFObjectWidgetCode('jwplayer.swf',
 								$flashvars,$width,$height,'#FFFFFF');
+				
+				//Flowplayer
 				}else if($useplayer=="fp"){
-					$flashvars = array();
-					$flashvars['config'] = "{\"clip\"=\"" . $rtmp_file . "\"}";
-					$returnString=  fetchSWFObjectWidgetCode('flowplayer.swf',
-								$flashvars,$width,$height,'#FFFFFF');
+					
+					$returnString= fetchFlowPlayerCode($width,$height,$rtmp_file,"audio",$ismobile);
+				
+				//if the file is an mp3, and we are using poodll player, don't handle it
+				//pass it to multi media plugin filter. PoodLL player can't mp3 without RTMP
+				}else if(substr($rtmp_file,-4)=='.mp3'){
+					$returnString= "<a href=\"$rtmp_file\">$rtmp_file</a>";
+				
+				//PoodLL Player
 				}else{
+					
 					$returnString=  fetchSWFWidgetCode('poodllaudioplayer.lzx.swf9.swf',
 								$params,$width,$height,'#FFFFFF');
 				}
@@ -1341,10 +1370,6 @@ $useplayer="fp";
 		}
     						
     	return $returnString;
-	}
-	
-
-	
 }
 
 
@@ -1751,6 +1776,123 @@ function fetchSWFObjectWidgetCode($widget,$flashvarsArray,$width,$height,$bgcolo
 			flashvars, params, attributes);
 		</script>
 		";
+	return $retcode;
+	
+
+	
+	
+}
+
+function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$jscontrols=true){
+
+	global $CFG, $PAGE;
+	
+	$playerid = "flowplayer_" . rand(100000, 999999);
+	
+	$jscontrolsid = "flowplayer_js_" . rand(100000, 999999); 
+	
+	//This is used in styles.css in poodll filter folder, so it needs to be hard coded
+	$jscontrolsclass = "fpjscontrols";
+
+	//init our return code
+	$retcode = "";
+	
+	//this next line should work but doesn't, so we have to punch in the script js tags
+	//$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'));
+	$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'></script>";
+	$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.ipad-3.2.8.min.js'></script>";
+	//If we are using JS controls
+	if($jscontrols){
+		$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.controls-3.2.8.min.js'></script>";
+	}
+	//the params are different depending on the playertype
+	//we need to specify provider for audio if the clips are not MP3 or mp3
+	//jqueryseems unavoidable even if not using it for playlists
+	switch($playertype){
+		case "audio":
+			if ($jscontrols){
+					$controls = " null ";
+					//we don't need to see the flowplayer video/audio at all if we are using js 
+					$height="1";
+			}else{
+				$controls = "{ fullscreen: false, height: $height, autoHide: false }";
+			}
+			$clip = "{ autoPlay: false, provider: \"audio\" }";
+			break;
+		
+		case "audiolist":
+			$retcode .= "<script src=\"http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js\"></script>";
+			$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.playlist-3.2.8.min.js'></script>";
+			if ($jscontrols){
+					$controls = " null ";
+					//we don't need to see the flowplayer video/audio at all if we are using js 
+					$height="1";
+			}else{
+				$controls = "{ fullscreen: false, height: 40, autoHide: false, playlist: true }";
+			}
+			
+			$clip = "{ autoPlay: true, provider: \"audio\" }";
+			break;
+		
+		case "video":
+			if ($jscontrols){
+					$controls = " null ";
+			}else{
+				$controls = "{ fullscreen: false, height: 40, autoHide: true }";
+			}
+			$clip = "{ autoPlay: false }";
+			break;
+		
+		case "videolist":
+			$retcode .= "<script src=\"http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js\"></script>";
+			$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.playlist-3.2.8.min.js'></script>";
+			$controls = "{ fullscreen: false, height: 40, autoHide: true, playlist: true }";
+			$clip = "{ autoPlay: false }";
+			break;
+	
+	
+	}
+	
+	//If we are using JS Controls, cancel out the controls we added above
+	
+
+	//put together the a link that will be replaced by a player
+	$retcode .= "<a href='" . $path . "'
+					style='display:block;width:" . $width. "px;height:" . $height . "px;'
+					id='" . $playerid . "'>
+				</a>";
+				
+	//put together the div that will be replaced by the JS controls
+	if($jscontrols){
+		$retcode .= "<div id='" . $jscontrolsid . "' class='" . $jscontrolsclass . "'></div>";
+	}
+	
+	//Add the script that will do the div replacing. Most of the important stuff is in here.
+	$retcode .= "<script language='JavaScript'>
+					flowplayer('" . $playerid . "', '" . $CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.10.swf',
+						 // fullscreen button not needed here
+						{
+							plugins: {
+								controls: $controls,
+								audio: { url: '" . $CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.audio-3.2.9.swf' }
+							},
+						 
+							clip: $clip
+						}
+					";
+	
+	//close off the javascript depending on the additional flowplayer components we need to incorp.
+	if (($playertype=="audiolist" || $playertype=="videolist") && $jscontrols){
+		$retcode .= ").controls(\"" . $jscontrolsid ."\").ipad().playlist(\"div.poodllplaylist\", {loop:true});</script>";
+	} else if ($playertype=="audiolist" || $playertype=="videolist"){
+		$retcode .= ").ipad().playlist(\"div.poodllplaylist\", {loop:true});</script>";
+	}else if($jscontrols){
+		$retcode .= ").controls(\"" . $jscontrolsid ."\").ipad();</script>";
+	}else{
+		$retcode .= ").ipad();</script>";
+	}
+	
+	//return the code
 	return $retcode;
 }
 

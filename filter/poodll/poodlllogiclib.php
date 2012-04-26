@@ -2,7 +2,7 @@
 
 /**
 * internal library of functions and constants for Poodll modules
-* accessed directly by poodll flash wdgets on web pages.
+* accessed directly by poodll flash widgets on web pages.
 * @package mod-poodllpairwork
 * @category mod
 * @author Justin Hunt
@@ -13,7 +13,10 @@
 /**
 * Includes and requires
 */
+//relative path is dangerous, so only use it if we have no $CFG already Justin 20120424
+if(!$CFG){
 require_once("../../config.php");
+}
 require_once($CFG->dirroot . '/filter/poodll/poodllinit.php');
 //commented just while getting other mods working
 //require_once('../mod/poodllpairwork/locallib.php');
@@ -488,7 +491,7 @@ function cmpDirnames($a, $b)
 }
 
 //Fetch the menu (assignments/resources/quizzes) for this course 
-function fetch_poodllaudiolist($moduleid, $courseid,  $path="/", $playertype, $filearea){
+function fetch_poodllaudiolist($moduleid, $courseid,  $path="/", $playertype, $filearea,$listtype="xml"){
 global $CFG, $DB, $COURSE;	
 
 	//=================================================================
@@ -497,23 +500,23 @@ global $CFG, $DB, $COURSE;
 /*
 	global $DB;
   
-          //$xml_output .= '0 ' . get_system_context()->id;
+          //$ret_output .= '0 ' . get_system_context()->id;
   
          $result = array();
 		//set up xml to return	
-		$xml_output = "<files>\n";
+		$ret_output = "<files>\n";
           $file_records = $DB->get_records('files');
            foreach ($file_records as $file_record) {
 			
-				$xml_output .= '<file filename="' . $file_record->filename . '" contextid="' . $file_record->contextid . '" component="' .  $file_record->component . '" filearea="' . $file_record->filearea . '" />';
+				$ret_output .= '<file filename="' . $file_record->filename . '" contextid="' . $file_record->contextid . '" component="' .  $file_record->component . '" filearea="' . $file_record->filearea . '" />';
                   
              }
 
 	
 	//close xml to return
-	$xml_output .= "</files>";
+	$ret_output .= "</files>";
 		//Return the data
-	return $xml_output;
+	return $ret_output;
 	*/
 
 	//==================================================================
@@ -521,10 +524,18 @@ global $CFG, $DB, $COURSE;
 	//if a single file was passed in, just play that alone.
 	//for PoodlL 2 this is all we can do in a question right now
 	if(strlen($path) > 4 && substr($path,-4)==".flv"){
-		$xml_output = "<audios>\n";
-		$xml_output .=  "\t<audio audioname='" . basename($path) ."' playertype='" . $playertype . "' url='" . trim($path) . "'/>\n";
-		$xml_output .= "</audios>\n";
-		return $xml_output;
+		switch($listtype){
+			case "xml":
+				$ret_output = "<audios>\n";
+				$ret_output .=  "\t<audio audioname='" . basename($path). "' playertype='" . $playertype . "' url='" . trim($path) . "'/>\n";
+				$ret_output .= "</audios>\n";
+				break;
+			case "alinks":
+				$ret_output = "<a href=\"" . trim($path) . "\"><span>" . basename($path). "</span></a>";
+				break;
+		}
+		
+		return $ret_output;
 	}
 
 
@@ -550,8 +561,15 @@ global $CFG, $DB, $COURSE;
 	}
 	
 
-	//set up xml to return	
-	$xml_output = "<audios>\n";
+	//set up xml/div to return	
+	switch($listtype){
+			case "xml":
+				$ret_output = "<audios>\n";
+				break;
+			case "alist":
+				$ret_output = "<div class=\"poodllplaylist\">";
+				break;
+	}
 	
 	//get filehandling objects
 	$browser = get_file_browser();
@@ -580,7 +598,17 @@ global $CFG, $DB, $COURSE;
 						if($f->get_filepath()==$path){
 							//get the url to the file and add it to the XML
 							$urltofile = $fileinfo->get_url();
-							$xml_output .=  "\t<audio audioname='" . basename($filename) ."' playertype='" . $playertype . "' url='" . trim($urltofile) . "'/>\n";
+							switch($listtype){
+								case "xml":
+									$ret_output .=  "\t<audio audioname='" . basename($filename) ."' playertype='" . $playertype . "' url='" . trim($urltofile) . "'/>\n";
+									break;
+								case "alist":
+
+										$ret_output  .= "<a href=\"" . trim($urltofile) . "\"><span>" . basename($filename). "</span></a>";
+
+									break;
+							}
+						
 						}
 					}
 				}
@@ -588,13 +616,21 @@ global $CFG, $DB, $COURSE;
 		}
 	
 	//for debugging
-	//$xml_output .=  "\t<audio audioname='" . $cm->modname  . " " . $filearea . " " . $urltofile ."' playertype='" . $playertype . "' url='" . $mediapath . basename($contextid). "'/>\n";
+	//$ret_output .=  "\t<audio audioname='" . $cm->modname  . " " . $filearea . " " . $urltofile ."' playertype='" . $playertype . "' url='" . $mediapath . basename($contextid). "'/>\n";
 	
-	//close xml to return
-	$xml_output .= "</audios>";
+	//close xml/alist tags to return
+	switch($listtype){
+		case "xml":
+			$ret_output .= "</audios>";
+			break;
+		case "alist":
+			$ret_output .= "</div>";
+			break;
+	}
+	
 
 	//Return the data
-	return $xml_output;
+	return $ret_output;
 
 
 }
