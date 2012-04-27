@@ -7,6 +7,26 @@ $string['filtername'] = 'PoodLL Filter';
 $string['settings'] = 'PoodLL Filter Settings';
 $string['activate'] = 'Activate PoodLL?';
 
+//headings
+$string['filter_poodll_network_heading'] = 'PoodLL Network Settings';
+$string['filter_poodll_audioplayer_heading'] = 'Audio Player Settings';
+$string['filter_poodll_mic_heading'] = 'Microphone Settings';
+$string['filter_poodll_videoplayer_heading'] = 'Video Player Settings';
+$string['filter_poodll_camera_heading'] = 'Web Camera Settings';
+$string['filter_poodll_videogallery_heading'] = 'Video Gallery Settings';
+$string['filter_poodll_whiteboard_heading'] = 'Whiteboard Settings';
+$string['filter_poodll_legacy_heading'] = 'PoodLL Legacy Settings';
+$string['filter_poodll_playertypes_heading'] = 'Default Player Types';
+$string['filter_poodll_intercept_heading'] = 'Filetypes PoodLL Handles by Default';
+
+     
+$string['defaultplayer'] = 'Default A/V Player';
+$string['html5controls'] = 'HTML5 Controls';
+$string['handleflv'] = 'Handle FLV Files';
+$string['handlemp4'] = 'Handle MP4 Files';
+$string['handlemp3'] = 'Handle MP3 Files';
+
+
 $string['videowidth'] = 'Video Player Width';
 $string['videoheight'] = 'Video Player Height';
 $string['audiowidth'] = 'Audio Player Width';

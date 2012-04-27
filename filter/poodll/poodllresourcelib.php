@@ -1145,7 +1145,7 @@ function fetchAudioListPlayer($runtime, $playlist, $filearea="content",$protocol
 global $CFG, $USER, $COURSE;
 
 $moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current module (eg moodleurl/view.php?id=X )
-$useplayer="fp";
+$useplayer=$CFG->filter_poodll_defaultplayer;
 
 //determine if we are mobile or not
  $browser = new Browser();
@@ -1161,9 +1161,8 @@ $useplayer="fp";
 			$ismobile = false;
 	}
 
-
-	//If this is a flowplayer playlist
-	if($useplayer=="fp"){
+	//If poodll player is not default, use flowplayer it will handle mobile and flash
+	if($useplayer!="pd"){
 		 //This is alternate code for making an audio playlist using flowplayer Justin 20120424
 		 $returnString = fetch_poodllaudiolist($moduleid,$COURSE->id,$playlist, "http", $filearea,"alist");
 		 $returnString .= "<br clear='all'/>";
@@ -1173,7 +1172,7 @@ $useplayer="fp";
 		 
 		 return $returnString;
 	
-	//If this is a poodll player playlist
+	//If this is a poodll player playlist 
 	}else{
 		//Set our servername .
 		$flvserver = $CFG->poodll_media_server;
@@ -1214,7 +1213,7 @@ global $CFG, $USER, $COURSE;
 //Set our servername .
 $flvserver = $CFG->poodll_media_server;
 $courseid= $COURSE->id;
-$useplayer="fp";
+$useplayer=$CFG->filter_poodll_defaultplayer;
 
 //determine if we are mobile or not
  $browser = new Browser();
@@ -1311,7 +1310,7 @@ $useplayer="fp";
 		}//end of if runtime=auto
 	
 	
-		if($runtime=='js'){
+		if($runtime=='js' && ($CFG->filter_poodll_html5controls=='native')){
 				$returnString="";
 				
 				//The HTML5 Code (can be used on its own OR with the mediaelement code below it
@@ -1342,23 +1341,28 @@ $useplayer="fp";
 		
 		//if we are using SWF		
 		}else{
+				
+				
+				//Flowplayer
+				if($useplayer=="fp" || $CFG->filter_poodll_html5controls=="js"){
+					
+					$returnString= fetchFlowPlayerCode($width,$height,$rtmp_file,"audio",$ismobile);
+				
 				//JW player
-				if($useplayer=="jw"){
+				} else if($useplayer=="jw"){
 					$flashvars = array();
 					$flashvars['file'] = $rtmp_file;
 					$flashvars['autostart'] = 'false';
 					$returnString=  fetchSWFObjectWidgetCode('jwplayer.swf',
 								$flashvars,$width,$height,'#FFFFFF');
 				
-				//Flowplayer
-				}else if($useplayer=="fp"){
+				//if the file is an mp3, and we are using poodll player, don't handle it
+				//either pass it to multi media plugin filter or pass it flowplayer
+				// PoodLL player can't mp3 without RTMP
+				}else if(substr($rtmp_file,-4)=='.mp3'){
 					
 					$returnString= fetchFlowPlayerCode($width,$height,$rtmp_file,"audio",$ismobile);
-				
-				//if the file is an mp3, and we are using poodll player, don't handle it
-				//pass it to multi media plugin filter. PoodLL player can't mp3 without RTMP
-				}else if(substr($rtmp_file,-4)=='.mp3'){
-					$returnString= "<a href=\"$rtmp_file\">$rtmp_file</a>";
+					//$returnString= "<a href=\"$rtmp_file\">$rtmp_file</a>";
 				
 				//PoodLL Player
 				}else{
@@ -1783,13 +1787,21 @@ function fetchSWFObjectWidgetCode($widget,$flashvarsArray,$width,$height,$bgcolo
 	
 }
 
-function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$jscontrols=true){
+function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=false){
 
 	global $CFG, $PAGE;
 	
 	$playerid = "flowplayer_" . rand(100000, 999999);
 	
 	$jscontrolsid = "flowplayer_js_" . rand(100000, 999999); 
+	
+	//usually we displayhtml5 controls depending on config prefs
+	//but they don't do lists, so if we are not mobile, we use flash
+	//if(($playertype=='audiolist' || $playertype=='videolist') && !$ismobile){
+	//	$jscontrols= false;
+	//}else{
+		$jscontrols= ($CFG->filter_poodll_html5controls == 'js') && $ismobile;
+	//}
 	
 	//This is used in styles.css in poodll filter folder, so it needs to be hard coded
 	$jscontrolsclass = "fpjscontrols";

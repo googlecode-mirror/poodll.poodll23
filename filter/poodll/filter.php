@@ -29,6 +29,36 @@ class filter_poodll extends moodle_text_filter {
 			}
 			
 			$newtext = $text; // fullclone is slow and not needed here
+				
+			//check for mp3
+			 if (!empty($CFG->filter_poodll_handlemp3)) {
+				if (!(stripos($text, '</a>') ===false)) {
+				// performance shortcut - all filepicker media links  end with the </a> tag,
+					$search = '/<a\s[^>]*href="([^"#\?]+\.mp3)"[^>]*>([^>]*)<\/a>/is';
+					$newtext = preg_replace_callback($search, 'filter_poodll_mp3_callback', $newtext);
+				}
+			}
+			
+			//check for mp4
+			if (!empty($CFG->filter_poodll_handlemp4)) {
+				if (!(stripos($text, '</a>') === false)) {
+					// performance shortcut - all filepicker media links  end with the </a> tag,
+					$search = '/<a\s[^>]*href="([^"#\?]+\.mp4)"[^>]*>([^>]*)<\/a>/is';
+					$newtext = preg_replace_callback($search, 'filter_poodll_mp4flv_callback', $newtext);
+				}
+			}
+			
+			//check for flv
+			if (!empty($CFG->filter_poodll_handleflv)) {
+				if (!(stripos($text, '</a>') === false)) {
+				// performance shortcut - all filepicker media links  end with the </a> tag,
+					$search = '/<a\s[^>]*href="([^"#\?]+\.flv)"[^>]*>([^>]*)<\/a>/is';
+					$newtext = preg_replace_callback($search, 'filter_poodll_mp4flv_callback', $newtext);
+				}
+			}
+					
+			
+		
 			
 			$search = '/{POODLL:.*?}/is';
 
@@ -244,4 +274,29 @@ function filter_poodll_callback(array $link){
 	//return our html
 	return $returnHtml;
 
-}//end of callback function
+}//end of poodll default callback function
+
+
+/**
+ * Replace mp3 links with player
+ *
+ * @param  $link
+ * @return string
+ */
+function filter_poodll_mp3_callback($link) {
+global $CFG;
+
+    $url = $link[1];
+    $rawurl = str_replace('&amp;', '&', $url);
+
+    $returnHtml="<BR />" . fetchSimpleAudioPlayer('auto',$rawurl,'http',$CFG->filter_poodll_audiowidth,$CFG->filter_poodll_audioheight,false,'Play');
+	return $returnHtml;
+}
+function filter_poodll_mp4flv_callback($link) {
+global $CFG;
+	$url = $link[1];
+    $rawurl = str_replace('&amp;', '&', $url);
+	
+	$returnHtml="<BR />" . fetchSimpleVideoPlayer('auto',$rawurl,$CFG->filter_poodll_videowidth,$CFG->filter_poodll_videoheight,'http',false,true , 'Play');
+	return $returnHtml;
+}
