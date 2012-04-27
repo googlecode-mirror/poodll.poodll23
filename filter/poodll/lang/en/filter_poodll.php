@@ -29,8 +29,12 @@ $string['handlemp3'] = 'Handle MP3 Files';
 
 $string['videowidth'] = 'Video Player Width';
 $string['videoheight'] = 'Video Player Height';
+$string['videosplash'] = 'Show Simple Video Splash';
+$string['videosplashdetails'] = 'Splash screen is shown for Flowplayer only.';
 $string['audiowidth'] = 'Audio Player Width';
 $string['audioheight'] = 'Audio Player Height';
+$string['audiosplash'] = 'Show Simple Audio Splash';
+$string['audiosplashdetails'] = 'Splash screen is shown for Flowplayer only.';
 
 $string['capturewidth'] = 'Video Recorder Capture Width';
 $string['captureheight'] = 'Video Recorder Capture Height';

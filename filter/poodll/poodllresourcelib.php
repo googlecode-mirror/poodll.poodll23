@@ -1385,6 +1385,21 @@ global $CFG, $USER, $COURSE;
 //Set our servername .
 $flvserver = $CFG->poodll_media_server;
 $courseid= $COURSE->id;
+$useplayer=$CFG->filter_poodll_defaultplayer;
+
+//determine if we are mobile or not
+ $browser = new Browser();
+	 switch($browser->getBrowser()){
+		case Browser::BROWSER_IPAD:
+		case Browser::BROWSER_IPOD:
+		case Browser::BROWSER_IPHONE:
+		case Browser::BROWSER_ANDROID:
+			$ismobile = true;
+			break;
+				
+		default: 
+			$ismobile = false;
+	}
 
 
 	//Massage the media file name if we have a username variable passed in.	
@@ -1466,8 +1481,19 @@ $courseid= $COURSE->id;
 		$params['mediapath'] = $rtmp_file;
 		$params['permitfullscreen'] = $permitfullscreen;
 	
-		if($runtime=='js'){
-			$returnString="";
+		//if we are on mobile we want to play mp3 using html5 tags
+		if($runtime=='auto' ){
+			if($ismobile){		
+					$runtime='js';
+			}else{
+					$runtime='swf';
+			}
+		}//end of if runtime=auto
+	
+	
+		if($runtime=='js' && ($CFG->filter_poodll_html5controls=='native')){
+				$returnString="";
+
 			
 			$poster="";//To do add poster code, once we have thought it all through a bit better
 			$returnString .="<video controls poster='" . $poster . "' width='" . $width . "' height='" . $height . "'>
@@ -1490,16 +1516,38 @@ $courseid= $COURSE->id;
 			//$returnString .="<script src='http://html5.kaltura.org/js'></script>";		
 			//============================
 							
+		
+		//if we are using SWF		
 		}else{
-	
-			$returnString=  fetchSWFWidgetCode('poodllvideoplayer.lzx.swf9.swf',
-    						$params,$width,$height,'#FFFFFF');
-    	}					
-							
-    	return $returnString;
+				
+				
+				//Flowplayer
+				if($useplayer=="fp" || $CFG->filter_poodll_html5controls=="js"){
+					
+					$returnString= fetchFlowPlayerCode($width,$height,$rtmp_file,"video",$ismobile);
+				
+				//JW player
+				} else if($useplayer=="jw"){
+					$flashvars = array();
+					$flashvars['file'] = $rtmp_file;
+					$flashvars['autostart'] = 'false';
+					$returnString=  fetchSWFObjectWidgetCode('jwplayer.swf',
+								$flashvars,$width,$height,'#FFFFFF');
+				
 
+				
+				//PoodLL Player
+				}else{
+					
+					$returnString=  fetchSWFWidgetCode('poodllvideoplayer.lzx.swf9.swf',
+								$params,$width,$height,'#FFFFFF');
+				}
+							
 		}
-	
+    						
+    	return $returnString;
+	}
+
 }
 
 
@@ -1795,14 +1843,20 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 	
 	$jscontrolsid = "flowplayer_js_" . rand(100000, 999999); 
 	
-	//usually we displayhtml5 controls depending on config prefs
-	//but they don't do lists, so if we are not mobile, we use flash
-	//if(($playertype=='audiolist' || $playertype=='videolist') && !$ismobile){
-	//	$jscontrols= false;
-	//}else{
-		$jscontrols= ($CFG->filter_poodll_html5controls == 'js') && $ismobile;
-	//}
+	$defaultcontrolsheight = $CFG->filter_poodll_audioheight;
 	
+	//usually we displayhtml5 controls depending on config prefs
+	//but for lists, so if we are mobile we use js, if not we use flash
+	if($playertype=='audiolist' || $playertype=='videolist') {
+		if($ismobile){
+			$jscontrols= true;
+		}else{
+			$jscontrols=false;
+		}
+	}else{
+		$jscontrols= ($CFG->filter_poodll_html5controls == 'js') && $ismobile;
+	}
+
 	//This is used in styles.css in poodll filter folder, so it needs to be hard coded
 	$jscontrolsclass = "fpjscontrols";
 
@@ -1829,7 +1883,15 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 			}else{
 				$controls = "{ fullscreen: false, height: $height, autoHide: false }";
 			}
-			$clip = "{ autoPlay: false, provider: \"audio\" }";
+			//If we have a splash screen show it and enable autoplay(user only clicks once)
+			//best to have a splash screen to prevent browser hangs on many flashplayers in a forum etc
+			if($CFG->filter_poodll_audiosplash){
+				$clip = "{ autoPlay: true, provider: \"audio\" }";
+				$splash = "<img src='" . $CFG->wwwroot . "/filter/poodll/flowplayer/audiosplash.jpg' alt='click to play audio' width='" . $width . "' height='" . $height . "'/>";
+			}else{
+				$clip = "{ autoPlay: false, provider: \"audio\" }";
+				$splash = "";
+			}
 			break;
 		
 		case "audiolist":
@@ -1840,38 +1902,47 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 					//we don't need to see the flowplayer video/audio at all if we are using js 
 					$height="1";
 			}else{
-				$controls = "{ fullscreen: false, height: 40, autoHide: false, playlist: true }";
+				$controls = "{ fullscreen: false, height: " . $defaultcontrolsheight . " , autoHide: false, playlist: true }";
 			}
 			
 			$clip = "{ autoPlay: true, provider: \"audio\" }";
+			$splash = "";
 			break;
 		
 		case "video":
 			if ($jscontrols){
 					$controls = " null ";
 			}else{
-				$controls = "{ fullscreen: false, height: 40, autoHide: true }";
+				$controls = "{ fullscreen: false, height: " . $defaultcontrolsheight . " , autoHide: true }";
 			}
-			$clip = "{ autoPlay: false }";
+			//If we have a splash screen show it and enable autoplay(user only clicks once)
+			//best to have a splash screen to prevent browser hangs on many flashplayers in a forum etc
+			if($CFG->filter_poodll_videosplash){
+				$clip = "{ autoPlay: true }";
+				$splash = "<img src='" . $CFG->wwwroot . "/filter/poodll/flowplayer/videosplash.jpg' alt='click to play video' width='" . $width . "' height='" . $height . "'/>";
+			}else{
+				$clip = "{ autoPlay: false }";
+				$splash="";
+			}
 			break;
 		
 		case "videolist":
 			$retcode .= "<script src=\"http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js\"></script>";
 			$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.playlist-3.2.8.min.js'></script>";
-			$controls = "{ fullscreen: false, height: 40, autoHide: true, playlist: true }";
+			$controls = "{ fullscreen: false, height: " . $defaultcontrolsheight . " , autoHide: true, playlist: true }";
 			$clip = "{ autoPlay: false }";
+			$splash ="";
 			break;
 	
 	
 	}
-	
-	//If we are using JS Controls, cancel out the controls we added above
 	
 
 	//put together the a link that will be replaced by a player
 	$retcode .= "<a href='" . $path . "'
 					style='display:block;width:" . $width. "px;height:" . $height . "px;'
 					id='" . $playerid . "'>
+					" . $splash . "
 				</a>";
 				
 	//put together the div that will be replaced by the JS controls

@@ -185,3 +185,8 @@ div.poodllplaylist a em {
 .fpjscontrols .unmute:hover {
     background-position:5px -279px;
 }
+
+a.myPlayer img {
+    width:100%;
+    height:auto;
+}
