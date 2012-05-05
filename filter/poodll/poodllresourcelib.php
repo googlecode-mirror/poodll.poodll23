@@ -1146,6 +1146,7 @@ global $CFG, $USER, $COURSE;
 
 $moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current module (eg moodleurl/view.php?id=X )
 $useplayer=$CFG->filter_poodll_defaultplayer;
+$htmlplaylist = true;
 
 //determine if we are mobile or not
  $browser = new Browser();
@@ -1161,14 +1162,58 @@ $useplayer=$CFG->filter_poodll_defaultplayer;
 			$ismobile = false;
 	}
 
+	//if its a poodll player we want an xml feed
+	//if its jw or fp we want an rss feed
+	//if we are ipads or html playlists + fp, we wont use a data feed, we will use a list of links
+	//so in that case we pass a "" and just spit out the links.
+	switch($useplayer){
+		case "pd": 	$datatype = "poodllaudiolist";break;
+		case "jw":	$datatype = "poodllrsslist";break;
+		case "fp": if($htmlplaylist) {
+						$datatype="";
+					}else{
+						$datatype = "poodllrsslist";
+					}
+					break;
+	}
+	
+	
+	//determine which of, automated or manual playlists to use
+	if(strlen($playlist) > 4 && (substr($playlist,-4)==".xml" || substr($playlist,-4)==".rss")){
+		//get a manually made playlist
+		$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $playlist;
+	
+	//get an automatically built playlist url
+	}else if(!$htmlplaylist){
+		//get the url to the automated medialist maker
+		//$fetchdataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?datatype=poodllaudiolist'
+		$fetchdataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?datatype=' . $datatype 
+			. '&courseid=' . $COURSE->id
+			. '&moduleid=' . $moduleid
+			. '&paramone=' . $playlist 
+			. '&paramtwo=' . $protocol 
+			. '&paramthree=' . $filearea
+			. '&cachekiller=' . rand(10000,999999);
+	}
+	
+
 	//If poodll player is not default, use flowplayer it will handle mobile and flash
 	if($useplayer!="pd"){
-		 //This is alternate code for making an audio playlist using flowplayer Justin 20120424
-		 $returnString = fetch_poodllaudiolist($moduleid,$COURSE->id,$playlist, "http", $filearea,"alist");
-		 $returnString .= "<br clear='all'/>";
-		 //Because CSS for play list is defined elsewhere lets, hardcode the size to match it
-		 $returnString .= fetchFlowPlayerCode($width,40,"/","audiolist", $ismobile);
-		 //$returnString .= fetchFlowPlayerCode($width,$height,"/","audiolist");
+		$returnString="";
+		 //if html playlist use links as list
+		 if ($htmlplaylist){
+			$returnString = fetch_poodllaudiolist($moduleid,$COURSE->id,$playlist, "http", $filearea,"alist");
+			$returnString .= "<br clear='all'/>";
+			//get a flowplayer without a datafeed
+			//size is hardcoded to match images pulled from styles.css in pooodll filter
+			$returnString .= fetchFlowPlayerCode($width,40,"/","audiolist", $ismobile, "");
+			
+		 //if rss playlist use url of datafeed and pass to flowplayer
+		 }else{
+			//get a flowplayer using the data feed
+			//size is hardcoded to match images pulled from styles.css in pooodll filter
+			$returnString .= fetchFlowPlayerCode($width,40,"/","audiolist", $ismobile, $fetchdataurl);
+		 }
 		 
 		 return $returnString;
 	
@@ -1178,20 +1223,7 @@ $useplayer=$CFG->filter_poodll_defaultplayer;
 		$flvserver = $CFG->poodll_media_server;
 
 
-		//determine which of, automated or manual playlists to use
-		if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
-			//get a manually made playlist
-			$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $playlist;
-		}else{
-			//get the url to the automated medialist maker
-			$fetchdataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?datatype=poodllaudiolist'
-				. '&courseid=' . $COURSE->id
-				. '&moduleid=' . $moduleid
-				. '&paramone=' . $playlist 
-				. '&paramtwo=' . $protocol 
-				. '&paramthree=' . $filearea
-				. '&cachekiller=' . rand(10000,999999);
-		}
+	
 		
 		$params = array();
 			$params['red5url'] = urlencode($flvserver);
@@ -1835,7 +1867,7 @@ function fetchSWFObjectWidgetCode($widget,$flashvarsArray,$width,$height,$bgcolo
 	
 }
 
-function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=false){
+function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=false, $playlisturlstring =""){
 
 	global $CFG, $PAGE;
 	
@@ -1866,7 +1898,10 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 	//this next line should work but doesn't, so we have to punch in the script js tags
 	//$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'));
 	$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'></script>";
-	$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.ipad-3.2.8.min.js'></script>";
+	if($ismobile){
+		$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.ipad-3.2.8.min.js'></script>";
+	}
+	
 	//If we are using JS controls
 	if($jscontrols){
 		$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.controls-3.2.8.min.js'></script>";
@@ -1905,6 +1940,13 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 				$controls = "{ fullscreen: false, height: " . $defaultcontrolsheight . " , autoHide: false, playlist: true }";
 			}
 			
+			//add a media rss playlist if one was passed in
+			if($playlisturlstring !=""){
+				$playlisturlstring = "\"" . $playlisturlstring . "\"";
+			}else{
+				$playlisturlstring = " null ";
+			}
+			
 			$clip = "{ autoPlay: true, provider: \"audio\" }";
 			$splash = "";
 			break;
@@ -1930,6 +1972,14 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 			$retcode .= "<script src=\"http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js\"></script>";
 			$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.playlist-3.2.8.min.js'></script>";
 			$controls = "{ fullscreen: false, height: " . $defaultcontrolsheight . " , autoHide: true, playlist: true }";
+			
+			//add a media rss playlist if one was passed in
+			if($playlisturlstring !=""){
+				$playlisturlstring = "\"" . $playlisturlstring . "\"";
+			}else{
+				$playlisturlstring = " null ";
+			}
+			
 			$clip = "{ autoPlay: false }";
 			$splash ="";
 			break;
@@ -1960,19 +2010,33 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 								audio: { url: '" . $CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.audio-3.2.9.swf' }
 							},
 						 
+							playlist: $playlisturlstring,
+						 
 							clip: $clip
 						}
 					";
 	
 	//close off the javascript depending on the additional flowplayer components we need to incorp.
-	if (($playertype=="audiolist" || $playertype=="videolist") && $jscontrols){
-		$retcode .= ").controls(\"" . $jscontrolsid ."\").ipad().playlist(\"div.poodllplaylist\", {loop:true});</script>";
-	} else if ($playertype=="audiolist" || $playertype=="videolist"){
-		$retcode .= ").ipad().playlist(\"div.poodllplaylist\", {loop:true});</script>";
-	}else if($jscontrols){
-		$retcode .= ").controls(\"" . $jscontrolsid ."\").ipad();</script>";
+	if($ismobile){
+		if (($playertype=="audiolist" || $playertype=="videolist") && $jscontrols){
+			$retcode .= ").controls(\"" . $jscontrolsid ."\").ipad().playlist(\"div.poodllplaylist\", {loop:true});</script>";
+		} else if ($playertype=="audiolist" || $playertype=="videolist"){
+			$retcode .= ").ipad().playlist(\"div.poodllplaylist\", {loop:true});</script>";
+		}else if($jscontrols){
+			$retcode .= ").controls(\"" . $jscontrolsid ."\").ipad();</script>";
+		}else{
+			$retcode .= ").ipad();</script>";
+		}
 	}else{
-		$retcode .= ").ipad();</script>";
+		if (($playertype=="audiolist" || $playertype=="videolist") && $jscontrols){
+			$retcode .= ").controls(\"" . $jscontrolsid ."\").playlist(\"div.poodllplaylist\", {loop:true});</script>";
+		} else if ($playertype=="audiolist" || $playertype=="videolist"){
+			$retcode .= ").playlist(\"div.poodllplaylist\", {loop:true});</script>";
+		}else if($jscontrols){
+			$retcode .= ").controls(\"" . $jscontrolsid ."\");</script>";
+		}else{
+			$retcode .= ");</script>";
+		}
 	}
 	
 	//return the code

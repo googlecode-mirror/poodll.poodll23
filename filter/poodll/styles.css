@@ -14,9 +14,9 @@ div.poodllplaylist {
 /* playlist entry */
  div.poodllplaylist a {
     display:block;
-    width:400px;
-    height:30px;
-    padding:2px;
+    width:380px;
+    height:18px;
+    padding:1px;
     background-color:#fff;
     border:1px solid #ccc;
     font:11px "bitstream vera sans", "lucida grande",verdana;
@@ -184,9 +184,4 @@ div.poodllplaylist a em {
 
 .fpjscontrols .unmute:hover {
     background-position:5px -279px;
-}
-
-a.myPlayer img {
-    width:100%;
-    height:auto;
 }

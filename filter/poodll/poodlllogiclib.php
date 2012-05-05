@@ -91,6 +91,16 @@ require_once($CFG->libdir . '/filelib.php');
 			//moduleid/courseid/path/playerype/filearea
 			$returnxml=fetch_poodllmedialist($moduleid, $courseid, $paramone, $paramtwo, $paramthree);
 			break;
+		
+		case "poodllrsslist": 
+			header("Content-type: application/rss+xml");
+			echo "<rss version=\"2.0\" 
+				xmlns:media=\"http://search.yahoo.com/mrss/\"
+				xmlns:fp=\"http://flowplayer.org/fprss/\">";
+			//moduleid/courseid/path/playerype/filearea
+			$returnxml=fetch_poodllaudiolist($moduleid, $courseid, $paramone, $paramtwo, $paramthree,"rss");
+			$returnxml .="</rss>";
+			break;
 			
 		case "poodllaudiolist": 
 			header("Content-type: text/xml");
@@ -530,8 +540,15 @@ global $CFG, $DB, $COURSE;
 				$ret_output .=  "\t<audio audioname='" . basename($path). "' playertype='" . $playertype . "' url='" . trim($path) . "'/>\n";
 				$ret_output .= "</audios>\n";
 				break;
+			
+			case "rss":
+				 $ret_output = "<channel><title></title>";
+				break;
+			
 			case "alinks":
-				$ret_output = "<a href=\"" . trim($path) . "\"><span>" . basename($path). "</span></a>";
+				$ret_output =  "<div class=\"poodllplaylist\">";
+				$ret_output .= "<a href=\"" . trim($path) . "\"><span>" . basename($path). "</span></a>";
+				$ret_output .= "</div>";
 				break;
 		}
 		
@@ -566,6 +583,9 @@ global $CFG, $DB, $COURSE;
 			case "xml":
 				$ret_output = "<audios>\n";
 				break;
+			case "rss":
+				 $ret_output = "<channel><title></title>";
+				break;
 			case "alist":
 				$ret_output = "<div class=\"poodllplaylist\">";
 				break;
@@ -591,6 +611,12 @@ global $CFG, $DB, $COURSE;
 				if(strlen($filename)>4){
 					$ext = substr($filename,-4);
 					if($ext==".mp3" || $ext==".mp4" || $ext==".flv"){
+						switch($ext){
+							case ".mp3": $mimetype="audio/mpeg3"; break;
+							case ".flv": $mimetype="audio/mp4"; break;
+							case ".mp4": $mimetype="video/x-flv"; break;
+						}
+					
 						//fetch our info object
 						$fileinfo = $browser->get_file_info($thiscontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
 
@@ -602,10 +628,14 @@ global $CFG, $DB, $COURSE;
 								case "xml":
 									$ret_output .=  "\t<audio audioname='" . basename($filename) ."' playertype='" . $playertype . "' url='" . trim($urltofile) . "'/>\n";
 									break;
+								case "rss":
+									$ret_output .=  "\t<item><title>" . 
+										basename($filename) ."</title><media:content url=\"" .
+										trim($urltofile) . "\" type=\"" . $mimetype .
+										"\"/></item>";
+									break;
 								case "alist":
-
-										$ret_output  .= "<a href=\"" . trim($urltofile) . "\"><span>" . basename($filename). "</span></a>";
-
+									$ret_output  .= "<a href=\"" . trim($urltofile) . "\"><span>" . basename($filename). "</span></a>";
 									break;
 							}
 						
@@ -622,6 +652,9 @@ global $CFG, $DB, $COURSE;
 	switch($listtype){
 		case "xml":
 			$ret_output .= "</audios>";
+			break;
+		case "rss":
+			$ret_output .= "</channel>";
 			break;
 		case "alist":
 			$ret_output .= "</div>";
