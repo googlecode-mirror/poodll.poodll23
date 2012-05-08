@@ -22,7 +22,8 @@ define('MR_TYPETALKBACK',2);
 require_once($CFG->dirroot . '/filter/poodll/poodllinit.php');
 require_once($CFG->dirroot . '/filter/poodll/Browser.php');
 //added Justin 20120424 
-require_once($CFG->dirroot . '/filter/poodll/poodlllogiclib.php');
+//unadded Justin 20120508 caused problems in repository and I guess elsewhere too ... need to investigate.
+//require_once($CFG->dirroot . '/filter/poodll/poodlllogiclib.php');
 
 global $PAGE;
 //$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/swfobject.js'));
