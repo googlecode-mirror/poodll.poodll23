@@ -1,12 +1,12 @@
 /* playlist style */
 div.poodllplaylist {
-    width:400px;
+    width:397px;
     height:150px;
     overflow-y:auto;
     overflow-x:hidden;
     border:1px solid #ccc;
-    padding:4px 1px 12px 1px;
-    background-color:#efefef;
+    padding:1px 1px 12px 1px;
+    background-color:#495171;
     margin-top:5px;
     float:left;
 }
@@ -16,32 +16,36 @@ div.poodllplaylist {
     display:block;
     width:380px;
     height:18px;
-    padding:1px;
+    padding:3px;
     background-color:#fff;
     border:1px solid #ccc;
     font:11px "bitstream vera sans", "lucida grande",verdana;
     text-decoration:none;
-    margin-top:7px;
+    margin-top:0px;
     color:#666;
 }
  
 /* different states of a playlist entry */
 div.poodllplaylist a:hover {
-    background-color:#ffc;
+    background-color:#c0c4d5;
+	color:#0;
 }
  
 div.poodllplaylist a.progress {
     background-color:#efefef;
+	color:#0;
 }
  
 div.poodllplaylist a.playing {
     border:1px solid #666;
-    background-color:#ffc;
+    background-color:#c0c4d5;
+	color:#0;
 }
  
 div.poodllplaylist a.paused {
     border:1px solid #666;
-    background-color:#ffc;
+    background-color:#c0c4d5;
+	color:#0;
 }
  
 /* elements inside playlist entry */

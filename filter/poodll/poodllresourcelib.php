@@ -1718,6 +1718,182 @@ global $CFG, $USER, $COURSE;
 	
 }
 
+//helper callback function to sort filenames, called from poodllaudiolist
+function srtFilenames($a, $b)
+{
+    return strcasecmp($a->get_filename(), $b->get_filename());
+}
+
+//this function returns an rss/xml/ or link list of files for a list player
+//originally it existed in poodlllogiclib.php bu t was moved here so we did not have
+//to include poodlllogiclib here
+function fetch_poodllaudiolist($moduleid, $courseid,  $path="/", $playertype, $filearea,$listtype="xml"){
+global $CFG, $DB, $COURSE;	
+
+	//=================================================================
+	
+//for debug purposes
+/*
+	global $DB;
+  
+          //$ret_output .= '0 ' . get_system_context()->id;
+  
+         $result = array();
+		//set up xml to return	
+		$ret_output = "<files>\n";
+          $file_records = $DB->get_records('files');
+           foreach ($file_records as $file_record) {
+			
+				$ret_output .= '<file filename="' . $file_record->filename . '" contextid="' . $file_record->contextid . '" component="' .  $file_record->component . '" filearea="' . $file_record->filearea . '" />';
+                  
+             }
+
+	
+	//close xml to return
+	$ret_output .= "</files>";
+		//Return the data
+	return $ret_output;
+	*/
+
+	//==================================================================
+	
+	//if a single file was passed in, just play that alone.
+	//for PoodlL 2 this is all we can do in a question right now
+	if(strlen($path) > 4 && substr($path,-4)==".flv"){
+		switch($listtype){
+			case "xml":
+				$ret_output = "<audios>\n";
+				$ret_output .=  "\t<audio audioname='" . basename($path). "' playertype='" . $playertype . "' url='" . trim($path) . "'/>\n";
+				$ret_output .= "</audios>\n";
+				break;
+			
+			case "rss":
+				 $ret_output = "<channel><title></title>";
+				break;
+			
+			case "alinks":
+				$ret_output =  "<div class=\"poodllplaylist\">";
+				$ret_output .= "<a href=\"" . trim($path) . "\"><span>" . basename($path). "</span></a>";
+				$ret_output .= "</div>";
+				break;
+		}
+		
+		return $ret_output;
+	}
+
+
+	
+	//FIlter could submit submission/draft/content/intro as options here
+	if($filearea == "") {$filearea ="content";}
+	
+	//fetch info and ids about the module calling this data
+	$course = $DB->get_record('course', array('id'=>$courseid));
+	$modinfo = get_fast_modinfo($course);
+	$cm = $modinfo->get_cm($moduleid);
+	
+	//make sure we have a trailing slash
+	if(strlen($path)>0){
+		if(substr($path,-1) !='/'){
+			$path .= "/";
+		}
+		if(substr($path,0,1) !='/'){
+			$path = "/" . $path;
+		}
+	}else{
+		$path = "/";
+	}
+	
+
+	//set up xml/div to return	
+	switch($listtype){
+			case "xml":
+				$ret_output = "<audios>\n";
+				break;
+			case "rss":
+				 $ret_output = "<channel><title></title>";
+				break;
+			case "alist":
+				$ret_output = "<div class=\"poodllplaylist\">";
+				break;
+	}
+	
+	//get filehandling objects
+	$browser = get_file_browser();
+	$fs = get_file_storage();
+
+	//get a handle on the module context
+	$thiscontext = get_context_instance(CONTEXT_MODULE,$moduleid);
+	$contextid = $thiscontext->id;
+	
+	//fetch a list of files in this area, and sort them alphabetically
+	$files = $fs->get_area_files($contextid, "mod_" . $cm->modname, $filearea);
+	usort($files, "srtFilenames");
+
+	//loop through all the media files and load'em up	
+		foreach ($files as $f) {
+			$filename =trim($f->get_filename());
+			//if we are not a directory and filename is long enough and extension is mp3 or flv or mp4, we proceed
+			if ($filename != "."){
+				if(strlen($filename)>4){
+					$ext = substr($filename,-4);
+					if($ext==".mp3" || $ext==".mp4" || $ext==".flv"){
+						switch($ext){
+							case ".mp3": $mimetype="audio/mpeg3"; break;
+							case ".flv": $mimetype="audio/mp4"; break;
+							case ".mp4": $mimetype="video/x-flv"; break;
+						}
+					
+						//fetch our info object
+						$fileinfo = $browser->get_file_info($thiscontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
+
+						//if we are at the dir level
+						if($f->get_filepath()==$path){
+							//get the url to the file and add it to the XML
+							$urltofile = $fileinfo->get_url();
+							switch($listtype){
+								case "xml":
+									$ret_output .=  "\t<audio audioname='" . basename($filename) ."' playertype='" . $playertype . "' url='" . trim($urltofile) . "'/>\n";
+									break;
+								case "rss":
+									$ret_output .=  "\t<item><title>" . 
+										basename($filename) ."</title><media:content url=\"" .
+										trim($urltofile) . "\" type=\"" . $mimetype .
+										"\"/></item>";
+									break;
+								case "alist":
+									$ret_output  .= "<a href=\"" . trim($urltofile) . "\"><span>" . basename($filename). "</span></a>";
+									break;
+							}
+						
+						}
+					}
+				}
+			}
+		}
+	
+	//for debugging
+	//$ret_output .=  "\t<audio audioname='" . $cm->modname  . " " . $filearea . " " . $urltofile ."' playertype='" . $playertype . "' url='" . $mediapath . basename($contextid). "'/>\n";
+	
+	//close xml/alist tags to return
+	switch($listtype){
+		case "xml":
+			$ret_output .= "</audios>";
+			break;
+		case "rss":
+			$ret_output .= "</channel>";
+			break;
+		case "alist":
+			$ret_output .= "</div>";
+			break;
+	}
+	
+
+	//Return the data
+	return $ret_output;
+
+
+}
+
 	
 //Given a user object, return the url to a picture for that user.
 function fetch_user_picture($user,$size){
@@ -1907,6 +2083,37 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 	if($jscontrols){
 		$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.controls-3.2.8.min.js'></script>";
 	}
+	
+	//styling for our flowplayer controls. very slight PoodLL branding going on here.
+	$audiocontrolstyles="
+	buttonColor: '#ffffff',
+      backgroundColor: '#0a2bb5',
+      disabledWidgetColor: '#555555',
+      bufferGradient: 'none',
+      timeSeparator: ' ',
+      volumeSliderColor: '#ffffff',
+      sliderGradient: 'none',
+      volumeBorder: '1px solid rgba(128, 128, 128, 0.7)',
+      volumeColor: '#ffffff',
+      tooltipTextColor: '#ffffff',
+      timeBorder: '0px solid rgba(0, 0, 0, 0.3)',
+      buttonOverColor: '#ffffff',
+      buttonOffColor: 'rgba(130,130,130,1)',
+      timeColor: '#ffffff',
+      progressGradient: 'none',
+      sliderBorder: '1px solid rgba(128, 128, 128, 0.7)',
+      volumeSliderGradient: 'none',
+      durationColor: '#a3a3a3',
+      backgroundGradient: [0.5,0,0.3],
+      sliderColor: '#000000',
+      progressColor: '#5aed38',
+      bufferColor: '#445566',
+      tooltipColor: '#000000',
+      borderRadius: '0px',
+      timeBgColor: 'rgb(0, 0, 0, 0)',
+      opacity: 1.0
+	  ";
+	
 	//the params are different depending on the playertype
 	//we need to specify provider for audio if the clips are not MP3 or mp3
 	//jqueryseems unavoidable even if not using it for playlists
@@ -1917,15 +2124,26 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 					//we don't need to see the flowplayer video/audio at all if we are using js 
 					$height="1";
 			}else{
-				$controls = "{ fullscreen: false, height: $height, autoHide: false }";
+				$controls = "{ fullscreen: false, height: $height, autoHide: false, $audiocontrolstyles }";
 			}
+			
+			//We need to tell flowplayer if we have mp3 to play.
+			//if it is FLV, we should not pass in a provider flag
+			$providerstring = "";
+			if(strlen($path)>4){
+				$ext = substr($path,-4);
+				if($ext==".mp3" || $ext==".MP3"){
+					$providerstring = ", provider: \"audio\"";			
+				}
+			}
+						
 			//If we have a splash screen show it and enable autoplay(user only clicks once)
 			//best to have a splash screen to prevent browser hangs on many flashplayers in a forum etc
 			if($CFG->filter_poodll_audiosplash){
-				$clip = "{ autoPlay: true, provider: \"audio\" }";
+				$clip = "{ autoPlay: true, $providerstring }";
 				$splash = "<img src='" . $CFG->wwwroot . "/filter/poodll/flowplayer/audiosplash.jpg' alt='click to play audio' width='" . $width . "' height='" . $height . "'/>";
 			}else{
-				$clip = "{ autoPlay: false, provider: \"audio\" }";
+				$clip = "{ autoPlay: false, $providerstring }";
 				$splash = "";
 			}
 			break;
@@ -1938,16 +2156,11 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 					//we don't need to see the flowplayer video/audio at all if we are using js 
 					$height="1";
 			}else{
-				$controls = "{ fullscreen: false, height: " . $defaultcontrolsheight . " , autoHide: false, playlist: true }";
+				$controls = "{ fullscreen: false, height: " . $defaultcontrolsheight . " , autoHide: false, playlist: true, $audiocontrolstyles }";
 			}
 			
-			//add a media rss playlist if one was passed in
-			if($playlisturlstring !=""){
-				$playlisturlstring = "\"" . $playlisturlstring . "\"";
-			}else{
-				$playlisturlstring = " null ";
-			}
-			
+			//without looking inside the playlist we don't know if the audios are flv or mp3.
+			//here we assume that audio playlists are mp3. If not we need to remove the provider element
 			$clip = "{ autoPlay: true, provider: \"audio\" }";
 			$splash = "";
 			break;
@@ -1974,18 +2187,18 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 			$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.playlist-3.2.8.min.js'></script>";
 			$controls = "{ fullscreen: false, height: " . $defaultcontrolsheight . " , autoHide: true, playlist: true }";
 			
-			//add a media rss playlist if one was passed in
-			if($playlisturlstring !=""){
-				$playlisturlstring = "\"" . $playlisturlstring . "\"";
-			}else{
-				$playlisturlstring = " null ";
-			}
-			
 			$clip = "{ autoPlay: false }";
 			$splash ="";
 			break;
 	
 	
+	}
+	
+	//add a media rss playlist if one was passed in
+	if($playlisturlstring !=""){
+		$playlisturlstring = "\"" . $playlisturlstring . "\"";
+	}else{
+		$playlisturlstring = " null ";
 	}
 	
 

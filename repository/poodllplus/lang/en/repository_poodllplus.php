@@ -24,3 +24,7 @@ $string['configplugin'] = 'PoodLL Plus repository configuration';
 $string['account'] = 'Account information';
 $string['configplugin'] = 'Configuration for this plugin';
 $string['api_key'] = 'API Key';
+$string['mp3recorder'] = 'MP3 Recorder';
+$string['snapshottaker'] = 'Snapshot';
+$string['drawpad'] = 'Draw Pad';
+$string['repo_type'] = 'PoodLL Plus Repository Type';

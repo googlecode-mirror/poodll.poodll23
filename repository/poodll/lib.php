@@ -47,33 +47,20 @@ class repository_poodll extends repository {
     public function print_login($ajax = true) {
 		global $CFG,$PAGE,$USER;
 		
-		/*
-	$rec = new stdClass();
-        $rec->type = 'static';
-        $rec->options = array();
-        $rec->id = 'description';
-        $rec->name = 'description';
-		//$rec->value = format_string($this->fetch_recorder(),false);
-        $rec->label = '';
-*/
-		
 
         $ret = array();
         $search = new stdClass();
         $search->type = 'hidden';
         $search->id   = 'filename';
         $search->name = 's';
-		//$search->label = '<object data="' .$CFG->wwwroot . '/repository/poodll/recorder.php?repo_id=' . $this->id . '" style="height: 400px; width: 640px; border: 0; overflow: hidden;"  id="poodll-embed" ></object>';
 		$search->label = "<iframe scrolling=\"no\" frameBorder=\"0\" src=\"{$CFG->wwwroot}/repository/poodll/recorder.php?repo_id={$this->id}\" height=\"350\" width=\"450\"></iframe>"; 
-		//$search->label = "hi";
-
 
 
 		$sort = new stdClass();
         $sort->type = 'hidden';
         $sort->options = array();
-        $sort->id = 'youtube_sort';
-        $sort->name = 'youtube_sort';
+        $sort->id = 'poodll_sort';
+        $sort->name = 'poodll_sort';
         $sort->label = '';
 
         $ret['login'] = array($search, $sort);
@@ -120,60 +107,11 @@ class repository_poodll extends repository {
     }
 	
  
-     //login overrride end
-	//*****************************************************************
   
-  
-  
-  
- /*
-	//search overrride start
-	//*****************************************************************
-		
-	  //
-     // Print a upload form
-     // @return array
-
-    public function print_login() {
-        return $this->get_listing();
-    }
-
-	
-    //
-    // Return a upload form
-    // @return array
-     
-    public function get_listing() {
-        global $CFG;
-        $ret = array();
-        $ret['nologin']  = true;
-        $ret['nosearch'] = false;
-        $ret['norefresh'] = true;
-        $ret['list'] = array();
-        //$ret['dynload'] = false;
-        //$ret['upload'] = array('label'=>get_string('attachment', 'repository'), 'id'=>'repo-form');
-        return $ret;
-    }
-
-	
-	///
-    // Show the search screen, if required
-    // @return null
-   
-    public function print_search() {
-        $str = '';
-        $str .= '<input type="hidden" name="savemedia" value="" />';
-        $str .= $this->fetch_recorder();
-        return $str;
-    }
-	//search overrride end
-	//*****************************************************************
-
-	*/
     
 	
 	    /**
-     * Private method to get youtube search results
+     * Private method to fetch details on our recorded file
      * @param string $keyword
      * @param int $start
      * @param int $max max results
@@ -208,7 +146,7 @@ class repository_poodll extends repository {
 	
 
 	  /**
-     * Box.net supports file linking and copying
+     * 
      * @return string
      */
     public function supported_returntypes() {
@@ -236,7 +174,7 @@ class repository_poodll extends repository {
     }
     
     /*
-     * End of File picker API implementation
+     * Fetch the recorder widget
      */
     public function fetch_recorder() {
         global $USER,$CFG;
@@ -250,6 +188,6 @@ class repository_poodll extends repository {
 	}
 		//$ret .= '<input type="text" id="filename" name="filename"/>';
 		echo $ret;
-		// onchange="parent.document.getElementById(\'filename\').value=\'7\';"
+
 	}
 }
