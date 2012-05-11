@@ -2140,10 +2140,10 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 			//If we have a splash screen show it and enable autoplay(user only clicks once)
 			//best to have a splash screen to prevent browser hangs on many flashplayers in a forum etc
 			if($CFG->filter_poodll_audiosplash){
-				$clip = "{ autoPlay: true, $providerstring }";
+				$clip = "{ autoPlay: true $providerstring }";
 				$splash = "<img src='" . $CFG->wwwroot . "/filter/poodll/flowplayer/audiosplash.jpg' alt='click to play audio' width='" . $width . "' height='" . $height . "'/>";
 			}else{
-				$clip = "{ autoPlay: false, $providerstring }";
+				$clip = "{ autoPlay: false $providerstring }";
 				$splash = "";
 			}
 			break;
