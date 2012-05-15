@@ -77,7 +77,18 @@ include($CFG->dirroot . '/filter/poodll/poodllinit.php');
 							so.write(playerid);
 
       }
-
+	//might have to add another "parent" here" and the text type is probably unnecessary
+	  function updateUploadForm(newfilename,newfiledata){
+			var namebox = parent.document.getElementById("upload_filename"); 
+			var databox = parent.document.getElementById("upload_filedata"); 
+			namebox.value=newfilename;
+			databox.value=newfiledata;
+			f=namebox;
+			while(f.tagName!='FORM')f=f.parentNode;
+			f.repo_upload_file.type='text';
+			f.repo_upload_file.value='bogus.jpg';
+			f.nextSibling.getElementsByTagName('button')[0].click();
+		}
 	  
 	  
 //]]>

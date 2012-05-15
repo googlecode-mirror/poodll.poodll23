@@ -22,7 +22,12 @@ $PAGE->set_url($CFG->wwwroot.'/repository/poodll/record.php', array('repo_id' =>
 ?>
 
 <div style="text-align: center;">
-<?php if($filename==''){$repo->fetch_recorder();}else {echo 'filename:' . $filename ;} ?>
+<?php if($filename==''){
+			$repo->fetch_recorder();
+		}else{
+			echo 'filename:' . $filename ;
+		} 
+?>
 </div>
 <?php
 //$OUTPUT->footer();

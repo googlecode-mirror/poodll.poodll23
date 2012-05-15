@@ -941,6 +941,44 @@ global $CFG,$COURSE;
 }
 
 
+function fetchSnapshotCamera($updatecontrol="filename", $filename="apic.jpg", $width="350",$height="400"){
+global $CFG, $USER, $COURSE;
+
+//Set the servername and a capture settings from config file
+
+$capturewidth=$CFG->filter_poodll_capturewidth;
+$captureheight=$CFG->filter_poodll_captureheight;
+$capturefps=$CFG->filter_poodll_capturefps;
+$prefcam=$CFG->filter_poodll_studentcam;
+$prefmic=$CFG->filter_poodll_studentmic;
+$bandwidth=$CFG->filter_poodll_bandwidth;
+$picqual=$CFG->filter_poodll_picqual;
+
+
+
+$params = array();
+		$params['capturefps'] = $capturefps;
+		$params['filename'] = $filename;
+		$params['captureheight'] = $captureheight;
+		$params['picqual'] = $picqual;
+		$params['bandwidth'] = $bandwidth;
+		$params['capturewidth'] = $capturewidth;
+		$params['prefcam'] = $prefcam;
+		$params['updatecontrol'] = $updatecontrol;
+		$params['moodlewww'] = $CFG->wwwroot;
+	
+    	$returnString=  fetchSWFWidgetCode('PoodLLSnapshot.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+
+    						
+    	return $returnString;
+	
+
+}
+
+
+
+
 function fetchSimpleVideoRecorder($runtime, $assigname, $userid="", $updatecontrol="saveflvvoice", $filename="", $width="350",$height="400"){
 global $CFG, $USER, $COURSE;
 
