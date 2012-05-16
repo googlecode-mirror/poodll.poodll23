@@ -560,6 +560,13 @@ if ($CFG->filter_poodll_usecourseid){
 	$courseid = -1;
 }
 
+//set up auto transcoding (mp3) or not
+if($CFG->filter_poodll_audiotranscode){
+	$saveformat = "mp3";
+}else{
+	$saveformat = "flv";
+}
+
 //If no user id is passed in, try to get it automatically
 //Not sure if  this can be trusted, but this is only likely to be the case
 //when this is called from the filter. ie not from an assignment.
@@ -587,6 +594,7 @@ $params = array();
 		$params['assigName'] = $assigname;
 		$params['course'] = $courseid;
 		$params['updatecontrol'] = $updatecontrol;
+		$params['saveformat'] = $saveformat;
 		$params['uid'] = $userid;
 	
     	$returnString=  fetchSWFWidgetCode('PoodLLAudioRecorder.lzx.swf9.swf',
@@ -626,6 +634,13 @@ if ($CFG->filter_poodll_usecourseid){
 	$courseid = -1;
 } 
 
+//set up auto transcoding (mp3) or not
+if($CFG->filter_poodll_audiotranscode){
+	$saveformat = "mp3";
+}else{
+	$saveformat = "flv";
+}
+
 //If no user id is passed in, try to get it automatically
 //Not sure if  this can be trusted, but this is only likely to be the case
 //when this is called from the filter. ie not from an assignment.
@@ -654,6 +669,7 @@ $params = array();
 		$params['assigName'] = $assigname;
 		$params['course'] = $courseid;
 		$params['updatecontrol'] = $updatecontrol;
+		$params['saveformat'] = $saveformat;
 		$params['uid'] = $userid;
 		//for file system in moodle 2
 		$params['poodllfilelib'] = $poodllfilelib;
@@ -1007,6 +1023,13 @@ if ($CFG->filter_poodll_usecourseid){
 	$courseid = -1;
 }
 
+//set up auto transcoding (mp4) or not
+if($CFG->filter_poodll_videotranscode){
+	$saveformat = "mp4";
+}else{
+	$saveformat = "flv";
+}
+
 //If no user id is passed in, try to get it automatically
 //Not sure if  this can be trusted, but this is only likely to be the case
 //when this is called from the filter. ie not from an assignment.
@@ -1040,6 +1063,7 @@ $params = array();
 		$params['prefcam'] = $prefcam;
 		$params['course'] = $courseid;
 		$params['updatecontrol'] = $updatecontrol;
+		$params['saveformat'] = $saveformat;
 		$params['uid'] = $userid;
 	
     	$returnString=  fetchSWFWidgetCode('PoodLLVideoRecorder.lzx.swf9.swf',
@@ -1064,6 +1088,13 @@ $prefcam=$CFG->filter_poodll_studentcam;
 $prefmic=$CFG->filter_poodll_studentmic;
 $bandwidth=$CFG->filter_poodll_bandwidth;
 $picqual=$CFG->filter_poodll_picqual;
+
+//set up auto transcoding (mp4) or not
+if($CFG->filter_poodll_videotranscode){
+	$saveformat = "mp4";
+}else{
+	$saveformat = "flv";
+}
 
 //Set the microphone config params
 $micrate = $CFG->filter_poodll_micrate;
@@ -1120,6 +1151,7 @@ $params = array();
 		$params['prefcam'] = $prefcam;
 		$params['course'] = $courseid;
 		$params['updatecontrol'] = $updatecontrol;
+		$params['saveformat'] = $saveformat;
 		$params['uid'] = $userid;
 		//for file system in moodle 2
 		$params['poodllfilelib'] = $poodllfilelib;

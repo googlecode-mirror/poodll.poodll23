@@ -158,13 +158,21 @@ class repository_poodll extends repository {
 		switch($this->options['recording_format']){
 			case 0:
 			case 1:
+				//set up auto transcoding (mp3) or not
+				//The jsp to call is different.
+				$jsp="download.jsp";
+				$ext = substr($filename,-4); 
+				if($ext ==".mp4" || $ext ==".mp3"){
+					$jsp = "convert.jsp";
+				}
+						
 				$source="http://" . $CFG->filter_poodll_servername . 
-						":" . $CFG->filter_poodll_serverhttpport . "/poodll/download.jsp?poodllserverid=" . 
+						":" . $CFG->filter_poodll_serverhttpport . "/poodll/" . $jsp. "?poodllserverid=" . 
 						$CFG->filter_poodll_serverid . "&filename=" . $filename . "&caller=" . urlencode($CFG->wwwroot);
 				break;
 			
-			//this is not used but was the original upload "fetcher" download script
-			//the upload script was the same file, called from widget. Callback posted filename back to form
+			//this is the download script for snapshots and direct uploads
+			//the upload script is the same file, called from widget directly. Callback posted filename back to form
 			case 2:
 				$source=$CFG->wwwroot . '/repository/poodll/uploadHandler.php?filename=' . $filename;
 				break;

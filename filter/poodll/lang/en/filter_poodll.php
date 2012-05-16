@@ -1,7 +1,5 @@
-<?PHP // $Id: mediaplugin.php,v 1.3 2008/10/28 12:47:13 moodler Exp $ 
-      // mediaplugin.php - created with Moodle 1.9 
-
-
+<?PHP // $Id: filter_poodll.php ,v 1.3 2012/05/16 12:47:13 Justin Hunt Exp $ 
+      // PoodLl Filter
 $string['filtername'] = 'PoodLL Filter';
 
 $string['settings'] = 'PoodLL Filter Settings';
@@ -36,9 +34,7 @@ $string['audioheight'] = 'Audio Player Height';
 $string['audiosplash'] = 'Show Simple Audio Splash';
 $string['audiosplashdetails'] = 'Splash screen is shown for Flowplayer only.';
 
-$string['capturewidth'] = 'Video Recorder Capture Width';
-$string['captureheight'] = 'Video Recorder Capture Height';
-$string['capturefps'] = 'Video Recorder Capture FPS';
+
 $string['talkbackwidth'] = 'Talkback Player Width';
 $string['talkbackheight'] = 'Talkback Player Height';
 $string['showwidth'] = 'Screencast Player Width';
@@ -79,17 +75,25 @@ $string['newpairheight'] = 'Pairwork Widget Height';
 $string['wboardwidth'] = 'Whiteboard Width ';
 $string['wboardheight'] = 'Whiteboard Height';
 
+//video capture settings
+$string['capturewidth'] = 'Video Recorder Capture Width';
+$string['captureheight'] = 'Video Recorder Capture Height';
+$string['capturefps'] = 'Video Recorder Capture FPS';
 $string['studentcam'] = 'Preferred device name for camera';
-$string['studentmic'] = 'Preferred  device name for microphone';
-
 $string['bandwidth'] = 'Student connection. bytes/second. Affects webcam qual. ';
 $string['picqual'] = 'Target webcam qual. 1 - 10 ';
+$string['videotranscode'] = 'Auto Conv. to MP4';
+$string['videotranscodedetails'] = 'Automatically convert recorded video file to MP4 format before copying back into Moodle. Only use this when using server tokyo.poodll.com.';
 
-//audio settings  
+
+//audio capture settings 
+$string['studentmic'] = 'Preferred  device name for microphone';
 $string['micrate'] = 'Mic. Rate';
 $string['micgain'] = 'Mic. Gain';
 $string['micsilencelevel'] = 'Mic. Silence Level';
 $string['micecho'] = 'Mic. Echo';
 $string['micloopback'] = 'Mic. Loopback';
+$string['audiotranscode'] = 'Auto Conv. to MP3';
+$string['audiotranscodedetails'] = 'Automatically convert recorded audio file to MP3 format before copying back into Moodle. Only use this when using server tokyo.poodll.com.';
 
 ?>
