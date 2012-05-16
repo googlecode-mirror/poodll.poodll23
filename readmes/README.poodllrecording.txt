@@ -15,3 +15,5 @@ Then when you go to create a question you should see a new question type, poodll
 Good luck.
 
 Justin Hunt
+NB Audio recording on Flash versions 11.2.202.228 - 11.2.202.235 (at the time of writing the most current releases) won't playback. It is an Adobe issue and it is fixed in Adobe Flash Player 11.3 Beta.
+You can also avoid this problem if you set PoodLL Server Port (RTMP) to 1935 on the PoodLL filter settings page, though this may be blocked by a school's firewall.

@@ -10,7 +10,7 @@ Place this folder into your moodle installation under the [site_root]/filter fol
 Then login to your site as admin and go to your Moodle site's top page. Moodle should then guide you through the installation or upgrade of the PoodLL filter. 
 You can probably accept the defaults, scroll to the bottom of the page and press save.
 (When Moodle shows you the PoodLL Filter Settings page, the second property from the top of the page is the PoodLL Server Port Number property. 
-This defaults to 443, which allows users to make recordings through firewalls. 
+This defaults to 80, which allows users to make recordings through firewalls. 
 If you experience instability when recording, come back here try setting the PoodLL Server Port Number to 1935.)
 
 You will then have to enable the filter. Go to:
@@ -20,6 +20,11 @@ And set the PoodLL Filter to "On."
 Also set the "Multimedia Plugins" filter to "On." The PoodLL filter should be higher in the list.
 
 All of the PoodLL mods require the PoodLL filter to be installed. If you are only interesting in audio and video recording, then you don't need to know much more. 
+Please note however that audio recording on Flash versions 11.2.202.228 - 11.2.202.233 (at the time of writing the most current releases) won't playback. It is an Adobe issue and it is fixed in Adobe Flash Player 11.3 Beta.
+You can also avoid this problem if you set PoodLL Server Port (RTMP) to 1935 on the PoodLL filter settings page, though this may be blocked by a school's firewall.
+
+PoodLL Widgets
+==============
 If however you are interested in the stopwatch,flashcards etc widgets, consult the PoodLL website for the more information about using them.
 For now, here are some sample filter strings you can use. It is probably easy enough to cut and paste from the strings below, and modify them as needed.
 
