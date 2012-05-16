@@ -608,8 +608,16 @@ global $CFG,$USER;
 
 $return=fetchReturnArray(true);
 
+	//set up auto transcoding (mp3 or mp4) or not
+	//The jsp to call is different.
+	$jsp="download.jsp";
+	$ext = substr($filename,-4); 
+	if($ext ==".mp4" || $ext ==".mp3"){
+		$jsp = "convert.jsp";
+	}
+
 $red5_fileurl= "http://" . $CFG->filter_poodll_servername . 
-						":"  .  $CFG->filter_poodll_serverhttpport . "/poodll/download.jsp?poodllserverid=" . 
+						":"  .  $CFG->filter_poodll_serverhttpport . "/poodll/" . $jsp . "?poodllserverid=" . 
 						$CFG->filter_poodll_serverid . "&filename=" . $filename . "&caller=" . urlencode($CFG->wwwroot);
 					
 //	$red5_fileurl= "http://" . $CFG->filter_poodll_servername . 
