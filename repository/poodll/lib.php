@@ -127,7 +127,8 @@ class repository_poodll extends repository {
      // @param string $search_text
      // @return array
      //
-    public function search($filename) {
+     //added $page=0 param for 2.3 compat justin 20120524
+    public function search($filename, $page=0) {
         $this->keyword = $filename;
         $ret  = array();
         $ret['nologin'] = true;

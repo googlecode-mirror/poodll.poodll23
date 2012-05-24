@@ -118,7 +118,7 @@ function filter_poodll_callback(array $link){
 			break;
 			
 		case 'audiotest':
-			$returnHtml="<BR />" . fetchAudioTestPlayer($filterprops['runtime'],$filterprops['path'],!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['width']) ? $filterprops['width'] : 400,!empty($filterprops['height']) ? $filterprops['height'] : 50);
+			$returnHtml="<BR />" . fetchAudioTestPlayer($filterprops['runtime'],$filterprops['path'],!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['width']) ? $filterprops['width'] : 400,!empty($filterprops['height']) ? $filterprops['height'] : 50, !empty($filterprops['filearea']) ? $filterprops['filearea'] : 'content');
 			break;	
 			
 		case 'talkback':

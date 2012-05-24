@@ -1171,7 +1171,7 @@ $params = array();
 }
 
 //Audio playltest player with defaults, for use with directories of audio files
-function fetchAudioTestPlayer($runtime, $playlist,$protocol="", $width="400",$height="150"){
+function fetchAudioTestPlayer($runtime, $playlist,$protocol="", $width="400",$height="150",$filearea="content"){
 global $CFG, $USER, $COURSE;
 
 $moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current module (eg moodleurl/view.php?id=X )

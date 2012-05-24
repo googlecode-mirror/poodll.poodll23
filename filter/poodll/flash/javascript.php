@@ -7,9 +7,31 @@ include($CFG->dirroot . '/filter/poodll/poodllinit.php');
 		var currentPlayerID    = '';
 
 		//variables from php		
-		var audioplayerpart = "/filter/poodll/flash/poodllaudioplayer.lzx.swf9.swf";	
-		var audioplayerLoc =  '<?php echo $CFG->httpswwwroot ?>' +  audioplayerpart;
-		var videoplayerpart = "/filter/poodll/flash/poodllvideoplayer.lzx.swf9.swf";	
+		//var audioplayerpart = "/filter/poodll/flash/poodllaudioplayer.lzx.swf9.swf";
+		//var videoplayerpart = "/filter/poodll/flash/poodllvideoplayer.lzx.swf9.swf";	
+		
+		<?php 
+			switch ($CFG->filter_poodll_defaultplayer){
+				case 'fp':
+					echo 'var videoplayerpart = "/filter/poodll/flash/flowplayer.swf"; ';
+					echo 'var audioplayerpart = "/filter/poodll/flash/flowplayer.swf"; ';
+					break;
+					
+				case 'jw':
+					echo 'var videoplayerpart = "/filter/poodll/flash/jwplayer.swf"; ';
+					echo 'var audioplayerpart = "/filter/poodll/flash/jwplayer.swf"; ';
+					break;
+				
+				default:
+					echo 'var videoplayerpart = "/filter/poodll/flash/poodllvideoplayer.lzx.swf9.swf"; ';
+					echo 'var audioplayerpart = "/filter/poodll/flash/poodllaudioplayer.lzx.swf9.swf"; ';
+			
+			
+			
+			}
+		?>
+		
+		var audioplayerLoc =  '<?php echo $CFG->httpswwwroot ?>' +  audioplayerpart;	
 		var videoplayerLoc =  '<?php echo $CFG->httpswwwroot ?>' +  videoplayerpart;
 
 		var flvserver = '<?php echo $CFG->poodll_media_server ?>';
