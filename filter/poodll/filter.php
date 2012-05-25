@@ -43,7 +43,10 @@ class filter_poodll extends moodle_text_filter {
 			if (!empty($CFG->filter_poodll_handlemp4)) {
 				if (!(stripos($text, '</a>') === false)) {
 					// performance shortcut - all filepicker media links  end with the </a> tag,
-					$search = '/<a\s[^>]*href="([^"#\?]+\.mp4)"[^>]*>([^>]*)<\/a>/is';
+					
+					//justin 20120525 added ability to declare width of media by appending strings like: ?d=640x480
+					//$search = '/<a\s[^>]*href="([^"#\?]+\.mp4)"[^>]*>([^>]*)<\/a>/is';
+					$search = '/<a\s[^>]*href="([^"#\?]+\.mp4)(\?d=([\d]{1,4})x([\d]{1,4}))?"[^>]*>([^>]*)<\/a>/is';
 					$newtext = preg_replace_callback($search, 'filter_poodll_mp4flv_callback', $newtext);
 				}
 			}
@@ -52,7 +55,10 @@ class filter_poodll extends moodle_text_filter {
 			if (!empty($CFG->filter_poodll_handleflv)) {
 				if (!(stripos($text, '</a>') === false)) {
 				// performance shortcut - all filepicker media links  end with the </a> tag,
-					$search = '/<a\s[^>]*href="([^"#\?]+\.flv)"[^>]*>([^>]*)<\/a>/is';
+				
+					//justin 20120525 added ability to declare width of media by appending strings like: ?d=640x480
+					//$search = '/<a\s[^>]*href="([^"#\?]+\.flv)"[^>]*>([^>]*)<\/a>/is';
+					$search = '/<a\s[^>]*href="([^"#\?]+\.flv)(\?d=([\d]{1,4})x([\d]{1,4}))?"[^>]*>([^>]*)<\/a>/is';
 					$newtext = preg_replace_callback($search, 'filter_poodll_mp4flv_callback', $newtext);
 				}
 			}
@@ -276,6 +282,45 @@ function filter_poodll_callback(array $link){
 
 }//end of poodll default callback function
 
+/**
+ * Parse list of alternative URLs
+ * @param string $url urls separated with '#', size specified as ?d=640x480 or #d=640x480
+ * @param int $defaultwidth
+ * @param int $defaultheight
+ * @return array (urls, width, height)
+ */
+function filter_mediaplugin_parse_alternatives($url, $defaultwidth = 0, $defaultheight = 0) {
+    $urls = explode('#', $url);
+    $width  = $defaultwidth;
+    $height = $defaultheight;
+    $returnurls = array();
+
+    foreach ($urls as $url) {
+        $matches = null;
+
+        if (preg_match('/^d=([\d]{1,4})x([\d]{1,4})$/i', $url, $matches)) { // #d=640x480
+            $width  = $matches[1];
+            $height = $matches[2];
+            continue;
+        }
+        if (preg_match('/\?d=([\d]{1,4})x([\d]{1,4})$/i', $url, $matches)) { // old style file.ext?d=640x480
+            $width  = $matches[1];
+            $height = $matches[2];
+            $url = str_replace($matches[0], '', $url);
+        }
+
+        $url = str_replace('&amp;', '&', $url);
+        $url = clean_param($url, PARAM_URL);
+        if (empty($url)) {
+            continue;
+        }
+
+        $returnurls[] = $url;
+    }
+
+    return array($returnurls, $width, $height);
+}
+
 
 /**
  * Replace mp3 links with player
@@ -294,9 +339,21 @@ global $CFG;
 }
 function filter_poodll_mp4flv_callback($link) {
 global $CFG;
+	//clean up url
 	$url = $link[1];
-    $rawurl = str_replace('&amp;', '&', $url);
+    $url = str_replace('&amp;', '&', $url);
+	$url = clean_param($url, PARAM_URL);
 	
-	$returnHtml="<BR />" . fetchSimpleVideoPlayer('auto',$rawurl,$CFG->filter_poodll_videowidth,$CFG->filter_poodll_videoheight,'http',false,true , 'Play');
+	//use default widths or explicit width/heights if they were passed in ie http://url.to.video.mp4?d=640x480
+	if (empty($link[3]) or empty($link[4])) {
+		$width = $CFG->filter_poodll_videowidth;
+		$height = $CFG->filter_poodll_videoheight;
+	}else{
+		$width = $link[3];
+		$height = $link[4];
+	}
+
+
+	$returnHtml="<BR />" . fetchSimpleVideoPlayer('auto',$url,$width,$height,'http',false,true , 'Play');
 	return $returnHtml;
 }

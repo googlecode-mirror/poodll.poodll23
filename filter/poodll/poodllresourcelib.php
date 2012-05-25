@@ -2239,7 +2239,7 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 			if ($jscontrols){
 					$controls = " null ";
 			}else{
-				$controls = "{ fullscreen: false, height: " . $defaultcontrolsheight . " , autoHide: true }";
+				$controls = "{ fullscreen: true, height: " . $defaultcontrolsheight . " , autoHide: true }";
 			}
 			//If we have a splash screen show it and enable autoplay(user only clicks once)
 			//best to have a splash screen to prevent browser hangs on many flashplayers in a forum etc
