@@ -530,7 +530,11 @@ class assignment_poodllonline extends assignment_base {
 		
 		//if we are showing a list of files we want to use text links not players
 		//a whole page of players will crash a browser.
-		if($embed){
+		
+		//modify Justin 20120525 lists of flowplayers/jw players will break if embedded and 
+		// flowplayers should have image link load deferral anyway
+		if($CFG->filter_poodll_defaultplayer == 'pd' && $embed == 'true'){
+		//if($embed){
 			$embed = 'true';
 			$embedstring = get_string('clicktoplay', 'assignment_poodllonline');
 		}else{
