@@ -282,44 +282,6 @@ function filter_poodll_callback(array $link){
 
 }//end of poodll default callback function
 
-/**
- * Parse list of alternative URLs
- * @param string $url urls separated with '#', size specified as ?d=640x480 or #d=640x480
- * @param int $defaultwidth
- * @param int $defaultheight
- * @return array (urls, width, height)
- */
-function filter_mediaplugin_parse_alternatives($url, $defaultwidth = 0, $defaultheight = 0) {
-    $urls = explode('#', $url);
-    $width  = $defaultwidth;
-    $height = $defaultheight;
-    $returnurls = array();
-
-    foreach ($urls as $url) {
-        $matches = null;
-
-        if (preg_match('/^d=([\d]{1,4})x([\d]{1,4})$/i', $url, $matches)) { // #d=640x480
-            $width  = $matches[1];
-            $height = $matches[2];
-            continue;
-        }
-        if (preg_match('/\?d=([\d]{1,4})x([\d]{1,4})$/i', $url, $matches)) { // old style file.ext?d=640x480
-            $width  = $matches[1];
-            $height = $matches[2];
-            $url = str_replace($matches[0], '', $url);
-        }
-
-        $url = str_replace('&amp;', '&', $url);
-        $url = clean_param($url, PARAM_URL);
-        if (empty($url)) {
-            continue;
-        }
-
-        $returnurls[] = $url;
-    }
-
-    return array($returnurls, $width, $height);
-}
 
 
 /**
