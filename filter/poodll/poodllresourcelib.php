@@ -606,6 +606,7 @@ $params = array();
 
 }
 
+
 function fetchAudioRecorderForSubmission($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid){
 global $CFG, $USER, $COURSE;
 
@@ -1212,12 +1213,11 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 
 
 //Audio playlist player with defaults, for use with directories of audio files
-function fetchAudioListPlayer($runtime, $playlist, $filearea="content",$protocol="", $width="400",$height="350",$sequentialplay="true"){
+function fetchAudioListPlayer($runtime, $playlist, $filearea="content",$protocol="", $width="400",$height="350",$sequentialplay="true",$useplayer,$showplaylist){
 global $CFG, $USER, $COURSE;
 
 $moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current module (eg moodleurl/view.php?id=X )
-$useplayer=$CFG->filter_poodll_defaultplayer;
-$htmlplaylist = true;
+
 
 //determine if we are mobile or not
  $browser = new Browser();
@@ -1240,7 +1240,7 @@ $htmlplaylist = true;
 	switch($useplayer){
 		case "pd": 	$datatype = "poodllaudiolist";break;
 		case "jw":	$datatype = "poodllrsslist";break;
-		case "fp": if($htmlplaylist) {
+		case "fp": if($showplaylist) {
 						$datatype="";
 					}else{
 						$datatype = "poodllrsslist";
@@ -1249,13 +1249,8 @@ $htmlplaylist = true;
 	}
 	
 	
-	//determine which of, automated or manual playlists to use
-	if(strlen($playlist) > 4 && (substr($playlist,-4)==".xml" || substr($playlist,-4)==".rss")){
-		//get a manually made playlist
-		$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $playlist;
-	
-	//get an automatically built playlist url
-	}else if(!$htmlplaylist){
+	//determine playlist url if necessary, if we are using fp player and a visible list we don't need this
+	if($datatype!=""){
 		//get the url to the automated medialist maker
 		//$fetchdataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?datatype=poodllaudiolist'
 		$fetchdataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?datatype=' . $datatype 
@@ -1272,18 +1267,18 @@ $htmlplaylist = true;
 	if($useplayer!="pd"){
 		$returnString="";
 		 //if html playlist use links as list
-		 if ($htmlplaylist){
+		 if ($showplaylist){
 			$returnString = fetch_poodllaudiolist($moduleid,$COURSE->id,$playlist, "http", $filearea,"alist");
 			$returnString .= "<br clear='all'/>";
 			//get a flowplayer without a datafeed
 			//size is hardcoded to match images pulled from styles.css in pooodll filter
-			$returnString .= fetchFlowPlayerCode($width,40,"/","audiolist", $ismobile, "");
+			$returnString .= fetchFlowPlayerCode($width,40,"/","audiolist", $ismobile, "", $sequentialplay);
 			
 		 //if rss playlist use url of datafeed and pass to flowplayer
 		 }else{
 			//get a flowplayer using the data feed
 			//size is hardcoded to match images pulled from styles.css in pooodll filter
-			$returnString .= fetchFlowPlayerCode($width,40,"/","audiolist", $ismobile, $fetchdataurl);
+			$returnString .= fetchFlowPlayerCode($width,40,"/","audiolist", $ismobile, $fetchdataurl, $sequentialplay);
 		 }
 		 
 		 return $returnString;
@@ -1385,7 +1380,8 @@ $useplayer=$CFG->filter_poodll_defaultplayer;
 	}
 	
 	//If we want to avoid loading many players per page, this loads the player only after a text link is clicked
-	if ($embed ){
+	//it uses the poodll player and only works if the file is an flv, otherwise it just proceeds as usual
+	if ($embed && substr($rtmp_file,-4)=='.flv'){
 		$lzid = "lzapp_audioplayer_" . rand(100000, 999999) ;
 		$returnString="		
 		 <div id='$lzid' class='player'>
@@ -2114,7 +2110,7 @@ function fetchSWFObjectWidgetCode($widget,$flashvarsArray,$width,$height,$bgcolo
 	
 }
 
-function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=false, $playlisturlstring =""){
+function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=false, $playlisturlstring ="",$loop='false'){
 
 	global $CFG, $PAGE;
 	
@@ -2315,7 +2311,7 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 		if (($playertype=="audiolist" || $playertype=="videolist") && $jscontrols){
 			$retcode .= ").controls(\"" . $jscontrolsid ."\").playlist(\"div.poodllplaylist\", {loop:true});</script>";
 		} else if ($playertype=="audiolist" || $playertype=="videolist"){
-			$retcode .= ").playlist(\"div.poodllplaylist\", {loop:true});</script>";
+			$retcode .= ").playlist(\"div.poodllplaylist\", {loop:" . $loop . "});</script>";
 		}else if($jscontrols){
 			$retcode .= ").controls(\"" . $jscontrolsid ."\");</script>";
 		}else{

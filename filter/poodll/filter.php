@@ -120,7 +120,7 @@ function filter_poodll_callback(array $link){
 			break;
 			
 		case 'audiolist':
-			$returnHtml="<BR />" . fetchAudioListPlayer($filterprops['runtime'],$filterprops['path'],!empty($filterprops['filearea']) ? $filterprops['filearea'] : 'content',!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['width']) ? $filterprops['width'] : 400,!empty($filterprops['height']) ? $filterprops['height'] : 250, !empty($filterprops['sequentialplay']) ? $filterprops['sequentialplay'] : 'true');
+			$returnHtml="<BR />" . fetchAudioListPlayer($filterprops['runtime'],$filterprops['path'],!empty($filterprops['filearea']) ? $filterprops['filearea'] : 'content',!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',!empty($filterprops['width']) ? $filterprops['width'] : 400,!empty($filterprops['height']) ? $filterprops['height'] : 250, !empty($filterprops['sequentialplay']) ? $filterprops['sequentialplay'] : 'true', !empty($filterprops['player']) ? $filterprops['player'] : $CFG->filter_poodll_defaultplayer, !empty($filterprops['showplaylist']) ? $filterprops['showplaylist']=='true' : true);
 			break;
 			
 		case 'audiotest':
