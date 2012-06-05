@@ -28,9 +28,13 @@ require_once($CFG->dirroot . '/filter/poodll/Browser.php');
 global $PAGE;
 //$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/swfobject.js'));
 //$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/javascript.php'));
+//these could be called with the head flag set to true, (see flowplayer eg below) and remove from
+//other functions in this file. needs testing though. Justin 20120604
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/swfobject.js'));
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/javascript.php'));
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/embed-compressed.js'));
+//we need this for flowplayer and it only works in head (hence the 'true' flag)
+$PAGE->requires->js('/filter/poodll/flowplayer/flowplayer-3.2.9.min.js',true);
 
 //added for moodle 2
 require_once($CFG->libdir . '/filelib.php');
@@ -2116,6 +2120,8 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 	global $CFG, $PAGE;
 	
 	$playerid = "flowplayer_" . rand(100000, 999999);
+	$playerclass = "flowplayer_poodll";
+	
 	
 	$jscontrolsid = "flowplayer_js_" . rand(100000, 999999); 
 	
@@ -2139,9 +2145,15 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 	//init our return code
 	$retcode = "";
 	
-	//this next line should work but doesn't, so we have to punch in the script js tags
+	//this next 2 lines may work, but they are called too late, the js needs to be in head. So at top of this file we do that. 
 	//$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'));
-	$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'></script>";
+	//$PAGE->requires->js('/filter/poodll/flowplayer/flowplayer-3.2.9.min.js',false);
+	
+	//this was just a test, can be tossed out
+	//if(strstr($path,"athletica")!=false) {
+		//$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'></script>";
+	//}
+	
 	if($ismobile){
 		$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.ipad-3.2.8.min.js'></script>";
 	}
@@ -2272,7 +2284,7 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 	//put together the a link that will be replaced by a player
 	$retcode .= "<a href='" . $path . "'
 					style='display:block;width:" . $width. "px;height:" . $height . "px;'
-					id='" . $playerid . "'>
+					id='" . $playerid . "' class='" . $playerclass . "' >
 					" . $splash . "
 				</a>";
 				
@@ -2283,8 +2295,9 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 	
 	//Add the script that will do the div replacing. Most of the important stuff is in here.
 	$retcode .= "<script language='JavaScript'>
-					flowplayer('" . $playerid . "', '" . $CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.10.swf',
-						 // fullscreen button not needed here
+					flowplayer('" . $playerid . "', '" . $CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.10.swf',";
+	
+	$fpconfig ="
 						{
 							plugins: {
 								controls: $controls,
@@ -2296,6 +2309,10 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 							clip: $clip
 						}
 					";
+	
+	
+	
+	$retcode .= $fpconfig;
 	
 	//close off the javascript depending on the additional flowplayer components we need to incorp.
 	if($ismobile){
@@ -2319,6 +2336,20 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 			$retcode .= ");</script>";
 		}
 	}
+	
+	
+	//js init call, tried any number of combinations, but couldn't get it to work J 20120604
+	/*
+	$jsmodule = array(
+    'name'     => 'filter_poodll_flowplayer329min',
+    'fullpath' => '//filter/poodll/flowplayer/flowplayer329min.js',
+    'requires' => array(),
+    'strings' => array()
+	);
+$PAGE->requires->js_init_call('M.filter_poodll_flowplayer329min.flowplayer', array($playerid, $CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.10.swf",  $fpconfig),false,$jsmodule);
+	*/
+	
+	
 	
 	//return the code
 	return $retcode;
