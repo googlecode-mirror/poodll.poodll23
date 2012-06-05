@@ -1250,6 +1250,7 @@ $moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current modu
 	
 	
 	//determine playlist url if necessary, if we are using fp player and a visible list we don't need this
+	$fetchdataurl="";
 	if($datatype!=""){
 		//get the url to the automated medialist maker
 		//$fetchdataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?datatype=poodllaudiolist'
