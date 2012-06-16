@@ -44,7 +44,7 @@ class qtype_poodllrecording extends question_type {
 
     public function get_question_options($question) {
         global $DB;
-        $question->options = $DB->get_record('qtype_poodllrecording_options',
+        $question->options = $DB->get_record('qtype_poodllrecording_opts',
                 array('questionid' => $question->id), '*', MUST_EXIST);
         parent::get_question_options($question);
     }
@@ -53,18 +53,18 @@ class qtype_poodllrecording extends question_type {
         global $DB;
         $context = $formdata->context;
 
-        $options = $DB->get_record('qtype_poodllrecording_options', array('questionid' => $formdata->id));
+        $options = $DB->get_record('qtype_poodllrecording_opts', array('questionid' => $formdata->id));
         if (!$options) {
             $options = new stdClass();
             $options->questionid = $formdata->id;
-            $options->id = $DB->insert_record('qtype_poodllrecording_options', $options);
+            $options->id = $DB->insert_record('qtype_poodllrecording_opts', $options);
         }
 
         $options->responseformat = $formdata->responseformat;
 		$options->graderinfo = $this->import_or_save_files($formdata->graderinfo,
                 $context, 'qtype_poodllrecording', 'graderinfo', $formdata->id);
         $options->graderinfoformat = $formdata->graderinfo['format'];
-        $DB->update_record('qtype_poodllrecording_options', $options);
+        $DB->update_record('qtype_poodllrecording_opts', $options);
     }
 
     protected function initialise_question_instance(question_definition $question, $questiondata) {

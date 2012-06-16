@@ -87,11 +87,18 @@ function xmldb_qtype_poodllrecording_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2011060300, 'qtype', 'poodllrecording');
     }
 
-    // Moodle v2.1.0 release upgrade line
-    // Put any upgrade step following this
 
-    // Moodle v2.2.0 release upgrade line
+    // Moodle v2.3.0 release upgrade line
     // Put any upgrade step following this
+    
+    if ($oldversion < 2012061600) {
+    	$table = new xmldb_table('qtype_poodllrecording_options');	
+		$dbman->change_field_type( $table, 'qtype_poodllrecording_opts', $continue=true, $feedback=true)   
+    	
+    	// poodllrecording savepoint reached
+        upgrade_plugin_savepoint(true, 2012061600, 'qtype', 'poodllrecording');
+    
+    }
 
     return true;
 }
