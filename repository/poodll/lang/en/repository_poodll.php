@@ -3,7 +3,7 @@ $string['pluginname'] = 'PoodLL';
 $string['repositoryname'] = 'PoodLL';
 $string['configplugin'] = 'Configure PoodLL Repository';
 $string['pluginname_help'] = 'PoodLL repository';
-$string['demo:view'] = 'View PoodLL Plus repository';
+$string['poodll:view'] = 'View PoodLL Plus repository';
 $string['account'] = 'Account information';
 
 $string['recordnew'] = 'New recording';

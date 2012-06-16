@@ -24,7 +24,7 @@ class repository_poodll extends repository {
     	return array('recording_format');
     }
     
-    public function instance_config_form($mform) {
+    public static function instance_config_form($mform) {
         $recording_format_options = array(
         	get_string('audio', 'repository_poodll'),
         	get_string('video', 'repository_poodll'),
