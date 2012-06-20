@@ -25,7 +25,7 @@ class repository_poodll extends repository {
     }
     
     //2.3 requires static, 2.2 non static, what to do? Justin 20120616
-    public function instance_config_form($mform) {
+    public static function instance_config_form($mform) {
         $recording_format_options = array(
         	get_string('audio', 'repository_poodll'),
         	get_string('video', 'repository_poodll'),
