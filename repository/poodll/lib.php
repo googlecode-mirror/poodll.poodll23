@@ -87,8 +87,7 @@ class repository_poodll extends repository {
         $search->type = 'hidden';
         $search->id   = 'filename';
         $search->name = 's';
-		$search->label = "<iframe scrolling=\"no\" frameBorder=\"0\" src=\"{$CFG->wwwroot}/repository/poodll/recorder.php?repo_id={$this->id}\" height=\"350\" width=\"450\"></iframe>"; 
-
+		$search->label = "<iframe scrolling=\"no\" frameBorder=\"0\" src=\"{$CFG->wwwroot}/repository/poodll/recorder.php?repo_id={$this->id}\" height=\"350\" width=\"380\"></iframe><button class=\"fp-login-submit\" style=\"position:absolute; top:50%;\" >Next >>></button>"; 
 
 		$sort = new stdClass();
         $sort->type = 'hidden';
