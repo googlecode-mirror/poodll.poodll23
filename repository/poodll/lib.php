@@ -87,7 +87,24 @@ class repository_poodll extends repository {
         $search->type = 'hidden';
         $search->id   = 'filename';
         $search->name = 's';
-		$search->label = "<iframe scrolling=\"no\" frameBorder=\"0\" src=\"{$CFG->wwwroot}/repository/poodll/recorder.php?repo_id={$this->id}\" height=\"350\" width=\"380\"></iframe><button class=\"fp-login-submit\" style=\"position:absolute; top:50%;\" >Next >>></button>"; 
+        
+        //change next button and iframe proportions depending on recorder
+        switch($this->options['recording_format']){
+        	//video,snapshot
+        	case 1: 
+			case 2: 	
+					$height=350;
+					$width=330;
+					$button = "<button class=\"fp-login-submit\" style=\"position:relative; top:-200px;\" >Next >>></button>";
+					break;
+			//audio		
+			case 0:
+					$height=220;
+					$width=450;
+					$button = "";
+					break;
+        }
+		$search->label = "<iframe scrolling=\"no\" frameBorder=\"0\" src=\"{$CFG->wwwroot}/repository/poodll/recorder.php?repo_id={$this->id}\" height=\"". $height ."\" width=\"" . $width . "\"></iframe>" . $button; 
 
 		$sort = new stdClass();
         $sort->type = 'hidden';
