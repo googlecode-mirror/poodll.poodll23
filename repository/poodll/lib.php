@@ -15,7 +15,8 @@ class repository_poodll extends repository {
      * Begin of File picker API implementation
      */
     public function __construct($repositoryid, $context = SYSCONTEXTID, $options = array()) {
-        global $action, $itemid;
+        global $CFG, $PAGE;
+        
         parent::__construct ($repositoryid, $context, $options);
      
     }
@@ -60,7 +61,11 @@ class repository_poodll extends repository {
 		$injectwidget= "";
 		switch ($this->options['recording_format']){
 			//MP3 Recorder
-			case 3: $injectwidget=$this->fetch_mp3recorder();
+			case 3000: $injectwidget=$this->fetch_mp3recorder();
+					
+					//add for 2.3 compatibility Justin 20120622
+					 $ret = array('nosearch'=>true, 'norefresh'=>true);
+					 
 					$ret['upload'] = array('label'=>$injectwidget, 'id'=>'repo-form');
 					return $ret;
 					break;
@@ -87,6 +92,7 @@ class repository_poodll extends repository {
         $search->type = 'hidden';
         $search->id   = 'filename';
         $search->name = 's';
+        $search->value = 'winkle.mp3';
         
         //change next button and iframe proportions depending on recorder
         switch($this->options['recording_format']){
@@ -99,6 +105,7 @@ class repository_poodll extends repository {
 					break;
 			//audio		
 			case 0:
+			case 3:
 					$height=220;
 					$width=450;
 					$button = "";
@@ -120,7 +127,7 @@ class repository_poodll extends repository {
         return $ret;
 
     }
-	
+    
 
 	public function check_login() {
         return !empty($this->keyword);
@@ -135,7 +142,6 @@ class repository_poodll extends repository {
      // @return array structure of listing information
      //
     public function get_listing($path='', $page='') {
-        global $CFG, $action;
 			return  array();
 		
    }
@@ -193,6 +199,7 @@ class repository_poodll extends repository {
 			//this is the download script for snapshots and direct uploads
 			//the upload script is the same file, called from widget directly. Callback posted filename back to form
 			case 2:
+			case 3:
 				$source=$CFG->wwwroot . '/repository/poodll/uploadHandler.php?filename=' . $filename;
 				break;
 		
@@ -270,8 +277,11 @@ class repository_poodll extends repository {
 			case 1:
 				$ret = fetchSimpleVideoRecorder('swf','poodllrepository',$USER->id,'filename','','298', '340');
 				break;
-			case 2:
 			case 3:
+				//this is the mp3 recorder, but we should not enter this function anyway in that case
+				$ret = $this->fetchMP3PostRecorder("filename","apic.jpg", '290','340');
+				break;
+			case 2:
 				$ret = fetchSnapshotCamera("filename","apic.jpg", '290','340');
 				break;
 		}
@@ -349,6 +359,48 @@ class repository_poodll extends repository {
         }
     }
 	
+	
+	public function fetchMP3PostRecorder($param1,$param2,$param3,$param4){
+		 global $CFG;
+		// return fetch_mp3recorder();
+       //initialize our return string
+	   $recorder = "";
+	 //  $filename ="pp.mp3";
+       
+	   //set up params for mp3 recorder
+	   $url=$CFG->wwwroot.'/filter/poodll/flash/mp3recorder.swf?gateway=' . $CFG->wwwroot . '/repository/poodll/uploadHandler.php'; // /recorder=mp3/filename=' . $filename;//?filename=' . $filename;
+		//$callback = urlencode("(function(a, b){d=parent.document;d.g=d.getElementById;fn=d.g('filename');fn.value=a;fd=d.g('upload_filedata');fd.value=b;f=fn;while(f.tagName!='FORM')f=f.parentNode;f.repo_upload_file.type='text';f.repo_upload_file.value='bogus.mp3';while(f.tagName!='DIV')f=f.nextSibling;f.getElementsByTagName('button')[0].click();})");
+		 // $flashvars="&callback={$callback}&forcename=winkle";
+		$flashvars="&forcename=winkle";
+		  
+		  
+		//make our insert string
+        $recorder = '<div style="position:absolute; top:0;left:0;right:0;bottom:0; background-color:#fff;">
+                <input type="hidden"  name="upload_filename" id="upload_filename" value="sausages.mp3"/>
+                <textarea name="upload_filedata" id="upload_filedata" style="display:none;"></textarea>
+
+                <div id="onlineaudiorecordersection" style="margin:20% auto; text-align:center;">
+                    <object id="onlineaudiorecorder" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="215" height="138">
+                        <param name="movie" value="'.$url.$flashvars.'" />
+                        <param name="wmode" value="transparent" />
+                        <!--[if !IE]>-->
+                        <object type="application/x-shockwave-flash" data="'.$url.$flashvars.'" width="215" height="138">
+                        <!--<![endif]-->
+                        <div>
+                                <p><a href="http://www.adobe.com/go/getflashplayer"><img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" /></a></p>
+                        </div>
+                        <!--[if !IE]>-->
+                        </object>
+                        <!--<![endif]-->
+                    </object>
+                </div>
+            </div>';
+			
+			//return the recorder string
+			return $recorder;
+	
+	}
+	
 	public function fetch_mp3recorder(){
 		 global $CFG;
        //initialize our return string
@@ -356,8 +408,7 @@ class repository_poodll extends repository {
        
 	   //set up params for mp3 recorder
 	   $url=$CFG->wwwroot.'/filter/poodll/flash/mp3recorder.swf?gateway=form';
-		$callback = urlencode("(function(a, b){d=document;d.g=d.getElementById;fn=d.g('upload_filename');fn.value=a;fd=d.g('upload_filedata');fd.value=b;f=fn;while(f.tagName!='FORM')f=f.parentNode;f.repo_upload_file.type='text';f.repo_upload_file.value='bogus.mp3';f.nextSibling.getElementsByTagName('button')[0].click();})");
-        $flashvars="&callback={$callback}&filename=new_recording";
+		$callback = urlencode("(function(a, b){d=document;d.g=d.getElementById;fn=d.g('upload_filename');fn.value=a;fd=d.g('upload_filedata');fd.value=b;f=fn;while(f.tagName!='FORM')f=f.parentNode;f.repo_upload_file.type='text';f.repo_upload_file.value='bogus.mp3';while(f.tagName!='DIV')f=f.nextSibling;f.getElementsByTagName('button')[0].click();})");
 		
 		//make our insert string
         $recorder = '<div style="position:absolute; top:0;left:0;right:0;bottom:0; background-color:#fff;">
