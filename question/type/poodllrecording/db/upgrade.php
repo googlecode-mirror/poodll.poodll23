@@ -93,10 +93,12 @@ function xmldb_qtype_poodllrecording_upgrade($oldversion) {
     
     if ($oldversion < 2012061600) {
     	$table = new xmldb_table('qtype_poodllrecording_options');	
-		$dbman->change_field_type( $table, 'qtype_poodllrecording_opts', $continue=true, $feedback=true)   
+		if ($dbman->table_exists($table)){
+			$dbman->change_field_type( $table, 'qtype_poodllrecording_opts', $continue=true, $feedback=true);   
     	
-    	// poodllrecording savepoint reached
-        upgrade_plugin_savepoint(true, 2012061600, 'qtype', 'poodllrecording');
+    		// poodllrecording savepoint reached
+        	upgrade_plugin_savepoint(true, 2012062600, 'qtype', 'poodllrecording');
+        }
     
     }
 
