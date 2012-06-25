@@ -7,7 +7,7 @@ $filename = optional_param('filename', "", PARAM_TEXT);
 
 //if receiving a file write it to temp
 if(isset($GLOBALS["HTTP_RAW_POST_DATA"])) {
-	$filename = date("Y-m-d_H_i_s", time())."_".uniqid(mt_rand(), true).".jpg";
+	$filename = date("Y-m-d_H_i_s", time())."_".rand(100000,900000).".jpg";
 	file_put_contents($CFG->dataroot . '/temp/download/' . $filename ,$GLOBALS["HTTP_RAW_POST_DATA"] );
 	//tell our widget what the filename we made up is 
 	echo $filename; 
@@ -20,7 +20,8 @@ if(isset($GLOBALS["HTTP_RAW_POST_DATA"])) {
 	
 	//this is so hacky, I feel like having a shower even typing this, .. if only it wasn't open source ..
 	//basically we cant control the recorder behaviour well enough to behave like the other PoodLL widgets
-	//this recorder forwards on to the POST page, ao we need to return something.
+	//unlike the ajax like uploads of poodll recorders, the mp3recorder forwards page on to the POST page, 
+	//so we need to return something or the screen will be blank
 	//we just return a page containing javascript that pushes the next button in the parent frame
 		?>
 		<html>
