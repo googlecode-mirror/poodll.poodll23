@@ -87,12 +87,12 @@ class repository_poodll extends repository {
 		
 		
 		
-		//If we are using an ifram based repo
+		//If we are using an iframe based repo
         $search = new stdClass();
         $search->type = 'hidden';
         $search->id   = 'filename';
         $search->name = 's';
-        $search->value = 'winkle.mp3';
+       // $search->value = 'winkle.mp3';
         
         //change next button and iframe proportions depending on recorder
         switch($this->options['recording_format']){
@@ -210,8 +210,8 @@ class repository_poodll extends repository {
             $list[] = array(
                 'title'=>$filename,
                 'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/bigicon.png",
-                'thumbnail_width'=>440,
-                'thumbnail_height'=>180,
+                'thumbnail_width'=>330,
+                'thumbnail_height'=>115,
                 'size'=>'',
                 'date'=>'',
                 'source'=>$source
@@ -294,71 +294,6 @@ class repository_poodll extends repository {
 	//Start of  Paul Nichols MP3 Recorder
 	//====================================================================================
 	
-	/**
-     * Process uploaded file
-     * @return array|bool
-     */
-    public function upload($search_text) {
-        global $USER, $CFG;
-
-        $record = new stdClass();
-        $record->filearea = 'draft';
-        $record->component = 'user';
-        $record->filepath = optional_param('savepath', '/', PARAM_PATH);
-        $record->itemid   = optional_param('itemid', 0, PARAM_INT);
-        $record->license  = optional_param('license', $CFG->sitedefaultlicense, PARAM_TEXT);
-        $record->author   = optional_param('author', '', PARAM_TEXT);
-
-        $context = get_context_instance(CONTEXT_USER, $USER->id);
-        $filename = required_param('upload_filename', PARAM_FILE);
-        $filedata = required_param('upload_filedata', PARAM_RAW);
-        $filedata = base64_decode($filedata);
-
-        $fs = get_file_storage();
-        $sm = get_string_manager();
-
-        if ($record->filepath !== '/') {
-            $record->filepath = file_correct_filepath($record->filepath);
-        }
-
-        $record->filename = $filename;
-        
-        if (empty($record->itemid)) {
-            $record->itemid = 0;
-        }
-
-        $record->contextid = $context->id;
-        $record->userid    = $USER->id;
-        $record->source    = '';
-
-        if (repository::draftfile_exists($record->itemid, $record->filepath, $record->filename)) {
-            $existingfilename = $record->filename;
-            $unused_filename = repository::get_unused_filename($record->itemid, $record->filepath, $record->filename);
-            $record->filename = $unused_filename;
-            $stored_file = $fs->create_file_from_string($record, $filedata);
-            $event = array();
-            $event['event'] = 'fileexists';
-            $event['newfile'] = new stdClass;
-            $event['newfile']->filepath = $record->filepath;
-            $event['newfile']->filename = $unused_filename;
-            $event['newfile']->url = moodle_url::make_draftfile_url($record->itemid, $record->filepath, $unused_filename)->out();
-
-            $event['existingfile'] = new stdClass;
-            $event['existingfile']->filepath = $record->filepath;
-            $event['existingfile']->filename = $existingfilename;
-            $event['existingfile']->url      = moodle_url::make_draftfile_url($record->itemid, $record->filepath, $existingfilename)->out();;
-            return $event;
-        } else {
-            $stored_file = $fs->create_file_from_string($record, $filedata);
-
-                
-            return array(
-                'url'=>moodle_url::make_draftfile_url($record->itemid, $record->filepath, $record->filename)->out(),
-                'id'=>$record->itemid,
-                'file'=>$record->filename);
-        }
-    }
-	
 	
 	public function fetchMP3PostRecorder($param1,$param2,$param3,$param4){
 		 global $CFG;
@@ -371,7 +306,7 @@ class repository_poodll extends repository {
 	   $url=$CFG->wwwroot.'/filter/poodll/flash/mp3recorder.swf?gateway=' . $CFG->wwwroot . '/repository/poodll/uploadHandler.php'; // /recorder=mp3/filename=' . $filename;//?filename=' . $filename;
 		//$callback = urlencode("(function(a, b){d=parent.document;d.g=d.getElementById;fn=d.g('filename');fn.value=a;fd=d.g('upload_filedata');fd.value=b;f=fn;while(f.tagName!='FORM')f=f.parentNode;f.repo_upload_file.type='text';f.repo_upload_file.value='bogus.mp3';while(f.tagName!='DIV')f=f.nextSibling;f.getElementsByTagName('button')[0].click();})");
 		 // $flashvars="&callback={$callback}&forcename=winkle";
-		$flashvars="&forcename=winkle";
+		$flashvars="&filename=newaudio";
 		  
 		  
 		//make our insert string
@@ -401,42 +336,7 @@ class repository_poodll extends repository {
 	
 	}
 	
-	public function fetch_mp3recorder(){
-		 global $CFG;
-       //initialize our return string
-	   $recorder = "";
-       
-	   //set up params for mp3 recorder
-	   $url=$CFG->wwwroot.'/filter/poodll/flash/mp3recorder.swf?gateway=form';
-		$callback = urlencode("(function(a, b){d=document;d.g=d.getElementById;fn=d.g('upload_filename');fn.value=a;fd=d.g('upload_filedata');fd.value=b;f=fn;while(f.tagName!='FORM')f=f.parentNode;f.repo_upload_file.type='text';f.repo_upload_file.value='bogus.mp3';while(f.tagName!='DIV')f=f.nextSibling;f.getElementsByTagName('button')[0].click();})");
-		
-		//make our insert string
-        $recorder = '<div style="position:absolute; top:0;left:0;right:0;bottom:0; background-color:#fff;">
-                <input type="hidden"  name="upload_filename" id="upload_filename" value="sausages.mp3"/>
-                <textarea name="upload_filedata" id="upload_filedata" style="display:none;"></textarea>
-               <!-- <textarea name="filename" id="filename" style="display:none;">sausages.mp3</textarea>
-                 <textarea name="repo_upload_file" id="repo_upload_file" style="display:none;"></textarea> -->
-                <div id="onlineaudiorecordersection" style="margin:20% auto; text-align:center;">
-                    <object id="onlineaudiorecorder" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="215" height="138">
-                        <param name="movie" value="'.$url.$flashvars.'" />
-                        <param name="wmode" value="transparent" />
-                        <!--[if !IE]>-->
-                        <object type="application/x-shockwave-flash" data="'.$url.$flashvars.'" width="215" height="138">
-                        <!--<![endif]-->
-                        <div>
-                                <p><a href="http://www.adobe.com/go/getflashplayer"><img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" /></a></p>
-                        </div>
-                        <!--[if !IE]>-->
-                        </object>
-                        <!--<![endif]-->
-                    </object>
-                </div>
-            </div>';
-			
-			//return the recorder string
-			return $recorder;
-	
-	}
+
 	
 	//=====================================================================================
 	//End of  Paul Nichols MP3 Recorder
