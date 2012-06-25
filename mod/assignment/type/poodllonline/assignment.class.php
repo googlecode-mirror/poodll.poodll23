@@ -351,8 +351,24 @@ class assignment_poodllonline extends assignment_base {
 	
 		//perform the copy	
 		if($draft_fileinfo){
-			$ret = $draft_fileinfo->copy_to_storage($this->context->id, 'mod_assignment', 'submission', $submission->id, '/', $filename);
-			//$return['success'] =false;
+			//this changed in 2.3 Justin 201206276 We need to write out a filerecord
+			//$ret = $draft_fileinfo->copy_to_storage($this->context->id, 'mod_assignment', 'submission', $submission->id, '/', $filename);
+			
+			//create the file record for our new file
+			$file_record = array(
+			'userid' => $USER->id,
+			'contextid'=>$this->context->id, 
+			'component'=>'mod_assignment', 
+			'filearea'=>'submission',
+			'itemid'=>$submission->id, 
+			'filepath'=>'/', 
+			'filename'=>$filename,
+			'author'=>'moodle user',
+			'license'=>'allrighttsreserved',		
+			'timecreated'=>time(), 
+			'timemodified'=>time()
+			);
+			$ret = $draft_fileinfo->copy_to_storage($file_record);
 			
 		}//end of if $original_fileinfo
 
@@ -548,9 +564,10 @@ class assignment_poodllonline extends assignment_base {
 					$responsestring .= "Nothing to play";
 		}else{	
 			//The path to any media file we should play
-			//temporatily disable he pluginfile because of a bug
-			//$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$contextid.'/mod_assignment/submission/'.$submissionid.'/'. $submissionfile . '?forcedownload=1';								
-			$mediapath = $CFG->wwwroot.'/filter/poodll/poodllfilelib.php?datatype=poodllpluginfile&contextid='. $contextid .'&itemid='.$submissionid.'&paramone='. $submissionfile;							
+			//temporatily used custom logic because of a strange moodle bug that only i noticed. should be ok in 2,3 though
+			//so i reverted to standard pluginfile.php Justin 20120626
+			$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$contextid.'/mod_assignment/submission/'.$submissionid.'/'. $submissionfile . '?forcedownload=1';								
+			//$mediapath = $CFG->wwwroot.'/filter/poodll/poodllfilelib.php?datatype=poodllpluginfile&contextid='. $contextid .'&itemid='.$submissionid.'&paramone='. $submissionfile;							
 			$mediapath = urlencode($mediapath);
 		
 			//check if we need media output

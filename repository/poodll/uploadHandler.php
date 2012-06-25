@@ -1,24 +1,62 @@
 <?php
 require_once("../../config.php");
 
+
+
 $recorder = optional_param('recorder', "", PARAM_TEXT);
 $filename = optional_param('filename', "", PARAM_TEXT);
 
-
+ 
 //if receiving a file write it to temp
 if(isset($GLOBALS["HTTP_RAW_POST_DATA"])) {
+	//make sure we are logged in
+	require_login();
+	//make a filename randomly
 	$filename = date("Y-m-d_H_i_s", time())."_".rand(100000,900000).".jpg";
-	file_put_contents($CFG->dataroot . '/temp/download/' . $filename ,$GLOBALS["HTTP_RAW_POST_DATA"] );
+	
+	//open a stream on the posted data, 
+	//this is better than $GLOBALS["HTTP_RAW_POST_DATA"], php.ini settings dont affect
+	$input = fopen("php://input", "r");
+	file_put_contents($CFG->dataroot . '/temp/download/' . $filename ,$input);
+	
+	//we should really check the filesize here but I don't know how
+	//HERE: check file size
+	
+	
 	//tell our widget what the filename we made up is 
 	echo $filename; 
 
 }elseif(isset($_FILES["newfile"])){
-	$filename = $_FILES["newfile"]['name']; //'nname.mp3' ;//$_POST["filename"];
+	
+	//make sure the user is logged in
+	require_login();
+	
+	// make sure the file is not too big
+	$user_context = context_user::instance($USER->id);
+	$maxbytes = get_user_max_upload_file_size($user_context);
+	if (($maxbytes!==-1) && (filesize($_FILES[$newfile]['tmp_name']) > $maxbytes)) {
+            throw new file_exception('maxbytes');
+    }
+
+	//make sure the filename is clean, and then make the savepath
+	$filename = clean_param($_FILES["newfile"]['name'], PARAM_FILE);
+	 if (preg_match('/\.([a-z0-9]+)$/i', $filename, $match)) {
+                if (isset($match[1])) {
+                    $ext = $match[1];
+                }
+    }
+    $ext = !empty($ext) ? $ext : '';
+    if($ext != 'mp3'){
+    	throw new moodle_exception('invalidfiletype', 'repository', '', get_mimetype_description(array('filename' => $filename)));
+    }
+	
+	//make savepath
 	$newfilepath = $CFG->dataroot . '/temp/download/' . $filename;
-	//file_put_contents($CFG->dataroot . '/temp/download/' . $filename ,$_FILES["newfile"]['tmpname']);
+	
+	//write out the file
 	move_uploaded_file($_FILES["newfile"]["tmp_name"],$newfilepath );
 	
-	//this is so hacky, I feel like having a shower even typing this, .. if only it wasn't open source ..
+	//this next is so hacky, I feel like having a shower .. if only it wasn't open source ..
 	//basically we cant control the recorder behaviour well enough to behave like the other PoodLL widgets
 	//unlike the ajax like uploads of poodll recorders, the mp3recorder forwards page on to the POST page, 
 	//so we need to return something or the screen will be blank
@@ -40,7 +78,9 @@ if(isset($GLOBALS["HTTP_RAW_POST_DATA"])) {
 		</html>
 		<?php
 
-//if sending a file force download
+//This url is passed to repo, which then uses it as the download url
+//this way we leave all the saving and file system to standard repo behaviour
+//if server can't resolve it own DNS it will fail, that should never happen ... right?
 }else{
 	
 	
