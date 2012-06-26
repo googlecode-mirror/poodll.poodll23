@@ -154,6 +154,11 @@ function filter_poodll_callback(array $link){
 			
 		case 'adminconsole':
 			$returnHtml="<BR />" . fetch_poodllconsole($filterprops['runtime'],"","billybob",-1,true);
+			break;
+
+		case 'quizlet':
+			$returnHtml="<BR />" . fetch_quizlet($filterprops['quizletid'],
+				!empty($filterprops['quizlettitle']) ? $filterprops['quizlettitle']  : 'quizlet');
 			break;	
 
 		case 'countdown':

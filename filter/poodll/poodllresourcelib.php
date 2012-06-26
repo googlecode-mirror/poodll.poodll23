@@ -1993,6 +1993,29 @@ global $CFG;
 	return $src;
 }
 
+function fetch_quizlet($quizletid, $quizlettitle=""){
+	
+	
+$ret=	"<div style=\"background:#fff;padding:3px\">
+		<iframe src=\"http://quizlet.com/$quizletid/familiarize/embed/?hideLinks\" height=\"310\" width=\"100%\" style=\"border:0;\" scrolling=\"no\"></iframe>
+		<select style=\"float:right;margin-right:3px\" onchange=\"var quizlet_s=this.options[this.selectedIndex].value;var quizlet_f=this;while(quizlet_f.nodeName.toLowerCase()!='iframe')quizlet_f=quizlet_f.previousSibling;quizlet_f.src=quizlet_s.slice(0,-3);quizlet_f.height=quizlet_s.slice(-3);this.value=0\">
+			<option value=\"0\" selected=\"selected\">Choose a Study Mode</option>
+			<option value=\"http://quizlet.com/$quizletid/scatter/embed/?hideLinks&height=410\">Scatter</option>
+			<option value=\"http://quizlet.com/$quizletid/learn/embed/?hideLinks&height=315\">Learn</option>
+			<option value=\"http://quizlet.com/$quizletid/familiarize/embed/?hideLinks&height=310\">Flashcards</option>
+		</select>
+		<div style=\"float:left;font-size:11px;padding-top:2px\">
+			<a style=\"float: left;margin: -2px 6px 0pt 2px;\" href=\"http://quizlet.com/\">
+				<img src=\"http://quizlet.com/a/i/quizlet-embed-logo.PQQ2.png\" border=\"0\" title=\"Quizlet.com, home of free online educational games\" alt=\"Quizlet.com, home of free online educational games\" /></a>
+			<a href=\"http://quizlet.com/$quizletid/$quizlettitle/\">Study these flash cards</a>
+		</div>
+		<div style=\"clear:both\"></div>
+	</div>";
+
+	return $ret;
+
+}
+
 function fetch_filter_properties($filterstring){
 	//this just removes the {POODLL: .. } to leave us with the good stuff.	
 	//there MUST be a better way than this.
