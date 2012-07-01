@@ -194,7 +194,7 @@ class qtype_poodllrecording_format_audio_renderer extends plugin_renderer_base {
 		$ret .= html_writer::empty_tag('input', array('type' => 'hidden','name' => $inputname . 'format', 'value' => 1));
 	
 	
-		//the context id $context->id here is wrong, so we just use "5" because it works, why is it wrong ..? J 20120214
+		//the context id is the user context for a student submission
 		return $ret . fetchAudioRecorderForSubmission('swf','question',$inputid, $usercontextid ,'user','draft',$draftitemid);
 		return $ret;
     }
@@ -238,8 +238,8 @@ class qtype_poodllrecording_format_video_renderer extends qtype_poodllrecording_
 		$inputid =  $inputname . '_id';
 		
 			//our answerfield
-		$ret =	html_writer::empty_tag('input', array('type' => 'hidden','id'=>$inputid, 'name' => $inputname));
-		//$ret = $this->textarea($step->get_qt_var($name), $lines, array('name' => $inputname,'id'=>$inputid));
+		//$ret =	html_writer::empty_tag('input', array('type' => 'hidden','id'=>$inputid, 'name' => $inputname));
+		$ret = $this->textarea($step->get_qt_var($name), $lines, array('name' => $inputname,'id'=>$inputid));
 		
 		//our answerfield draft id key
 		$ret .=	html_writer::empty_tag('input', array('type' => 'hidden', 'name' => $inputname . ':itemid', 'value'=> $draftitemid));
