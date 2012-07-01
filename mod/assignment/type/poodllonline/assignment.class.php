@@ -402,8 +402,9 @@ class assignment_poodllonline extends assignment_base {
      * then return it, or an error. But not both!
      *  This overrides an assignment default send_file and 
      *  and is looked for by pluginfile.php Justin 20110604 
+     * For moodle 23, added $forcedownload and $options API change Justin 20120701
       */
-    function send_file($filearea, $args) {
+    function send_file($filearea, $args,$forcedownload,array $options=array()) {
         global $CFG, $DB, $USER;
 		ob_start();
         require_once($CFG->libdir.'/filelib.php');
@@ -511,7 +512,8 @@ class assignment_poodllonline extends assignment_base {
 	
     }
 	
-    function print_user_files($userid, $return=false) {
+	//* Form moodle 23, added default value to userid, API change Justin 20120701
+    function print_user_files($userid=0, $return=false) {
         global $CFG, $OUTPUT, $USER, $DB;
 		
 		$returnString="No User Files";
