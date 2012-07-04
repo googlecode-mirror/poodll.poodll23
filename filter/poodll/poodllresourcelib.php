@@ -1975,31 +1975,19 @@ global $CFG, $DB, $COURSE;
 
 	
 //Given a user object, return the url to a picture for that user.
-function fetch_user_picture($user,$size){
-global $CFG;
+//Given a user object, return the url to a picture for that user.
+function fetch_user_picture($user,$size=35){
+global $CFG, $PAGE;
+	//we ignore size these days Justin 20120705
+	$upic = new user_picture($user);
+	if($upic){
+		return $upic->get_url($PAGE);
+	}else{
+		return "";
+	}
 
-	//get default sizes for non custom pics
-    if (empty($size)) {
-		//size = 35;
-        $file = 'f2';        
-    } else if ($size === true or $size == 1) {
-        //size = 100;
-		$file = 'f1';        
-    } else if ($size >= 50) {
-        $file = 'f1';
-    } else {
-        $file = 'f2';
-    }
-	
-	//now get the url for the pic
-    if ($user->picture) {  // Print custom user picture
-        require_once($CFG->libdir.'/filelib.php');
-        $src = get_file_url($user->id.'/'.$file.'.jpg', null, 'user');
-    } else {         // Print default user pictures (use theme version if available)
-        $src =  "$CFG->pixpath/u/$file.png";
-    }
-	return $src;
 }
+
 
 
 //embed a quizlet iframe
