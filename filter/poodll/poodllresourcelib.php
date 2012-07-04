@@ -25,7 +25,7 @@ require_once($CFG->dirroot . '/filter/poodll/Browser.php');
 //unadded Justin 20120508 caused problems in repository and I guess elsewhere too ... need to investigate.
 //require_once($CFG->dirroot . '/filter/poodll/poodlllogiclib.php');
 
-global $PAGE;
+global $PAGE, $FPLAYERJSLOADED;
 //$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/swfobject.js'));
 //$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/javascript.php'));
 //these could be called with the head flag set to true, (see flowplayer eg below) and remove from
@@ -33,8 +33,16 @@ global $PAGE;
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/swfobject.js'));
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/javascript.php'));
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/embed-compressed.js'));
+
 //we need this for flowplayer and it only works in head (hence the 'true' flag)
-$PAGE->requires->js('/filter/poodll/flowplayer/flowplayer-3.2.9.min.js',true);
+//BUT in quizzes , with only student role, header is output before this point for some reason
+//so we need to set a flag to tell flowplayer function (way below) to load it, but just once, hence the global Justin 20120704
+if(!$PAGE->requires->is_head_done()){
+	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot .'/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'),true);
+	$FPLAYERJSLOADED=true;
+}else{
+	$FPLAYERJSLOADED=false;
+}
 
 //added for moodle 2
 require_once($CFG->libdir . '/filelib.php');
@@ -2166,7 +2174,7 @@ function fetchSWFObjectWidgetCode($widget,$flashvarsArray,$width,$height,$bgcolo
 
 function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=false, $playlisturlstring ="",$loop='false'){
 
-	global $CFG, $PAGE;
+	global $CFG, $PAGE, $FPLAYERJSLOADED;
 	
 	$playerid = "flowplayer_" . rand(100000, 999999);
 	$playerclass = "flowplayer_poodll";
@@ -2194,15 +2202,16 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 	//init our return code
 	$retcode = "";
 	
-	//this next 2 lines may work, but they are called too late, the js needs to be in head. So at top of this file we do that. 
-	//$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'));
-	//$PAGE->requires->js('/filter/poodll/flowplayer/flowplayer-3.2.9.min.js',false);
-	
-	//this was just a test, can be tossed out
-	//if(strstr($path,"athletica")!=false) {
-		//$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'></script>";
-	//}
-	
+		
+	//added the global and conditional inclusion her because questions in a quiz don't get the JS loaded in the header
+	//it is only a problem in a quiz with student role. In other cases the load code at top of this file is on time. Justin 20120704
+	if(!$FPLAYERJSLOADED){
+		$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'></script>";
+		$FPLAYERJSLOADED=true;
+	}
+
+	//this conditional including of JS is actually bad, we should do this the same way as the flowplayer-3.2.9.mins.ja
+	//by adding it to head. And then weirding around with the GLOBAL Justin 20120704
 	if($ismobile){
 		$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.ipad-3.2.8.min.js'></script>";
 	}

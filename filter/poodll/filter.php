@@ -86,6 +86,11 @@ class filter_poodll extends moodle_text_filter {
 */
 function filter_poodll_callback(array $link){
 	global $CFG, $COURSE, $USER;
+	
+	
+	///$PAGE->requires->js_init_call('M.filter_poodll.init', array());
+	
+	
 	//get our filter props
 	//we use a function in the poodll poodllresourcelib, because
 	//parsing will also need to be done by the html editor
