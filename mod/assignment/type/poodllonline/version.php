@@ -22,9 +22,9 @@
  * @copyright  2012 Justin Hunt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version   = 2012062600;
+$plugin->version   = 2012070800;
 $plugin->requires  = 2011070100.00;
 $plugin->component = 'assignment_poodllonline'; 
 $plugin->maturity  = MATURITY_BETA;
-$plugin->release   = '2.3.1 (Build 2012062600)';
-$plugin->dependencies = array('filter_poodll' => 2012052500);
+$plugin->release   = '2.3.2 (Build 2012070800)';
+$plugin->dependencies = array('filter_poodll' => 2012070800);
