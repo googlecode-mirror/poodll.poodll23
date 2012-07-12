@@ -27,7 +27,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->version   = 2012070800; 
-$plugin->requires  = 2011070100.00; 
+$plugin->requires  = 2012062500; 
 $plugin->component = 'repository_poodll'; 
 $plugin->maturity  = MATURITY_BETA;
 $plugin->release   = '2.3.2 (Build 2012070800)';

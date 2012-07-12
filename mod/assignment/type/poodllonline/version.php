@@ -23,7 +23,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 $plugin->version   = 2012070800;
-$plugin->requires  = 2011070100.00;
+$plugin->requires  = 2012062500;
 $plugin->component = 'assignment_poodllonline'; 
 $plugin->maturity  = MATURITY_BETA;
 $plugin->release   = '2.3.2 (Build 2012070800)';
