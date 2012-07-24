@@ -30,6 +30,12 @@ class filter_poodll extends moodle_text_filter {
 			
 			$newtext = $text; // fullclone is slow and not needed here
 				
+			//NB test regular expressions here:
+			//http://www.spaweditor.com/scripts/regex/index.php
+			//using match all to see what will be matched and in what index of "link" variable it will show
+			//currently MP4/FLV 0 shows the whole string, 1 the link,2 the width+height param string, 3, the width, 4 the height, 5 the linked text
+			//MP3 0 shows the whole string, 1 the link, 2 the linked text
+				
 			//check for mp3
 			 if (!empty($CFG->filter_poodll_handlemp3)) {
 				if (!(stripos($text, '</a>') ===false)) {
@@ -62,6 +68,15 @@ class filter_poodll extends moodle_text_filter {
 					$newtext = preg_replace_callback($search, 'filter_poodll_mp4flv_callback', $newtext);
 				}
 			}
+			
+			//check for .pdl . This is a shorthand filter using presets to allow selection of PoodLL widgets
+			//from the Moodle File repository
+			if (!(stripos($text, '</a>') ===false)) {
+				// performance shortcut - all filepicker media links  end with the </a> tag,
+					$search = '/<a\s[^>]*href="([^"#\?]+\.pdl)"[^>]*>([^>]*)<\/a>/is';
+					$newtext = preg_replace_callback($search, 'filter_poodll_pdl_callback', $newtext);
+				}
+
 					
 			
 		
@@ -152,8 +167,8 @@ function filter_poodll_callback(array $link){
 			$returnHtml= fetch_countdowntimer($filterprops['runtime'],$filterprops['initseconds'],
 				!empty($filterprops['usepresets']) ? $filterprops['usepresets'] : 'false',
 				!empty($filterprops['width']) ? $filterprops['width'] : 400,
-				!empty($filterprops['height']) ? $filterprops['height'] : 265,
-				!empty($filterprops['fontheight']) ? $filterprops['fontheight'] : 128,
+				!empty($filterprops['height']) ? $filterprops['height'] : 300,
+				!empty($filterprops['fontheight']) ? $filterprops['fontheight'] : 64,
 				!empty($filterprops['mode']) ? $filterprops['mode'] : 'normal',
 				!empty($filterprops['permitfullscreen']) ? $filterprops['permitfullscreen'] : false, 
 				!empty($filterprops['uniquename']) ? $filterprops['uniquename'] : 'auniquename');
@@ -308,6 +323,47 @@ function filter_poodll_callback(array $link){
 }//end of poodll default callback function
 
 
+/**
+ * Replace pdl links with appropriate PoodLL widget
+ *
+ * @param  $link
+ * @return string
+ */
+function filter_poodll_pdl_callback($link) {
+global $CFG;
+	//strip the .pdl extension
+	$len = strlen($link[2]);
+	$key=substr($link[2],0,$len-4);
+	
+	//see if there is a parameter to this widget
+	$pos = strpos($key, "_");
+	$param="";
+	
+	//if yes, trim it off the key and get its value
+	if($pos){
+		$param=substr($key,$pos+1);
+		$key=substr($key,0,$pos);
+	}
+
+	//depending on the widget, make up a filter string
+	switch ($key){
+		case "stopwatch": $fstring = "{POODLL:type=stopwatch}";break;
+		case "dice": $fstring = "{POODLL:type=dice,dicecount=$param}";break;
+		case "calculator": $fstring = "{POODLL:type=calculator}";break;
+		case "countdown": $fstring = "{POODLL:type=countdown,initseconds=$param}";break;
+		case "whiteboardsimple": $fstring = "{POODLL:type=whiteboard,mode=simple}";break;
+		case "whiteboardfull": $fstring = "{POODLL:type=whiteboard,mode=normal}";break;
+		case "sliderocket": $fstring = "{POODLL:type=sliderocket,id=$param}";break;
+		case "quizlet": $fstring = "{POODLL:type=quizlet,id=$param}";break;
+		case "mini": $fstring = "{POODLL:type=quizlet,id=$param}";break;
+		case "flashcards": $fstring = "{POODLL:type=flashcards,cardset=$param}";break;
+	}
+	
+	//resolve the string and return it
+	$returnHtml= filter_poodll_callback(array($fstring));	
+	return $returnHtml;
+}
+
 
 /**
  * Replace mp3 links with player
@@ -317,13 +373,33 @@ function filter_poodll_callback(array $link){
  */
 function filter_poodll_mp3_callback($link) {
 global $CFG;
-
+	
+	//get the url and massage it a little
     $url = $link[1];
     $rawurl = str_replace('&amp;', '&', $url);
-
-    $returnHtml= fetchSimpleAudioPlayer('auto',$rawurl,'http',$CFG->filter_poodll_audiowidth,$CFG->filter_poodll_audioheight,false,'Play');
+	
+	//test for presence of player selectors and serve up the correct player
+	$len = strlen($link[2]);
+	if (strrpos($link[2],'.mini.mp3')=== $len-9){
+		$returnHtml=fetchMiniPlayer('auto',$rawurl,'http');
+		
+	}elseif(strrpos($link[2],'.word.mp3')=== $len-9){
+		$word=substr($link[2],0,$len-9);
+		$returnHtml= fetchWordPlayer('auto',$rawurl,'http',$word);
+		
+	}else{
+		$returnHtml= fetchSimpleAudioPlayer('auto',$rawurl,'http',$CFG->filter_poodll_audiowidth,$CFG->filter_poodll_audioheight,false,'Play');
+	}
+	
 	return $returnHtml;
 }
+
+/**
+ * Replace mp4 or flv links with player
+ *
+ * @param  $link
+ * @return string
+ */
 function filter_poodll_mp4flv_callback($link) {
 global $CFG;
 	//clean up url
@@ -339,8 +415,26 @@ global $CFG;
 		$width = $link[3];
 		$height = $link[4];
 	}
-
-
-	$returnHtml= fetchSimpleVideoPlayer('auto',$url,$width,$height,'http',false,true , 'Play');
+	
+	//get the url and massage it a little
+    $url = $link[1];
+    $rawurl = str_replace('&amp;', '&', $url);
+	
+	//test for presence of player selectors and serve up the correct player
+	$len = strlen($link[5]);
+	if (strrpos($link[5],'.mini.flv')=== $len-9){
+		$returnHtml=fetchMiniPlayer('auto',$rawurl,'http');
+		
+	}elseif(strrpos($link[5],'.word.flv')=== $len-9){
+		$word=substr($link[5],0,$len-9);
+		$returnHtml=fetchWordPlayer('auto',$rawurl,$word,'http');
+		
+	}elseif(strrpos($link[5],'.audio.flv')=== $len-10){
+		$returnHtml= fetchSimpleAudioPlayer('auto',$rawurl,'http',$CFG->filter_poodll_audiowidth,$CFG->filter_poodll_audioheight,false,'Play');
+		
+	}else{
+		$returnHtml= fetchSimpleVideoPlayer('auto',$url,$width,$height,'http',false,true , 'Play');
+	}
+	
 	return $returnHtml;
 }

@@ -25,23 +25,25 @@ require_once($CFG->dirroot . '/filter/poodll/Browser.php');
 //unadded Justin 20120508 caused problems in repository and I guess elsewhere too ... need to investigate.
 //require_once($CFG->dirroot . '/filter/poodll/poodlllogiclib.php');
 
-global $PAGE, $FPLAYERJSLOADED;
-//$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/swfobject.js'));
-//$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/mod/assignment/type/poodllonline/javascript.php'));
-//these could be called with the head flag set to true, (see flowplayer eg below) and remove from
-//other functions in this file. needs testing though. Justin 20120604
+global $PAGE, $FPLAYERJSLOADED,$EMBEDJSLOADED;
+
+//I have tried to remove calls to these libraries inline, though I did not change stuff we 
+//dont use in poodll 2 yet. I will test those when I enable them, Justin 20120724
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/swfobject.js'));
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/javascript.php'));
-$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/embed-compressed.js'));
 
-//we need this for flowplayer and it only works in head (hence the 'true' flag)
-//BUT in quizzes , with only student role, header is output before this point for some reason
-//so we need to set a flag to tell flowplayer function (way below) to load it, but just once, hence the global Justin 20120704
+
+//we need this for flowplayer and embedding it only works in head (hence the 'true' flag)
+//BUT in quizzes/repo , with only student role, header is output before this point for some reason
+//so we need to set a flag to tell widgets to load it, but just once, hence the globals Justin 20120704
 if(!$PAGE->requires->is_head_done()){
 	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot .'/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'),true);
+	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/embed-compressed.js'),true);
 	$FPLAYERJSLOADED=true;
+	$EMBEDJSLOADED=true;
 }else{
 	$FPLAYERJSLOADED=false;
+	$EMBEDJSLOADED=false;
 }
 
 //added for moodle 2
@@ -1184,6 +1186,62 @@ $params = array();
 }
 
 //Audio playltest player with defaults, for use with directories of audio files
+function fetchMiniPlayer($runtime, $src,$protocol="http"){
+global $COURSE;
+
+		//support legacy files, just in case we have an old timer ...
+		if($protocol=='rtmp' || $protocol=='legacy'){
+			$src= $CFG->wwwroot . "/file.php/" .  $COURSE->id . "/" . $src;
+			$type = 'http';
+		}
+	
+		$params = array();
+		//$params['red5url'] = urlencode($flvserver);
+		$params['src']= $src;//urlencode($src);
+	
+		//currrently we just support SWF, but we will do HTML5
+    	//$returnString=  fetchSWFWidgetCode('poodllminiplayer.lzx.swf9.swf',
+    	//					$params,80,80,'#FFFFFF');
+			
+		//just for testing we use the audiotestplayer	
+		$returnString=  fetchSWFWidgetCode('poodllminiplayer.lzx.swf9.swf',
+							$params,48,48,'#FFFFFF');
+    						
+    	return $returnString;
+
+
+}
+
+//Audio playltest player with defaults, for use with directories of audio files
+function fetchWordPlayer($runtime, $src,$word, $protocol="http"){
+
+global $COURSE;
+
+		//support legacy files, just in case we have an old timer ...
+		if($protocol=='rtmp' || $protocol=='legacy'){
+			$src= $CFG->wwwroot . "/file.php/" .  $COURSE->id . "/" . $src;
+			$type = 'http';
+		}
+
+		$params = array();
+		//$params['red5url'] = urlencode($flvserver);
+		$params['src']=urlencode($src);
+		$params['word']=urlencode($word);
+	
+		//currrently we just support SWF, but we will do HTML5
+    	//$returnString=  fetchSWFWidgetCode('poodllwordplayer.lzx.swf9.swf', $params,200,80,'#FFFFFF');
+							
+		//temporaril we use this, which only plays FLV. We will write an mp3/flv word player soon
+		$returnString = fetchSimpleAudioPlayer('auto', $src, "http", $width="150",$height="25",true, $word,false);
+							
+							
+    						
+    	return $returnString;
+
+
+}
+
+//Audio playltest player with defaults, for use with directories of audio files
 function fetchAudioTestPlayer($runtime, $playlist,$protocol="", $width="400",$height="150",$filearea="content"){
 global $CFG, $USER, $COURSE;
 
@@ -2092,6 +2150,7 @@ function fetchAutoWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFF
 	 return $ret;
 }
 
+//This is used for all the flash widgets
 function fetchSWFWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF"){
 	global $CFG, $PAGE;
 	
@@ -2107,12 +2166,23 @@ function fetchSWFWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFF
 	//if we wish to pass in more common params, here is the place
 	//eg. $params .= '&modulename=' . $PAGE->cm->modname;
 	
+	//commented out embed-compressed.js, because called it more responsibly in head at top of this file
+	//justin 20120724
+	
+	//added the global and conditional inclusion of embed js here because repo doesn't get the JS loaded in the header
+	//In other cases the load code at top of this file is on time. Justin 20120704
+	$embedcode="";
+	if(!$EMBEDJSLOADED){
+		$embedcode .= "<script type=\"text/javascript\" src=\"{$CFG->wwwroot}/filter/poodll/flash/embed-compressed.js\"></script> ";
+		$EMBEDJSLOADED=true;
+	}
+	
 	$retcode = "
         <table><tr><td>
         <script type=\'text/javascript\'>
             lzOptions = { ServerRoot: \'\'};
-        </script>
-        <script type=\"text/javascript\" src=\"{$CFG->wwwroot}/filter/poodll/flash/embed-compressed.js\"></script>
+        </script> 
+       " . $embedcode . "
         <script type=\"text/javascript\">
 " . '	lz.embed.swf({url: \'' . $CFG->wwwroot . '/filter/poodll/flash/' . $widget . $params . 
 		 '\', bgcolor: \'' . $bgcolor . '\', cancelmousewheel: true, allowfullscreen: true, width: \'' .$width . '\', height: \'' . $height . '\', id: \'lzapp_' . rand(100000, 999999) . '\', accessible: \'false\'});	
@@ -2129,6 +2199,7 @@ function fetchSWFWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFF
 
 }
 
+//this is only used for JW player, ie not really used
 function fetchSWFObjectWidgetCode($widget,$flashvarsArray,$width,$height,$bgcolor){
 	global $CFG, $PAGE;
 	//this doesn't work here or at top of file!!

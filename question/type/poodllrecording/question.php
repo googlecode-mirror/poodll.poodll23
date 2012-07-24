@@ -85,9 +85,7 @@ class qtype_poodllrecording_question extends question_with_responses {
 
     public function is_same_response(array $prevresponse, array $newresponse) {
         return question_utils::arrays_same_at_key_missing_is_blank(
-                $prevresponse, $newresponse, 'answer') && ($this->attachments == 0 ||
-                question_utils::arrays_same_at_key_missing_is_blank(
-                $prevresponse, $newresponse, 'attachments'));
+                $prevresponse, $newresponse, 'answer');
     }
 
     public function check_file_access($qa, $options, $component, $filearea, $args, $forcedownload) {
