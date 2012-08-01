@@ -384,6 +384,36 @@ class repository_poodll extends repository {
 							'date'=>'',
 							'source'=>'whiteboardfull.pdl'
 						);
+						//audiorecorder
+						$list[] = array(
+							'title'=> "audiorecorder.pdl.mp4",
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/repoaudiorecorder.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
+							'size'=>'',
+							'date'=>'',
+							'source'=>'audiorecorder.pdl'
+						);
+						//videorecorder
+						$list[] = array(
+							'title'=> "audiorecorder.pdl.mp4",
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/repovideorecorder.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
+							'size'=>'',
+							'date'=>'',
+							'source'=>'videorecorder.pdl'
+						);
+						//click counter
+						$list[] = array(
+							'title'=> "counter.pdl.mp4",
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/repoclickcounter.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
+							'size'=>'',
+							'date'=>'',
+							'source'=>'counter.pdl'
+						);
 						//sliderocket
 						$list[] = array(
 							'title'=> "sliderocket_1234567.pdl.mp4",
