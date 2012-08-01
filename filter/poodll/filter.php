@@ -186,7 +186,7 @@ function filter_poodll_callback(array $link){
 		case 'dice':
 			$returnHtml= fetch_dice($filterprops['runtime'],!empty($filterprops['dicecount']) ? $filterprops['dicecount']  : 1,
 				!empty($filterprops['dicesize']) ? $filterprops['dicesize'] : 200,
-				!empty($filterprops['width']) ? $filterprops['width'] : 300,
+				!empty($filterprops['width']) ? $filterprops['width'] : 600,
 				!empty($filterprops['height']) ? $filterprops['height'] : 300);
 			break;
 			
@@ -206,6 +206,23 @@ function filter_poodll_callback(array $link){
 				!empty($filterprops['height']) ? $filterprops['height'] : 300);
 			break;
 			
+		case 'miniplayer':
+			$returnHtml= fetch_miniplayer($filterprops['runtime'],$filterprops['url'],
+				!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'http',
+				!empty($filterprops['width']) ? $filterprops['width'] :  $CFG->filter_poodll_miniplayerwidth,
+				!empty($filterprops['height']) ? $filterprops['height'] :  $CFG->filter_poodll_miniplayerwidth);
+			break;
+			
+		case 'newpoodllpairwork':
+			$returnHtml= fetch_embeddablepairclient($filterprops['runtime'],!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_newpairwidth,
+				!empty($filterprops['height']) ? $filterprops['height'] : $CFG->filter_poodll_newpairheight,
+				!empty($filterprops['chat']) ? $filterprops['chat'] : true,
+				!empty($filterprops['whiteboard']) ? $filterprops['whiteboard'] : false, 
+				!empty($filterprops['showvideo']) ? $filterprops['showvideo'] : false,
+				!empty($filterprops['whiteboardback']) ? $filterprops['whiteboardback'] : ''
+				);
+			break;
+			
 		case 'stopwatch':
 			$returnHtml= fetch_stopwatch($filterprops['runtime'],!empty($filterprops['width']) ? $filterprops['width'] : 400,
 				!empty($filterprops['height']) ? $filterprops['height'] : 265,!empty($filterprops['fontheight']) ? $filterprops['fontheight'] : 64,
@@ -221,15 +238,7 @@ function filter_poodll_callback(array $link){
 				!empty($filterprops['permitfullscreen']) ? $filterprops['permitfullscreen'] : false );
 			break;	
 			
-		case 'newpoodllpairwork':
-			$returnHtml= fetch_embeddablepairclient($filterprops['runtime'],!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_newpairwidth,
-				!empty($filterprops['height']) ? $filterprops['height'] : $CFG->filter_poodll_newpairheight,
-				!empty($filterprops['chat']) ? $filterprops['chat'] : true,
-				!empty($filterprops['whiteboard']) ? $filterprops['whiteboard'] : false, 
-				!empty($filterprops['showvideo']) ? $filterprops['showvideo'] : false,
-				!empty($filterprops['whiteboardback']) ? $filterprops['whiteboardback'] : ''
-				);
-			break;	
+			
 
 		case 'screensubscribe':
 			$returnHtml= fetch_screencast_subscribe($filterprops['runtime'],"",true,!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_showwidth,
@@ -240,6 +249,15 @@ function filter_poodll_callback(array $link){
 		case 'poodllpalette':
 			$returnHtml= fetch_poodllpalette($filterprops['runtime'],$filterprops['width'],$filterprops['height'],"swf");
 			break;	
+			
+		case 'wordplayer':
+			$returnHtml= fetch_wordplayer($filterprops['runtime'],$filterprops['url'],
+				$filterprops['word'],
+				!empty($filterprops['fontsize']) ? $filterprops['fontsize'] : $CFG->filter_poodll_wordplayerfontsize,
+				!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'http',
+				!empty($filterprops['width']) ? $filterprops['width'] :  "0",
+				!empty($filterprops['height']) ? $filterprops['height'] :  "0");
+			break;
 			
 		case 'whiteboard':
 			$returnHtml= fetch_whiteboard($filterprops['runtime'],!empty($filterprops['boardname']) ? $filterprops['boardname'] : "whiteboard",
@@ -292,6 +310,14 @@ function filter_poodll_callback(array $link){
 			$returnHtml= fetch_sliderocket($filterprops['id'],
 				!empty($filterprops['width']) ? $filterprops['width'] :  '400',
 				!empty($filterprops['height']) ? $filterprops['height'] :  '326')
+				;
+			break;	
+		
+		case 'snapshot':
+			$returnHtml= fetchSnapshotCamera(!empty($filterprops['updatecontrol']) ? $filterprops['updatecontrol'] :  'filename',
+				!empty($filterprops['filename']) ? $filterprops['filename'] :  'filename',
+				!empty($filterprops['width']) ? $filterprops['width'] :  '350',
+				!empty($filterprops['height']) ? $filterprops['height'] :  '400')
 				;
 			break;	
 			
@@ -347,15 +373,18 @@ global $CFG;
 
 	//depending on the widget, make up a filter string
 	switch ($key){
+		case "audiorecorder": $fstring = "{POODLL:type=audiorecorder}";break;
+		case "videorecorder": $fstring = "{POODLL:type=videorecorder}";break;
+		case "snapshot": $fstring = "{POODLL:type=snapshot}";break;
 		case "stopwatch": $fstring = "{POODLL:type=stopwatch}";break;
 		case "dice": $fstring = "{POODLL:type=dice,dicecount=$param}";break;
 		case "calculator": $fstring = "{POODLL:type=calculator}";break;
 		case "countdown": $fstring = "{POODLL:type=countdown,initseconds=$param}";break;
+		case "counter": $fstring = "{POODLL:type=counter}";break;
 		case "whiteboardsimple": $fstring = "{POODLL:type=whiteboard,mode=simple}";break;
 		case "whiteboardfull": $fstring = "{POODLL:type=whiteboard,mode=normal}";break;
 		case "sliderocket": $fstring = "{POODLL:type=sliderocket,id=$param}";break;
 		case "quizlet": $fstring = "{POODLL:type=quizlet,id=$param}";break;
-		case "mini": $fstring = "{POODLL:type=quizlet,id=$param}";break;
 		case "flashcards": $fstring = "{POODLL:type=flashcards,cardset=$param}";break;
 	}
 	
@@ -381,11 +410,11 @@ global $CFG;
 	//test for presence of player selectors and serve up the correct player
 	$len = strlen($link[2]);
 	if (strrpos($link[2],'.mini.mp3')=== $len-9){
-		$returnHtml=fetchMiniPlayer('auto',$rawurl,'http');
+		$returnHtml=fetch_miniplayer('auto',$rawurl,'http');
 		
 	}elseif(strrpos($link[2],'.word.mp3')=== $len-9){
 		$word=substr($link[2],0,$len-9);
-		$returnHtml= fetchWordPlayer('auto',$rawurl,'http',$word);
+		$returnHtml= fetch_wordplayer('auto',$rawurl,$word,0,'http');
 		
 	}else{
 		$returnHtml= fetchSimpleAudioPlayer('auto',$rawurl,'http',$CFG->filter_poodll_audiowidth,$CFG->filter_poodll_audioheight,false,'Play');
@@ -423,11 +452,11 @@ global $CFG;
 	//test for presence of player selectors and serve up the correct player
 	$len = strlen($link[5]);
 	if (strrpos($link[5],'.mini.flv')=== $len-9){
-		$returnHtml=fetchMiniPlayer('auto',$rawurl,'http');
+		$returnHtml=fetch_miniplayer('auto',$rawurl,'http');
 		
 	}elseif(strrpos($link[5],'.word.flv')=== $len-9){
 		$word=substr($link[5],0,$len-9);
-		$returnHtml=fetchWordPlayer('auto',$rawurl,$word,'http');
+		$returnHtml=fetch_wordplayer('auto',$rawurl,$word,0,'http');
 		
 	}elseif(strrpos($link[5],'.audio.flv')=== $len-10){
 		$returnHtml= fetchSimpleAudioPlayer('auto',$rawurl,'http',$CFG->filter_poodll_audiowidth,$CFG->filter_poodll_audioheight,false,'Play');

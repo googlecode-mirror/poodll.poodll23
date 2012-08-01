@@ -33,6 +33,8 @@ $string['audiowidth'] = 'Audio Player Width';
 $string['audioheight'] = 'Audio Player Height';
 $string['audiosplash'] = 'Show Simple Audio Splash';
 $string['audiosplashdetails'] = 'Splash screen is shown for Flowplayer only.';
+$string['miniplayerwidth'] = 'Mini Player Width';
+$string['wordplayerfontsize'] = 'Word Player Fontsize';
 
 
 $string['talkbackwidth'] = 'Talkback Player Width';

@@ -66,6 +66,8 @@ class repository_poodll extends repository {
     public function print_login($ajax = true) {
 		global $CFG,$PAGE,$USER;
 
+		//In Moodle 2.3 early version, screen was too narrow
+		$screenistoonarrow=false;
 		
 		//Init our array
         $ret = array();
@@ -128,7 +130,11 @@ class repository_poodll extends repository {
 			case self::POODLLSNAPSHOT: 	
 					$height=350;
 					$width=330;
-					$button = "<button class=\"fp-login-submit\" style=\"position:relative; top:-200px;\" >Next >>></button>";
+					if($screenistoonarrow){
+						$button = "<button class=\"fp-login-submit\" style=\"position:relative; top:-200px;\" >Next >>></button>";
+					}else{
+						$button= "";
+					}
 					break;
 			//audio		
 			case self::POODLLAUDIO:
@@ -248,9 +254,9 @@ class repository_poodll extends repository {
 					if($ext==".mp3"){
 						$list[] = array(
 							'title'=> $filename,
-							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/audionormal.png",
-							'thumbnail_width'=>330,
-							'thumbnail_height'=>115,
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/audionormal.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
 							'size'=>'',
 							'date'=>'',
 							'source'=>$source
@@ -259,9 +265,9 @@ class repository_poodll extends repository {
 					}else{
 						$list[] = array(
 							'title'=> substr_replace($filename,'.audio.flv',-4),
-							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/audionormal.png",
-							'thumbnail_width'=>330,
-							'thumbnail_height'=>115,
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/audionormal.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
 							'size'=>'',
 							'date'=>'',
 							'source'=>$source
@@ -271,9 +277,9 @@ class repository_poodll extends repository {
 				if($showoptions){
 					$list[] = array(
 							'title'=> substr_replace($filename,'.mini'. $ext,-4),
-							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/audiomini.png",
-							'thumbnail_width'=>330,
-							'thumbnail_height'=>115,
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/miniplayer.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
 							'size'=>'',
 							'date'=>'',
 							'source'=>$source
@@ -281,9 +287,9 @@ class repository_poodll extends repository {
 					
 					$list[] = array(
 							'title'=> substr_replace($filename,'.word'. $ext,-4),
-							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/audioword.png",
-							'thumbnail_width'=>330,
-							'thumbnail_height'=>115,
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/wordplayer.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
 							'size'=>'',
 							'date'=>'',
 							'source'=>$source
@@ -321,9 +327,9 @@ class repository_poodll extends repository {
 						//stopwatch
 						$list[] = array(
 							'title'=> "stopwatch.pdl.mp4",
-							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/stopwatch.png",
-							'thumbnail_width'=>330,
-							'thumbnail_height'=>115,
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/repostopwatch.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
 							'size'=>'',
 							'date'=>'',
 							'source'=>'stopwatch.pdl'
@@ -331,9 +337,9 @@ class repository_poodll extends repository {
 						//calculator
 						$list[] = array(
 							'title'=> "calculator.pdl.mp4",
-							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/calculator.png",
-							'thumbnail_width'=>330,
-							'thumbnail_height'=>115,
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/repocalculator.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
 							'size'=>'',
 							'date'=>'',
 							'source'=>'calculator.pdl'
@@ -341,9 +347,9 @@ class repository_poodll extends repository {
 						//countdown timer
 						$list[] = array(
 							'title'=> "countdown_60.pdl.mp4",
-							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/countdown.png",
-							'thumbnail_width'=>330,
-							'thumbnail_height'=>115,
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/repocountdown.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
 							'size'=>'',
 							'date'=>'',
 							'source'=>'countdown_60.pdl'
@@ -351,9 +357,9 @@ class repository_poodll extends repository {
 						//dice
 						$list[] = array(
 							'title'=> "dice_2.pdl.mp4",
-							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/dice.png",
-							'thumbnail_width'=>330,
-							'thumbnail_height'=>115,
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/repodice.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
 							'size'=>'',
 							'date'=>'',
 							'source'=>'dice_2.pdl'
@@ -361,9 +367,9 @@ class repository_poodll extends repository {
 						//simplewhiteboard
 						$list[] = array(
 							'title'=> "whiteboardsimple.pdl.mp4",
-							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/simplewhiteboard.png",
-							'thumbnail_width'=>330,
-							'thumbnail_height'=>115,
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/reposimplewhiteboard.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
 							'size'=>'',
 							'date'=>'',
 							'source'=>'whiteboardsimple.pdl'
@@ -371,9 +377,9 @@ class repository_poodll extends repository {
 						//fullwhiteboard
 						$list[] = array(
 							'title'=> "whiteboardfull.pdl.mp4",
-							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/fullwhiteboard.png",
-							'thumbnail_width'=>330,
-							'thumbnail_height'=>115,
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/repofullwhiteboard.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
 							'size'=>'',
 							'date'=>'',
 							'source'=>'whiteboardfull.pdl'
@@ -381,9 +387,9 @@ class repository_poodll extends repository {
 						//sliderocket
 						$list[] = array(
 							'title'=> "sliderocket_1234567.pdl.mp4",
-							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/sliderocket.png",
-							'thumbnail_width'=>330,
-							'thumbnail_height'=>115,
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/reposliderocket.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
 							'size'=>'',
 							'date'=>'',
 							'source'=>'sliderocket_1234567.pdl'
@@ -391,19 +397,29 @@ class repository_poodll extends repository {
 						//quizlet
 						$list[] = array(
 							'title'=> "quizlet_1234567.pdl.mp4",
-							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/quizlet.png",
-							'thumbnail_width'=>330,
-							'thumbnail_height'=>115,
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/repoquizlet.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
 							'size'=>'',
 							'date'=>'',
 							'source'=>'quizlet_1234567.pdl'
 						);
+						//snapshot
+						$list[] = array(
+							'title'=> "snapshot.pdl.mp4",
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/reposnapshot.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
+							'size'=>'',
+							'date'=>'',
+							'source'=>'snapshot.pdl'
+						);
 						//flashcards
 						$list[] = array(
 							'title'=> "flashcards_1234.pdl.mp4",
-							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/flashcards.png",
-							'thumbnail_width'=>330,
-							'thumbnail_height'=>115,
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/repoflashcards.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
 							'size'=>'',
 							'date'=>'',
 							'source'=>'poodll.pdl'
@@ -510,7 +526,7 @@ class repository_poodll extends repository {
 	   $url=$CFG->wwwroot.'/filter/poodll/flash/mp3recorder.swf?gateway=' . $CFG->wwwroot . '/repository/poodll/uploadHandler.php'; // /recorder=mp3/filename=' . $filename;//?filename=' . $filename;
 		//$callback = urlencode("(function(a, b){d=parent.document;d.g=d.getElementById;fn=d.g('filename');fn.value=a;fd=d.g('upload_filedata');fd.value=b;f=fn;while(f.tagName!='FORM')f=f.parentNode;f.repo_upload_file.type='text';f.repo_upload_file.value='bogus.mp3';while(f.tagName!='DIV')f=f.nextSibling;f.getElementsByTagName('button')[0].click();})");
 		 // $flashvars="&callback={$callback}&forcename=winkle";
-		$flashvars="&filename=newaudio";
+		$flashvars="&filename=audio" . rand(10000,99999);
 		  
 		  
 		//make our insert string

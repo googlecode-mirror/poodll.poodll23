@@ -21,20 +21,21 @@ define('MR_TYPETALKBACK',2);
  
 require_once($CFG->dirroot . '/filter/poodll/poodllinit.php');
 require_once($CFG->dirroot . '/filter/poodll/Browser.php');
+
 //added Justin 20120424 
 //unadded Justin 20120508 caused problems in repository and I guess elsewhere too ... need to investigate.
 //require_once($CFG->dirroot . '/filter/poodll/poodlllogiclib.php');
 
-global $PAGE, $FPLAYERJSLOADED,$EMBEDJSLOADED;
+global $PAGE, $FPLAYERJSLOADED, $EMBEDJSLOADED;
 
 //I have tried to remove calls to these libraries inline, though I did not change stuff we 
-//dont use in poodll 2 yet. I will test those when I enable them, Justin 20120724
+//dont use in poodll 2 yet(e.g pairwork). I will test those when I enable them, Justin 20120724
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/swfobject.js'));
 $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/javascript.php'));
 
 
 //we need this for flowplayer and embedding it only works in head (hence the 'true' flag)
-//BUT in quizzes/repo , with only student role, header is output before this point for some reason
+//BUT in quizzes or poodll repository , with only student role, header is output before this point for some reason
 //so we need to set a flag to tell widgets to load it, but just once, hence the globals Justin 20120704
 if(!$PAGE->requires->is_head_done()){
 	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot .'/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'),true);
@@ -746,11 +747,16 @@ $userid = $USER->username;
     }elseif($runtime=='swf'){
     	$returnString=  fetchSWFWidgetCode('stopwatch.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
+	
+	 }elseif($runtime=='js'){
+    	$returnString=   fetchJSWidgetCode('stopwatch.lzx.js',
+    						$params,$width,$height,'#FFFFFF');
+							
 	 }elseif($runtime=='auto'){
     	$returnString=  fetchAutoWidgetCode('stopwatch.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
     }else{
-    	$returnString=  fetchJSWidgetCode('stopwatch.lzx.js',
+    	$returnString=  fetchAutoWidgetCode('stopwatch.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
     }
    						
@@ -855,18 +861,22 @@ $userid = $USER->username;
 		$params['mode'] = $mode;
 		
 		//LZ string if master/save  mode and not admin => show slave mode
-	//otherwise show stopwatch
+	//otherwise show countdown timer
 	if ($mode=='master' && !$isadmin) {
     	$returnString=  fetchSWFWidgetCode('slaveview.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
     }elseif($runtime=='swf'){
     	$returnString=  fetchSWFWidgetCode('countdowntimer.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
+	}elseif($runtime=='js'){
+		$returnString=  fetchJSWidgetCode('countdowntimer.lzx.js',
+    						$params,$width,$height,'#FFFFFF');
+							
 	}elseif($runtime=='auto'){
     	$returnString=  fetchAutoWidgetCode('countdowntimer.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
-    }else{
-    	$returnString=  fetchJSWidgetCode('countdowntimer.lzx.js',
+    }else{		
+		$returnString=  fetchAutoWidgetCode('countdowntimer.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
     
     
@@ -891,11 +901,17 @@ global $CFG;
     	if($runtime=="swf"){
     		$returnString=  fetchSWFWidgetCode('counter.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
+							
+		}elseif($runtime=="js"){
+    		$returnString=  fetchJSWidgetCode('counter.lzx.js',
+    						$params,$width,$height,'#FFFFFF');
+							
 		}elseif($runtime=="auto"){
     		$returnString=  fetchAutoWidgetCode('counter.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
+							
 		}else{
-			$returnString=  fetchJSWidgetCode('counter.lzx.js',
+			$returnString=  fetchAutoWidgetCode('counter.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
 		}
    						
@@ -916,11 +932,16 @@ global $CFG;
 	if($runtime=="swf"){
     	$returnString=  fetchSWFWidgetCode('dice.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
+	
+	}elseif($runtime=="js"){
+    	$returnString=   fetchJSWidgetCode('dice.lzx.js',
+    						$params,$width,$height,'#FFFFFF');
+							
 	}elseif($runtime=="auto"){
     	$returnString=  fetchAutoWidgetCode('dice.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
 	}else{
-		$returnString=  fetchJSWidgetCode('dice.lzx.js',
+		$returnString=  fetchAutoWidgetCode('dice.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
 	}
     	
@@ -1186,36 +1207,55 @@ $params = array();
 }
 
 //Audio playltest player with defaults, for use with directories of audio files
-function fetchMiniPlayer($runtime, $src,$protocol="http"){
-global $COURSE;
+function fetch_miniplayer($runtime, $src,$protocol="http",$imageurl="",$width=0,$height=0){
+global  $CFG, $COURSE;
 
 		//support legacy files, just in case we have an old timer ...
 		if($protocol=='rtmp' || $protocol=='legacy'){
 			$src= $CFG->wwwroot . "/file.php/" .  $COURSE->id . "/" . $src;
 			$type = 'http';
 		}
+		
+		if($width==0){
+			$width=$CFG->filter_poodll_miniplayerwidth;
+		}
+		if($height==0){
+			$height=$CFG->filter_poodll_miniplayerwidth;
+		}
 	
 		$params = array();
-		//$params['red5url'] = urlencode($flvserver);
+
 		$params['src']= $src;//urlencode($src);
 	
-		//currrently we just support SWF, but we will do HTML5
-    	//$returnString=  fetchSWFWidgetCode('poodllminiplayer.lzx.swf9.swf',
-    	//					$params,80,80,'#FFFFFF');
-			
-		//just for testing we use the audiotestplayer	
-		$returnString=  fetchSWFWidgetCode('poodllminiplayer.lzx.swf9.swf',
-							$params,48,48,'#FFFFFF');
+
+		//for html5 players we can make a picture link to play the audio
+		//the default is in the poodll filter directory
+		if($imageurl==""){
+			$imageurl = $CFG->wwwroot . "/filter/poodll/pix/MiniPlayIcon32.png";
+		}
     						
-    	return $returnString;
+    	
+	//depending on runtime, we show a SWF or html5 player			
+	if($runtime=="js" || ($runtime=="auto" && isMobile())){
+		$returnString=  "<a onclick=\"this.firstChild.play()\"><audio src=\"$src\"></audio><img height=\"$height\" width=\"$width\" src=\"" . 
+				$imageurl . 
+				"\"/></a>";
+		
+	}else{
+    	$returnString=  fetchSWFWidgetCode('poodllminiplayer.lzx.swf9.swf',
+							$params,$width,$height,'#FFFFFF');
+	}
+		
+		
+		return $returnString;
 
 
 }
 
 //Audio playltest player with defaults, for use with directories of audio files
-function fetchWordPlayer($runtime, $src,$word, $protocol="http"){
+function fetch_wordplayer($runtime, $src,$word,$fontsize, $protocol="http", $width="0",$height="0"){
 
-global $COURSE;
+global  $CFG, $COURSE;
 
 		//support legacy files, just in case we have an old timer ...
 		if($protocol=='rtmp' || $protocol=='legacy'){
@@ -1223,16 +1263,30 @@ global $COURSE;
 			$type = 'http';
 		}
 
+		//fontsize if not passed in is set to the filtersettings default
+		if ($fontsize==0){
+			$fontsize = $CFG->filter_poodll_wordplayerfontsize;
+		}
+		
+		if($width ==0 || $height == 0){
+			$height=$fontsize + (int)($fontsize * 0.5);
+			$width=(int)($fontsize * 0.8) * strlen($word);
+		}
+		
 		$params = array();
 		//$params['red5url'] = urlencode($flvserver);
 		$params['src']=urlencode($src);
-		$params['word']=urlencode($word);
+		$params['word']= $word;
+		$params['fontsize']= $fontsize;
 	
-		//currrently we just support SWF, but we will do HTML5
-    	//$returnString=  fetchSWFWidgetCode('poodllwordplayer.lzx.swf9.swf', $params,200,80,'#FFFFFF');
-							
-		//temporaril we use this, which only plays FLV. We will write an mp3/flv word player soon
-		$returnString = fetchSimpleAudioPlayer('auto', $src, "http", $width="150",$height="25",true, $word,false);
+		//depending on runtime, we show a SWF or html5 player					
+		if($runtime=="js" || ($runtime=="auto" && isMobile())){
+			$returnString=  "<a onclick=\"this.firstChild.play()\"><audio src=\"$src\"></audio>$word</a>";
+		
+		}else{
+			$returnString=  fetchSWFWidgetCode('poodllwordplayer.lzx.swf9.swf',
+							$params,$width,$height,'#FFFFFF');
+		}
 							
 							
     						
@@ -1289,19 +1343,8 @@ global $CFG, $USER, $COURSE;
 $moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current module (eg moodleurl/view.php?id=X )
 
 
-//determine if we are mobile or not
- $browser = new Browser();
-	 switch($browser->getBrowser()){
-		case Browser::BROWSER_IPAD:
-		case Browser::BROWSER_IPOD:
-		case Browser::BROWSER_IPHONE:
-		case Browser::BROWSER_ANDROID:
-			$ismobile = true;
-			break;
-				
-		default: 
-			$ismobile = false;
-	}
+//determine if we are on a mobile device or not
+ $ismobile = isMobile();
 
 	//if its a poodll player we want an xml feed
 	//if its jw or fp we want an rss feed
@@ -1384,19 +1427,8 @@ $flvserver = $CFG->poodll_media_server;
 $courseid= $COURSE->id;
 $useplayer=$CFG->filter_poodll_defaultplayer;
 
-//determine if we are mobile or not
- $browser = new Browser();
-	 switch($browser->getBrowser()){
-		case Browser::BROWSER_IPAD:
-		case Browser::BROWSER_IPOD:
-		case Browser::BROWSER_IPHONE:
-		case Browser::BROWSER_ANDROID:
-			$ismobile = true;
-			break;
-				
-		default: 
-			$ismobile = false;
-	}
+//determine if we are on a mobile device or not
+ $ismobile = isMobile();
 
 	//Set our use protocol type
 	//if one was not passed, then it may have been tagged to the url
@@ -1557,19 +1589,8 @@ $flvserver = $CFG->poodll_media_server;
 $courseid= $COURSE->id;
 $useplayer=$CFG->filter_poodll_defaultplayer;
 
-//determine if we are mobile or not
- $browser = new Browser();
-	 switch($browser->getBrowser()){
-		case Browser::BROWSER_IPAD:
-		case Browser::BROWSER_IPOD:
-		case Browser::BROWSER_IPHONE:
-		case Browser::BROWSER_ANDROID:
-			$ismobile = true;
-			break;
-				
-		default: 
-			$ismobile = false;
-	}
+//determine if we are on a mobile device or not
+$ismobile=isMobile();
 
 
 	//Massage the media file name if we have a username variable passed in.	
@@ -2152,7 +2173,7 @@ function fetchAutoWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFF
 
 //This is used for all the flash widgets
 function fetchSWFWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF"){
-	global $CFG, $PAGE;
+	global $CFG, $PAGE, $EMBEDJSLOADED;
 	
 	//build the parameter string out of the passed in array
 	$params="?";
@@ -2229,6 +2250,27 @@ function fetchSWFObjectWidgetCode($widget,$flashvarsArray,$width,$height,$bgcolo
 
 	
 	
+}
+
+//Here we try to detect if this is a mobile device or not
+//this is used to determine whther to return a JS or SWF widget
+function isMobile(){
+	
+	$browser = new Browser();
+	 switch($browser->getBrowser()){
+		case Browser::BROWSER_IPAD:
+		case Browser::BROWSER_IPOD:
+		case Browser::BROWSER_IPHONE:
+		case Browser::BROWSER_ANDROID:
+			$ismobile = true;
+			break;
+				
+		default: 
+			$ismobile = false;
+	}
+
+	return $ismobile;
+
 }
 
 function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=false, $playlisturlstring ="",$loop='false'){
