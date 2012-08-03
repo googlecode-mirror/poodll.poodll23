@@ -621,6 +621,39 @@ $params = array();
 
 }
 
+function fetchMP3RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid){
+global $CFG, $USER, $COURSE;
+   
+	   //set up params for mp3 recorder
+	   $url=$CFG->wwwroot.'/filter/poodll/flash/mp3recorder.swf?gateway=' . $CFG->wwwroot . '/filter/poodll/uploadSubmitter.php'; 
+		//$callback = urlencode("(function(a, b){d=parent.document;d.g=d.getElementById;fn=d.g($updatecontrol);})");
+		//$flashvars="&callback={$callback}&forcename=winkle";
+		$flashvars="&filename=audio" . rand(10000,99999);
+		$flashvars .="&updatecontrol=$updatecontrol&contextid=$contextid&component=$component&filearea=$filearea&itemid=$itemid";
+		  
+		  
+		//make our insert string
+        $recorder = '
+               <div id="onlineaudiorecordersection" style="margin:20% auto; text-align:center;">
+                    <object id="onlineaudiorecorder" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="215" height="138">
+                        <param name="movie" value="'.$url.$flashvars.'" />
+                        <param name="wmode" value="transparent" />
+                        <!--[if !IE]>-->
+                        <object type="application/x-shockwave-flash" data="'.$url.$flashvars.'" width="215" height="138">
+                        <!--<![endif]-->
+                        <div>
+                                <p><a href="http://www.adobe.com/go/getflashplayer"><img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" /></a></p>
+                        </div>
+                        <!--[if !IE]>-->
+                        </object>
+                        <!--<![endif]-->
+                    </object>
+                </div>
+          ';
+		  
+		  return $recorder;
+
+}
 
 function fetchAudioRecorderForSubmission($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid){
 global $CFG, $USER, $COURSE;
@@ -2413,7 +2446,9 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 			//best to have a splash screen to prevent browser hangs on many flashplayers in a forum etc
 			if($CFG->filter_poodll_videosplash){
 				$clip = "{ autoPlay: true }";
-				$splash = "<img src='" . $CFG->wwwroot . "/filter/poodll/flowplayer/videosplash.jpg' alt='click to play video' width='" . $width . "' height='" . $height . "'/>";
+				$splashpath = fetchVideoSplash($path);
+				if(!$splashpath){$splashpath = $CFG->wwwroot . "/filter/poodll/flowplayer/videosplash.jpg";}
+				$splash = "<img src='" . $splashpath . "' alt='click to play video' width='" . $width . "' height='" . $height . "'/>";
 			}else{
 				$clip = "{ autoPlay: false }";
 				$splash="";
@@ -2512,6 +2547,84 @@ $PAGE->requires->js_init_call('M.filter_poodll_flowplayer329min.flowplayer', arr
 	
 	//return the code
 	return $retcode;
+}
+
+function fetchVideoSplash($src){
+		global $CFG;
+
+	 $src = urldecode($src);
+	 
+	 //if this is not a local file , quit.
+	 $possy = strpos($src,"pluginfile.php");
+	 if(!$possy){return false;}
+	 
+	 //get relative path
+	 //e.g http://m23.poodll.com/pluginfile.php/59/mod_page/content/20/360332574229687.flv
+	 //should become /59/mod_page/content/20/360332574229687.flv
+	 $relpath = substr($src,$possy + 14);
+	 
+
+//These are two paths from testing, they can be deleted	 
+//$relpath="/22/mod_assignment/submission/1/230358740780502.flv";
+//$relpath="/21/mod_page/content/0/808474302291870.flv";
+
+	 //if something went wrong, and we can't confirm get a handle on the file, quit
+	 $fs = get_file_storage();
+	 $file = $fs->get_file_by_hash(sha1($relpath));
+     if (!$file) {
+			
+			//try again, and set the item id to 0, for mod_page the itemid is stored as 0, but refed as 
+			//something else. Why? The answer is blowing in the wind.....
+			//but we may get weirdness like this in quiz questions too
+			 $relarray = explode('/',$relpath);
+			 $relarray[4]='0';
+			 $relpath = implode('/',$relarray);
+			 $file = $fs->get_file_by_hash(sha1($relpath));
+			 
+			 if(!$file){
+				//return false;
+				return "no video file found @ " . $relpath;
+			}
+	}
+	
+	//check if we really can have/make a splash for this file
+	//if name is too short, we didn't make it, it wont be on our red5 server
+	$filename = $file->get_filename();
+	if(strlen($filename)<5){
+		//return false;
+		return "bad filename ";
+	}
+	
+	//if name is not numeric, it is not a video file we made, it wont be on our red5 server
+	if(!is_numeric(substr($filename,0,strlen($filename)-4))){
+		//return false;
+		return "not nuimeric filename";
+	}
+	
+	//check if we have an image file here already, if so return that URL
+	$relimagepath = substr($relpath,0,strlen($relpath)-3) . 'png';
+	$fullimagepath = substr($src,0,strlen($src)-3) . 'png';
+	$imagefilename = substr($filename,0,strlen($filename)-3) . 'png';
+	if ($imagefile = $fs->get_file_by_hash(sha1($relimagepath))) {
+            return $fullimagepath;
+	
+	//if we don't have that image lets get it from tokyopoodll and return it
+	}else{
+		require_once($CFG->dirroot . '/filter/poodll/poodllfilelib.php');
+		instance_remotedownload($file->get_contextid(),
+					$imagefilename, 
+					$file->get_component(),
+					$file->get_filearea(),
+					$file->get_itemid(),
+					"99999"
+					);
+		
+		return $fullimagepath;
+	}
+	
+	
+	
+	
 }
 
 function fetchJSWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF", $usemastersprite="false"){
