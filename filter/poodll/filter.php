@@ -14,14 +14,18 @@
  * __________________________________________________________________________
  */
  
+ //moved this library down into filter method, so if disabled all the poodll stuff wouldn't load
 //Get our library for handling media
-require_once($CFG->dirroot . '/filter/poodll/poodllresourcelib.php');
+//require_once($CFG->dirroot . '/filter/poodll/poodllresourcelib.php');
 
 class filter_poodll extends moodle_text_filter {
 
 
 		function filter($text, array $options = array()) {
 			global $CFG;
+			
+			//Get our library for handling media
+			require_once($CFG->dirroot . '/filter/poodll/poodllresourcelib.php');
 			   
 			if (!is_string($text)) {
 				// non string data can not be filtered anyway
@@ -141,7 +145,8 @@ function filter_poodll_callback(array $link){
 			break;
 			
 		case 'audiorecorder':
-			$returnHtml= fetchSimpleAudioRecorder($filterprops['runtime'],$filterprops['savefolder']);
+			$returnHtml= fetchSimpleAudioRecorder($filterprops['runtime'],
+						!empty($filterprops['savefolder']) ? $filterprops['savefolder'] : '');
 			break;	
 			
 		case 'audiotest':
@@ -326,7 +331,8 @@ function filter_poodll_callback(array $link){
 			break;	
 			
 		case 'videorecorder':
-			$returnHtml= fetchSimpleVideoRecorder($filterprops['runtime'],$filterprops['savefolder']);
+			$returnHtml= fetchSimpleVideoRecorder($filterprops['runtime'],
+						!empty($filterprops['savefolder']) ? $filterprops['savefolder'] : '');
 			break;	
 			
 		case 'video': 

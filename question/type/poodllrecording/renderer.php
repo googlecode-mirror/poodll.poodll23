@@ -200,6 +200,55 @@ class qtype_poodllrecording_format_audio_renderer extends plugin_renderer_base {
     }
 }
 
+
+/**
+ * An poodllrecording format renderer for poodllrecordings for MP3 via Paul Nichols MP3 recorder
+ *
+ * @copyright  2012 Justin Hunt
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
+class qtype_poodllrecording_format_mp3_renderer extends qtype_poodllrecording_format_audio_renderer {
+   
+
+    protected function class_name() {
+        return 'qtype_poodllrecording_mp3';
+    }
+
+
+
+
+
+    public function response_area_input($name, $qa, $step, $lines, $context) {
+    	global $USER;
+    	$usercontextid=get_context_instance(CONTEXT_USER, $USER->id)->id;
+    	
+		//prepare a draft file id for use
+		list($draftitemid, $response) = $this->prepare_response_for_editing( $name, $step, $context);
+		
+		//prepare the tags for our hidden( or shown ) input
+		$inputname = $qa->get_qt_field_name($name);
+		//$inputname="answer";
+		$inputid =  $inputname . '_id';
+		
+		//our answerfield
+		$ret =	html_writer::empty_tag('input', array('type' => 'hidden','id'=>$inputid, 'name' => $inputname));
+		//this is just for testing purposes so we can see the value the recorder is writing
+		//$ret = $this->textarea($step->get_qt_var($name), $lines, array('name' => $inputname,'id'=>$inputid));
+		
+		//our answerfield draft id key
+		$ret .=	html_writer::empty_tag('input', array('type' => 'hidden', 'name' => $inputname . ':itemid', 'value'=> $draftitemid));
+		
+		//our answerformat
+		$ret .= html_writer::empty_tag('input', array('type' => 'hidden','name' => $inputname . 'format', 'value' => 1));
+	
+	
+		//the context id is the user context for a student submission
+		return $ret . fetchMp3RecorderForSubmission($inputid, $usercontextid ,'user','draft',$draftitemid);
+
+    }
+}
+
+
 /**
  * An poodllrecording format renderer for poodllrecordings for video
  *
@@ -247,7 +296,7 @@ class qtype_poodllrecording_format_video_renderer extends qtype_poodllrecording_
 		$ret .= html_writer::empty_tag('input', array('type' => 'hidden','name' => $inputname . 'format', 'value' => FORMAT_PLAIN));
 
        
-		//the context id $context->id here is wrong, so we just use "5" because it works, why is it wrong ..? J 20120214
+		//the context id is the user context id
 		return $ret . fetchVideoRecorderForSubmission('swf','question',$inputid, $usercontextid ,'user','draft',$draftitemid);
 		return $ret;
 		

@@ -20,7 +20,7 @@ global $CFG;
 //but the relative path fails from a quiz but it has already been set in that case
 //, so we check before we call it, to cover both bases
 
-if(!$CFG){
+if(!isset($CFG)){
 require_once("../../config.php");
 }
 //require_once('../filter/poodll/poodllinit.php');
@@ -614,6 +614,8 @@ $return=fetchReturnArray(true);
 	$ext = substr($filename,-4); 
 	if($ext ==".mp4" || $ext ==".mp3"){
 		$jsp = "convert.jsp";
+	}else if($ext==".png"){
+		$jsp="snapshot.jsp";
 	}
 
 $red5_fileurl= "http://" . $CFG->filter_poodll_servername . 

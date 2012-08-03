@@ -568,7 +568,9 @@ class assignment_poodllonline extends assignment_base {
 			//The path to any media file we should play
 			//temporatily used custom logic because of a strange moodle bug that only i noticed. should be ok in 2,3 though
 			//so i reverted to standard pluginfile.php Justin 20120626
-			$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$contextid.'/mod_assignment/submission/'.$submissionid.'/'. $submissionfile . '?forcedownload=1';								
+			//20120802 removed the forcedownload because not necessary and also was causing parsing difficulty in poodllresourcelib.php fetchVideoSplash method
+			$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$contextid.'/mod_assignment/submission/'.$submissionid.'/'. $submissionfile;								
+			//$mediapath = $CFG->wwwroot.'/pluginfile.php' . '/'.$contextid.'/mod_assignment/submission/'.$submissionid.'/'. $submissionfile . '?forcedownload=1';								
 			//$mediapath = $CFG->wwwroot.'/filter/poodll/poodllfilelib.php?datatype=poodllpluginfile&contextid='. $contextid .'&itemid='.$submissionid.'&paramone='. $submissionfile;							
 			$mediapath = urlencode($mediapath);
 		

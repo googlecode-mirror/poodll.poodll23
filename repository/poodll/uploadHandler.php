@@ -7,7 +7,7 @@ $recorder = optional_param('recorder', "", PARAM_TEXT);
 $filename = optional_param('filename', "", PARAM_TEXT);
 
  
-//if receiving a file write it to temp
+//if receiving a file of raw data, write it to temp, ie from poodll snapshot
 if(isset($GLOBALS["HTTP_RAW_POST_DATA"])) {
 	//make sure we are logged in
 	require_login();
@@ -26,6 +26,7 @@ if(isset($GLOBALS["HTTP_RAW_POST_DATA"])) {
 	//tell our widget what the filename we made up is 
 	echo $filename; 
 
+//if receiveing a file with a name, eg from mp3recorder
 }elseif(isset($_FILES["newfile"])){
 	
 	//make sure the user is logged in
@@ -78,7 +79,8 @@ if(isset($GLOBALS["HTTP_RAW_POST_DATA"])) {
 		</html>
 		<?php
 
-//This url is passed to repo, which then uses it as the download url
+//if not receiveing a file, but being asked to return a previously received file, ie by moodle
+//This url of this script is passed to repo, which then uses it as the download url
 //this way we leave all the saving and file system to standard repo behaviour
 //if server can't resolve it own DNS it will fail, that should never happen ... right?
 }else{

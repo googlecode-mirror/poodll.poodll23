@@ -14,7 +14,7 @@
 * Includes and requires
 */
 //relative path is dangerous, so only use it if we have no $CFG already Justin 20120424
-if(!$CFG){
+if(!isset($CFG)){
 require_once("../../config.php");
 }
 require_once($CFG->dirroot . '/filter/poodll/poodllinit.php');
