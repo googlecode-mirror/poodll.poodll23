@@ -49,6 +49,7 @@ class qtype_poodllrecording_question extends question_with_responses {
      */
     public function get_format_renderer(moodle_page $page) {
         return $page->get_renderer('qtype_poodllrecording', 'format_' . $this->responseformat);
+      // return $page->get_renderer('qtype_poodllrecording', 'format_video');
     }
 	
 	/**

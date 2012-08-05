@@ -298,7 +298,6 @@ class qtype_poodllrecording_format_video_renderer extends qtype_poodllrecording_
        
 		//the context id is the user context id
 		return $ret . fetchVideoRecorderForSubmission('swf','question',$inputid, $usercontextid ,'user','draft',$draftitemid);
-		return $ret;
 		
     }
 }
