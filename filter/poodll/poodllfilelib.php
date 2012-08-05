@@ -35,6 +35,10 @@ require_once($CFG->libdir . '/filelib.php');
 	$contextid  = optional_param('contextid', 0, PARAM_INT);  // the id of the course 
 	$courseid  = optional_param('courseid', 0, PARAM_INT);  // the id of the course 
 	$moduleid  = optional_param('moduleid', 0, PARAM_INT);  // the id of the module 
+	//added justin 20120803
+	$component = optional_param('component', "", PARAM_TEXT);  // the component
+	$filearea = optional_param('filearea', "", PARAM_TEXT);  // the filearea
+	
 	$itemid  = optional_param('itemid', 0, PARAM_INT);  // the id of the module
 	$hash  = optional_param('hash', "", PARAM_TEXT);  // file or dir hash
 	$requestid  = optional_param('requestid', "", PARAM_TEXT);  // file or dir hash
@@ -43,6 +47,13 @@ require_once($CFG->libdir . '/filelib.php');
 	$paramthree  = optional_param('paramthree', "", PARAM_TEXT);  // nature of value depends on datatype, maybe filearea
 
 	switch($datatype){
+		
+		case "uploadfile":
+			header("Content-type: text/xml");
+			echo "<?xml version=\"1.0\"?>\n";
+			//uploadfile filedata(base64), fileextension (needs to be cleaned), blah blah 
+			$returnXML = uploadfile($filedata,$paramone);
+			break;
 		
 		case "poodllpluginfile":
 			//poodllpluginfile($contextid,$component,$filearea,$itemid,$filepath,$filename);
@@ -187,7 +198,18 @@ require_once($CFG->libdir . '/filelib.php');
 	return;
 
 
-
+//Fetch a sub directory list for file explorer  
+//calls itself recursively, dangerous
+function uploadfile($filedata,  $fileextension){
+	$return=fetchReturnArray(true);
+	array_push($return['messages'],"ok that worked" );
+		//we process the result for return to browser
+		$xml_output=prepareXMLReturn($return, "99");	
+		
+		//we return to browser the result of our file operation
+		return $xml_output;
+	
+}
 
 //Fetch a sub directory list for file explorer  
 //calls itself recursively, dangerous
