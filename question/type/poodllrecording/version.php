@@ -26,8 +26,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'qtype_poodllrecording';
-$plugin->version   = 2012070800;
+$plugin->version   = 2012080500;
 $plugin->requires  = 2012062500;
 $plugin->maturity  = MATURITY_BETA;
-$plugin->release   = '2.3.2 (Build 2012070800)';
-$plugin->dependencies = array('filter_poodll' => 2012070800);
+$plugin->release   = '2.3.5 (Build 2012080500)';
+$plugin->dependencies = array('filter_poodll' => 2012080500);
