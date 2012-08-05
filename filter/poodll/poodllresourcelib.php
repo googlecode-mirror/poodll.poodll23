@@ -2446,7 +2446,11 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 			//best to have a splash screen to prevent browser hangs on many flashplayers in a forum etc
 			if($CFG->filter_poodll_videosplash){
 				$clip = "{ autoPlay: true }";
-				$splashpath = fetchVideoSplash($path);
+				if($CFG->filter_poodll_thumbnailsplash){
+					$splashpath = fetchVideoSplash($path);
+				}else{
+					$splashpath=false;
+				}
 				if(!$splashpath){$splashpath = $CFG->wwwroot . "/filter/poodll/flowplayer/videosplash.jpg";}
 				$splash = "<img src='" . $splashpath . "' alt='click to play video' width='" . $width . "' height='" . $height . "'/>";
 			}else{
@@ -2568,6 +2572,9 @@ function fetchVideoSplash($src){
 //$relpath="/22/mod_assignment/submission/1/230358740780502.flv";
 //$relpath="/21/mod_page/content/0/808474302291870.flv";
 
+//remove any pesky forcedownload params
+$relpath=str_replace("?forcedownload=1","", $relpath);
+
 	 //if something went wrong, and we can't confirm get a handle on the file, quit
 	 $fs = get_file_storage();
 	 $file = $fs->get_file_by_hash(sha1($relpath));
@@ -2582,8 +2589,8 @@ function fetchVideoSplash($src){
 			 $file = $fs->get_file_by_hash(sha1($relpath));
 			 
 			 if(!$file){
-				//return false;
-				return "no video file found @ " . $relpath;
+				return false;
+				//return "no video file found @ " . $relpath;
 			}
 	}
 	
@@ -2616,7 +2623,8 @@ function fetchVideoSplash($src){
 					$file->get_component(),
 					$file->get_filearea(),
 					$file->get_itemid(),
-					"99999"
+					"99999",
+					$file->get_filepath()
 					);
 		
 		return $fullimagepath;

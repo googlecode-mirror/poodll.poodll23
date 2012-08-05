@@ -35,9 +35,10 @@ require_once($CFG->libdir . '/filelib.php');
 	$contextid  = optional_param('contextid', 0, PARAM_INT);  // the id of the course 
 	$courseid  = optional_param('courseid', 0, PARAM_INT);  // the id of the course 
 	$moduleid  = optional_param('moduleid', 0, PARAM_INT);  // the id of the module 
-	//added justin 20120803
-	$component = optional_param('component', "", PARAM_TEXT);  // the component
-	$filearea = optional_param('filearea', "", PARAM_TEXT);  // the filearea
+	//added justin 20120803 careful here, I think $component is a php keyword or something
+	//it screwed the whole world
+	$comp = optional_param('component', "", PARAM_TEXT);  // the component
+	$farea = optional_param('filearea', "", PARAM_TEXT);  // the filearea
 	
 	$itemid  = optional_param('itemid', 0, PARAM_INT);  // the id of the module
 	$hash  = optional_param('hash', "", PARAM_TEXT);  // file or dir hash
@@ -623,7 +624,7 @@ function poodllpluginfile($contextid,$component,$filearea,$itemid,$filepath,$fil
 
 /* download file from remote server and stash it in our file area */
 //15,'123456789.flv','user','draft','746337947','99999'
-function instance_remotedownload($contextid,$filename,$component, $filearea,$itemid, $requestid){
+function instance_remotedownload($contextid,$filename,$component, $filearea,$itemid, $requestid, $filepath='/'){
 global $CFG,$USER;
 //set up return object	
 //set up return object	
@@ -652,7 +653,9 @@ $red5_fileurl= "http://" . $CFG->filter_poodll_servername .
 		$fs = get_file_storage();
 		$browser = get_file_browser();
 		
-		$filepath='/';
+		
+		//we set a default if not passed in, as of 20120805 fr questions
+		//$filepath='/';
 		
 	//create the file record for our new file
 		$file_record = array(
