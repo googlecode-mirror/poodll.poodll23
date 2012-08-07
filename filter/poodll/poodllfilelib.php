@@ -53,7 +53,8 @@ require_once($CFG->libdir . '/filelib.php');
 			header("Content-type: text/xml");
 			echo "<?xml version=\"1.0\"?>\n";
 			//uploadfile filedata(base64), fileextension (needs to be cleaned), blah blah 
-			$returnXML = uploadfile($filedata,$paramone);
+			//paramone is the file data, paramtwo is the file extension, requestid is the actionid
+			$returnxml = uploadfile($paramone,$paramtwo, $requestid);
 			break;
 		
 		case "poodllpluginfile":
@@ -201,13 +202,61 @@ require_once($CFG->libdir . '/filelib.php');
 
 //Fetch a sub directory list for file explorer  
 //calls itself recursively, dangerous
-function uploadfile($filedata,  $fileextension){
+function uploadfile($filedata,  $fileextension, $actionid){
+	global $CFG,$USER;
+	
+	//see instance_remotedownload for more on this method
+	//we should tighten up here a little I think
+
+	//setup our return object
 	$return=fetchReturnArray(true);
-	array_push($return['messages'],"ok that worked" );
-		//we process the result for return to browser
-		$xml_output=prepareXMLReturn($return, "99");	
+	
+	//make sure nobodyapassed in a bogey file extension
+	switch($fileextension){
+		case "mp3": 
+		case "flv":
+		case "jpg":
+		case "png":
+		case "xml":
+		case "mp4":
+			break;
+		default: $fileextension="xxx";
+	}
+	
+	
+	//make our filerecord
+	 $record = new stdClass();
+     $record->filearea = $farea;
+    $record->component = $comp;
+    $record->filepath = '/';
+    $record->itemid   = $itemid;
+    $record->license  = $CFG->sitedefaultlicense;
+    $record->author   = 'Moodle User';
+	$record->contextid = $contextid;
+    $record->userid    = $USER->id;
+    $record->source    = '';
+        
+  
+	//make filename and set it
+	$filename = "upfile_" . rand(10000,32000) . "." . $fileextension;
+	$record->filename = $filename;
+	
+	//actually make the file
+	$fs = get_file_storage();
+	$filedata = base64_decode($filedata);
+	 $stored_file = $fs->create_file_from_string($record, $filedata);
+	
+	if($storedfile){
+		array_push($return['messages'],$filename );
+	}else{
+		$return['success']=false;
+		array_push($return['messages'],"unable to save file with filename:" . $filename );
+	}
 		
-		//we return to browser the result of our file operation
+		//we process the result for return to browser
+		$xml_output=prepareXMLReturn($return, $actionid);	
+		
+		//we return to widget/client the result of our file operation
 		return $xml_output;
 	
 }

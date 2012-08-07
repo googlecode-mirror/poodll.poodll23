@@ -242,11 +242,13 @@ function fetch_pairclient($runtime, $chat=true, $whiteboard=true, $showvideo=fal
 	//Set the servername
 	$flvserver = $CFG->poodll_media_server;
 	
+	//here in moodle 2.3 we may want to add the servername to this string
+	$courseid = $COURSE->id;
 
 
 	$baseUrl = $CFG->wwwroot . '/filter/poodll/flash/newpairclient.lzx.swf9.swf';
-	$params = '?red5url='.urlencode($flvserver) . '&mename=' . $mename . '&mefullname=' . $mefullname . '&mepictureurl=' . $mepictureurl 
-			. '&chat=' . $chat  . '&useroles=' . $useroles  . '&whiteboard=' . $whiteboard . '&whiteboardback=' . $whiteboardback . '&showvideo=' . $showvideo  . '&courseid=' . $COURSE->id .'&teacherallstreamname=voiceofauthority&lzproxied=false';
+	$params = '?red5url='.urlencode($flvserver) . '&mename=' . $mename . '&mefullname=' . $mefullname .   '&mepictureurl=' . urlencode($mepictureurl) 
+			. '&chat=' . $chat  . '&courseid=' . $courseid . '&useroles=' . $useroles  . '&whiteboard=' . $whiteboard . '&whiteboardback=' . $whiteboardback . '&showvideo=' . $showvideo  .'&teacherallstreamname=voiceofauthority&lzproxied=false';
 	return $baseUrl . $params;	
 }
 
@@ -2572,10 +2574,22 @@ function fetchVideoSplash($src){
 //$relpath="/22/mod_assignment/submission/1/230358740780502.flv";
 //$relpath="/21/mod_page/content/0/808474302291870.flv";
 
+//like everything file related with questions, it doesn't work
+//it looks in general like getting a hash from a url is dodgey anyway
+//this is the seed of a way we might do it for qs, but really for qs its not v imp.
+//we can come back on it
+/*
+$relarray = explode('/',$relpath);
+$len = $count($relarray);
+$qitemid = $relarray($len-2);
+$qfilename = $relarray($len-1);
+*/
+
 //remove any pesky forcedownload params
 $relpath=str_replace("?forcedownload=1","", $relpath);
 
-	 //if something went wrong, and we can't confirm get a handle on the file, quit
+	 //if something went wrong, and we can't confirm get a handle on the file, 
+	 //set the item id to zero. If it still fails, quit
 	 $fs = get_file_storage();
 	 $file = $fs->get_file_by_hash(sha1($relpath));
      if (!$file) {
