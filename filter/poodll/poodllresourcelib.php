@@ -625,35 +625,117 @@ $params = array();
 
 function fetchMP3RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid){
 global $CFG, $USER, $COURSE;
+
+//Set the microphone config params
+$micrate = $CFG->filter_poodll_micrate;
+$micgain = $CFG->filter_poodll_micgain;
+$micsilence = $CFG->filter_poodll_micsilencelevel;
+$micecho = $CFG->filter_poodll_micecho;
+$micloopback = $CFG->filter_poodll_micloopback;
+$micdevice = $CFG->filter_poodll_studentmic;
+
+//removed from params to make way for moodle 2 filesystem params Justin 20120213
+$width="530";
+$height="220";
+$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
+
+//If we are using course ids then lets do that
+//else send -1 to widget (ignore flag)
+if ($CFG->filter_poodll_usecourseid){
+	$courseid = $COURSE->id;
+}else{
+	$courseid = -1;
+} 
+
+
+if ($updatecontrol == "saveflvvoice"){
+	$savecontrol = "<input name='saveflvvoice' type='hidden' value='' id='saveflvvoice' />";
+}else{
+	$savecontrol = "";
+}
+
+$params = array();
+
+		$params['rate'] = $micrate;
+		$params['gain'] = $micgain;
+		$params['prefdevice'] = $micdevice;
+		$params['loopback'] = $micloopback;
+		$params['echosupression'] = $micecho;
+		$params['silencelevel'] = $micsilence;
+		$params['course'] = $courseid;
+		$params['updatecontrol'] = $updatecontrol;
+		$params['uid'] = $userid;
+		//for file system in moodle 2
+		$params['poodllfilelib'] = $poodllfilelib;
+		$params['contextid'] = $contextid;
+		$params['component'] = $component;
+		$params['filearea'] = $filearea;
+		$params['itemid'] = $itemid;
+	
+    	$returnString=  fetchSWFWidgetCode('PoodLLMP3Recorder.lzx.swf10.swf',
+    						$params,$width,$height,'#CFCFCF');
+    						
+    	$returnString .= 	 $savecontrol;
+    						
+    	return $returnString ;
+
+}
+
+function fetchWhiteboardForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid){
+global $CFG, $USER, $COURSE;
    
-	   //set up params for mp3 recorder
-	   $url=$CFG->wwwroot.'/filter/poodll/flash/mp3recorder.swf?gateway=' . $CFG->wwwroot . '/filter/poodll/uploadSubmitter.php'; 
-		//$callback = urlencode("(function(a, b){d=parent.document;d.g=d.getElementById;fn=d.g($updatecontrol);})");
-		//$flashvars="&callback={$callback}&forcename=winkle";
-		$flashvars="&filename=audio" . rand(10000,99999);
-		$flashvars .="&updatecontrol=$updatecontrol&contextid=$contextid&component=$component&filearea=$filearea&itemid=$itemid";
-		  
-		  
-		//make our insert string
-        $recorder = '
-               <div id="onlineaudiorecordersection" style="margin:20% auto; text-align:center;">
-                    <object id="onlineaudiorecorder" classid="clsid:D27CDB6E-AE6D-11cf-96B8-444553540000" width="215" height="138">
-                        <param name="movie" value="'.$url.$flashvars.'" />
-                        <param name="wmode" value="transparent" />
-                        <!--[if !IE]>-->
-                        <object type="application/x-shockwave-flash" data="'.$url.$flashvars.'" width="215" height="138">
-                        <!--<![endif]-->
-                        <div>
-                                <p><a href="http://www.adobe.com/go/getflashplayer"><img src="http://www.adobe.com/images/shared/download_buttons/get_flash_player.gif" alt="Get Adobe Flash player" /></a></p>
-                        </div>
-                        <!--[if !IE]>-->
-                        </object>
-                        <!--<![endif]-->
-                    </object>
-                </div>
-          ';
-		  
-		  return $recorder;
+ //Set the servername 
+///$flvserver = $CFG->poodll_media_server;
+
+//If standalone submission will always be standalone ... or will it ...
+//pair submissions could be interesting ..
+$boardname="solo";
+
+//whats my name...? my name goddamit, I can't remember  N A mm eeeE
+//$mename=$USER->username;		
+
+	//removed from params to make way for moodle 2 filesystem params Justin 20120213
+	$width="640";
+	$height="500";
+	$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
+
+
+	//the control to put the filename of our picture
+	if ($updatecontrol == "saveflvvoice"){
+		$savecontrol = "<input name='saveflvvoice' type='hidden' value='' id='saveflvvoice' />";
+	}else{
+		$savecontrol = "";
+	}
+
+	$params = array();
+
+
+		$params['updatecontrol'] = $updatecontrol;
+		$params['boardname'] = $boardname;
+		$params['imageurl'] = $imageurl;
+		$params['courseid'] = $COURSE->id;
+		//for file system in moodle 2
+		$params['poodllfilelib'] = $poodllfilelib;
+		$params['contextid'] = $contextid;
+		$params['component'] = $component;
+		$params['filearea'] = $filearea;
+		$params['itemid'] = $itemid;
+		
+		//normal mode is a standard scribble with a cpanel
+		//simple mode has a simple double click popup menu
+		if ($mode=='normal'){
+			$returnString =  fetchSWFWidgetCode('scribblesubmit.lzx.swf9.swf',
+				$params,$width,$height,'#FFFFFF');	
+		}else{
+			
+			$returnString =  fetchSWFWidgetCode('scribblesubmit.lzx.swf9.swf',
+					$params,$width,$height,'#FFFFFF');
+		}
+
+    						
+    	$returnString .= 	 $savecontrol;
+    						
+    	return $returnString ;
 
 }
 

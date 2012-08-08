@@ -54,7 +54,7 @@ require_once($CFG->libdir . '/filelib.php');
 			echo "<?xml version=\"1.0\"?>\n";
 			//uploadfile filedata(base64), fileextension (needs to be cleaned), blah blah 
 			//paramone is the file data, paramtwo is the file extension, requestid is the actionid
-			$returnxml = uploadfile($paramone,$paramtwo, $requestid);
+			$returnxml = uploadfile($paramone,$paramtwo, $requestid,$contextid, $comp, $farea,$itemid);
 			break;
 		
 		case "poodllpluginfile":
@@ -202,7 +202,7 @@ require_once($CFG->libdir . '/filelib.php');
 
 //Fetch a sub directory list for file explorer  
 //calls itself recursively, dangerous
-function uploadfile($filedata,  $fileextension, $actionid){
+function uploadfile($filedata,  $fileextension, $actionid,$contextid, $comp, $farea,$itemid){
 	global $CFG,$USER;
 	
 	//see instance_remotedownload for more on this method
@@ -220,15 +220,22 @@ function uploadfile($filedata,  $fileextension, $actionid){
 		case "xml":
 		case "mp4":
 			break;
-		default: $fileextension="xxx";
+		default: $fileextension="";
 	}
 	
+	//init our fs object
+	$fs = get_file_storage();
+	//assume a root level filepath
+	$filepath="/";
+	
+
+		
 	
 	//make our filerecord
 	 $record = new stdClass();
      $record->filearea = $farea;
     $record->component = $comp;
-    $record->filepath = '/';
+    $record->filepath = $filepath;
     $record->itemid   = $itemid;
     $record->license  = $CFG->sitedefaultlicense;
     $record->author   = 'Moodle User';
@@ -238,26 +245,42 @@ function uploadfile($filedata,  $fileextension, $actionid){
         
   
 	//make filename and set it
-	$filename = "upfile_" . rand(10000,32000) . "." . $fileextension;
+	$filename = "upfile_" . rand(100,32767) . rand(100,32767) . "." . $fileextension;
 	$record->filename = $filename;
 	
-	//actually make the file
-	$fs = get_file_storage();
-	$filedata = base64_decode($filedata);
-	 $stored_file = $fs->create_file_from_string($record, $filedata);
 	
-	if($storedfile){
-		array_push($return['messages'],$filename );
-	}else{
+	//in most cases we will be storing files in a draft area and lettign Moodle do the rest
+	//one condition of using this function is that only one file can be here,
+	//attachment limits in question. could be bypassed if reason enough
+		if($farea=='draft'){
+			$fs->delete_area_files($contextid,$comp,$farea,$itemid);
+		}
+	
+	//if file already exists, raise an error
+	if($fs->file_exists($contextid,$comp,$farea,$itemid,$filepath,$filename)){
 		$return['success']=false;
-		array_push($return['messages'],"unable to save file with filename:" . $filename );
+		array_push($return['messages'],"Already exists, file with filename:" . $filename );
+	}else{
+	
+		//actually make the file
+		$filedata = base64_decode($filedata);
+		 $stored_file = $fs->create_file_from_string($record, $filedata);
+		//if successful return filename
+		if($storedfile){
+			array_push($return['messages'],$filename );
+		//if unsuccessful, return error
+		}else{
+			$return['success']=false;
+			array_push($return['messages'],"unable to save file with filename:" . $filename );
+		}
+	
 	}
 		
-		//we process the result for return to browser
-		$xml_output=prepareXMLReturn($return, $actionid);	
-		
-		//we return to widget/client the result of our file operation
-		return $xml_output;
+	//we process the result for return to browser
+	$xml_output=prepareXMLReturn($return, $actionid);	
+	
+	//we return to widget/client the result of our file operation
+	return $xml_output;
 	
 }
 
