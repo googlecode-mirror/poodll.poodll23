@@ -126,7 +126,7 @@ function filter_poodll_callback(array $link){
 	$returnHtml ="";
 	
 	//Runtime JS or Flash
-	if (empty($filterprops['runtime']))$filterprops['runtime'] ='SWF'; 
+	if (empty($filterprops['runtime']))$filterprops['runtime'] ='auto'; 
 
 	//depending on the type of filter
 	switch ($filterprops['type']){
