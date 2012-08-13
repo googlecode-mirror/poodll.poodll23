@@ -2767,7 +2767,13 @@ function fetchJSWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFF
 }
 function fetchIFrameSWFWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF"){
 	global $CFG, $PAGE;
-
+	
+	//There seems to be an internal margin on the iframe
+	//which I could not cancel entirely. So we compensate here to show all the widget
+	$marginadjust = 5;
+	$fwidth = $marginadjust + $width;
+	$fheight = $marginadjust + $height;
+	
 	//build the parameter string out of the passed in array
 	$params="?";
 	foreach ($paramsArray as $key => $value) {
@@ -2781,7 +2787,7 @@ function fetchIFrameSWFWidgetCode($widget,$paramsArray,$width,$height, $bgcolor=
 	$pathtoSWF= $CFG->wwwroot . '/filter/poodll/flash/';
 	
 	
-	$retframe="<iframe scrolling=\"no\" frameBorder=\"0\" src=\"{$pathtoSWF}poodlliframe.php?widget={$widget}&paramstring=" . urlencode($params) . "&width={$width}&height={$height}&bgcolor={$bgcolor}\" width=\"{$width}\" height=\"{$height}\"></iframe>"; 
+	$retframe="<iframe scrolling=\"no\" frameBorder=\"0\" src=\"{$pathtoSWF}poodlliframe.php?widget={$widget}&paramstring=" . urlencode($params) . "&width={$width}&height={$height}&bgcolor={$bgcolor}\" width=\"{$fwidth}\" height=\"{$fheight}\"></iframe>"; 
 	return $retframe;
 
 
