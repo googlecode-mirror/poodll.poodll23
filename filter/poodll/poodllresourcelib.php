@@ -1324,7 +1324,7 @@ $params = array();
 }
 
 //Audio playltest player with defaults, for use with directories of audio files
-function fetch_miniplayer($runtime, $src,$protocol="http",$imageurl="",$width=0,$height=0){
+function fetch_miniplayer($runtime, $src,$protocol="http",$imageurl="",$width=0,$height=0,$iframe=false){
 global  $CFG, $COURSE;
 
 		//support legacy files, just in case we have an old timer ...
@@ -1359,8 +1359,14 @@ global  $CFG, $COURSE;
 				"\"/></a>";
 		
 	}else{
-    	$returnString=  fetchSWFWidgetCode('poodllminiplayer.lzx.swf9.swf',
+		//in the autolinked glossary popup, JS is not run and embed fails. In that case we use an iframe justin 20120814 
+		if($iframe){
+				$returnString= fetchIFrameSWFWidgetCode('poodllminiplayer.lzx.swf9.swf',
 							$params,$width,$height,'#FFFFFF');
+		}else{		
+    			$returnString=  fetchSWFWidgetCode('poodllminiplayer.lzx.swf9.swf',
+							$params,$width,$height,'#FFFFFF');
+		}
 	}
 		
 		
@@ -1370,7 +1376,7 @@ global  $CFG, $COURSE;
 }
 
 //Audio playltest player with defaults, for use with directories of audio files
-function fetch_wordplayer($runtime, $src,$word,$fontsize, $protocol="http", $width="0",$height="0"){
+function fetch_wordplayer($runtime, $src,$word,$fontsize, $protocol="http", $width="0",$height="0",$iframe=false){
 
 global  $CFG, $COURSE;
 
@@ -1401,8 +1407,14 @@ global  $CFG, $COURSE;
 			$returnString=  "<a onclick=\"this.firstChild.play()\"><audio src=\"$src\"></audio>$word</a>";
 		
 		}else{
-			$returnString=  fetchSWFWidgetCode('poodllwordplayer.lzx.swf9.swf',
+			//in the autolinked glossary popup, JS is not run and embed fails. In that case we use an iframe justin 20120814 
+			if($iframe){
+				$returnString= fetchIFrameSWFWidgetCode('poodllwordplayer.lzx.swf9.swf',
 							$params,$width,$height,'#FFFFFF');
+			}else{
+				$returnString=  fetchSWFWidgetCode('poodllwordplayer.lzx.swf9.swf',
+							$params,$width,$height,'#FFFFFF');
+			}
 		}
 							
 							
@@ -2749,6 +2761,27 @@ function fetchJSWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFF
 	
 	
 	$retframe="<iframe scrolling=\"no\" frameBorder=\"0\" src=\"{$pathtoJS}poodlliframe.php?widget={$widget}&paramstring=" . urlencode($params) . "&width={$width}&height={$height}&bgcolor={$bgcolor}&usemastersprite={$usemastersprite}\" width=\"{$width}\" height=\"{$height}\"></iframe>"; 
+	return $retframe;
+
+
+}
+function fetchIFrameSWFWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF"){
+	global $CFG, $PAGE;
+
+	//build the parameter string out of the passed in array
+	$params="?";
+	foreach ($paramsArray as $key => $value) {
+    	$params .= '&' . $key . '=' . $value;
+	}
+	
+	//add in any common params
+	$params .= '&debug=false&lzproxied=false';	
+	
+	//path to our js idgets folder
+	$pathtoSWF= $CFG->wwwroot . '/filter/poodll/flash/';
+	
+	
+	$retframe="<iframe scrolling=\"no\" frameBorder=\"0\" src=\"{$pathtoSWF}poodlliframe.php?widget={$widget}&paramstring=" . urlencode($params) . "&width={$width}&height={$height}&bgcolor={$bgcolor}\" width=\"{$width}\" height=\"{$height}\"></iframe>"; 
 	return $retframe;
 
 

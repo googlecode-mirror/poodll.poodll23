@@ -214,8 +214,10 @@ function filter_poodll_callback(array $link){
 		case 'miniplayer':
 			$returnHtml= fetch_miniplayer($filterprops['runtime'],$filterprops['url'],
 				!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'http',
+				!empty($filterprops['imageurl']) ? $filterprops['imageurl'] : '',
 				!empty($filterprops['width']) ? $filterprops['width'] :  $CFG->filter_poodll_miniplayerwidth,
-				!empty($filterprops['height']) ? $filterprops['height'] :  $CFG->filter_poodll_miniplayerwidth);
+				!empty($filterprops['height']) ? $filterprops['height'] :  $CFG->filter_poodll_miniplayerwidth,
+				!empty($filterprops['iframe']) ? $filterprops['iframe']=='true' :  false);
 			break;
 			
 		case 'newpoodllpairwork':
@@ -261,7 +263,8 @@ function filter_poodll_callback(array $link){
 				!empty($filterprops['fontsize']) ? $filterprops['fontsize'] : $CFG->filter_poodll_wordplayerfontsize,
 				!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'http',
 				!empty($filterprops['width']) ? $filterprops['width'] :  "0",
-				!empty($filterprops['height']) ? $filterprops['height'] :  "0");
+				!empty($filterprops['height']) ? $filterprops['height'] :  "0",
+				!empty($filterprops['iframe']) ? $filterprops['iframe']=='true' :  false);
 			break;
 			
 		case 'whiteboard':
@@ -416,11 +419,11 @@ global $CFG;
 	//test for presence of player selectors and serve up the correct player
 	$len = strlen($link[2]);
 	if (strrpos($link[2],'.mini.mp3')=== $len-9){
-		$returnHtml=fetch_miniplayer('auto',$rawurl,'http');
+		$returnHtml=fetch_miniplayer('auto',$rawurl,'http','',0,0,false);
 		
 	}elseif(strrpos($link[2],'.word.mp3')=== $len-9){
 		$word=substr($link[2],0,$len-9);
-		$returnHtml= fetch_wordplayer('auto',$rawurl,$word,0,'http');
+		$returnHtml= fetch_wordplayer('auto',$rawurl,$word,0,'http',0,0,false);
 		
 	}else{
 		$returnHtml= fetchSimpleAudioPlayer('auto',$rawurl,'http',$CFG->filter_poodll_audiowidth,$CFG->filter_poodll_audioheight,false,'Play');
@@ -458,11 +461,11 @@ global $CFG;
 	//test for presence of player selectors and serve up the correct player
 	$len = strlen($link[5]);
 	if (strrpos($link[5],'.mini.flv')=== $len-9){
-		$returnHtml=fetch_miniplayer('auto',$rawurl,'http');
+		$returnHtml=fetch_miniplayer('auto',$rawurl,'http','',0,0,true);
 		
 	}elseif(strrpos($link[5],'.word.flv')=== $len-9){
 		$word=substr($link[5],0,$len-9);
-		$returnHtml=fetch_wordplayer('auto',$rawurl,$word,0,'http');
+		$returnHtml=fetch_wordplayer('auto',$rawurl,$word,0,'http',0,0,true);
 		
 	}elseif(strrpos($link[5],'.audio.flv')=== $len-10){
 		$returnHtml= fetchSimpleAudioPlayer('auto',$rawurl,'http',$CFG->filter_poodll_audiowidth,$CFG->filter_poodll_audioheight,false,'Play');
