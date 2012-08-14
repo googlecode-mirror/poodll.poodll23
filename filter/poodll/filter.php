@@ -419,11 +419,11 @@ global $CFG;
 	//test for presence of player selectors and serve up the correct player
 	$len = strlen($link[2]);
 	if (strrpos($link[2],'.mini.mp3')=== $len-9){
-		$returnHtml=fetch_miniplayer('auto',$rawurl,'http','',0,0,false);
+		$returnHtml=fetch_miniplayer('auto',$rawurl,'http','',0,0,true);
 		
 	}elseif(strrpos($link[2],'.word.mp3')=== $len-9){
 		$word=substr($link[2],0,$len-9);
-		$returnHtml= fetch_wordplayer('auto',$rawurl,$word,0,'http',0,0,false);
+		$returnHtml= fetch_wordplayer('auto',$rawurl,$word,0,'http',0,0,true);
 		
 	}else{
 		$returnHtml= fetchSimpleAudioPlayer('auto',$rawurl,'http',$CFG->filter_poodll_audiowidth,$CFG->filter_poodll_audioheight,false,'Play');
