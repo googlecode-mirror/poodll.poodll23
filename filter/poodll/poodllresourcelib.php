@@ -681,7 +681,7 @@ $params = array();
 
 }
 
-function fetchWhiteboardForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid){
+function fetchWhiteboardForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$width=0,$height=0,$backimage=""){
 global $CFG, $USER, $COURSE;
    
  //Set the servername 
@@ -695,8 +695,8 @@ $boardname="solo";
 //$mename=$USER->username;		
 
 	//removed from params to make way for moodle 2 filesystem params Justin 20120213
-	$width="640";
-	$height="500";
+	if($width==0){ $width="640";}
+	if($height==0){$height="500";}
 	$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
 
 
@@ -712,7 +712,7 @@ $boardname="solo";
 
 		$params['updatecontrol'] = $updatecontrol;
 		$params['boardname'] = $boardname;
-		$params['imageurl'] = $imageurl;
+		$params['imageurl'] = $backimage;
 		$params['courseid'] = $COURSE->id;
 		//for file system in moodle 2
 		$params['poodllfilelib'] = $poodllfilelib;
