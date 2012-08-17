@@ -37,7 +37,10 @@ $PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/ja
 //we need this for flowplayer and embedding it only works in head (hence the 'true' flag)
 //BUT in quizzes or poodll repository , with only student role, header is output before this point for some reason
 //so we need to set a flag to tell widgets to load it, but just once, hence the globals Justin 20120704
+
 if(!$PAGE->requires->is_head_done()){
+//if(!isset($FPLAYERJSLOADED) || !$FPLAYERJSLOADED){
+//if(true){
 	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot .'/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'),true);
 	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/embed-compressed.js'),true);
 	$FPLAYERJSLOADED=true;
@@ -622,7 +625,66 @@ $params = array();
     	return $returnString ;
 
 }
+/*
 
+function fetchMP3RecorderForRepo($updatecontrol){
+global $CFG, $USER, $COURSE;
+
+//Set the microphone config params
+$micrate = $CFG->filter_poodll_micrate;
+$micgain = $CFG->filter_poodll_micgain;
+$micsilence = $CFG->filter_poodll_micsilencelevel;
+$micecho = $CFG->filter_poodll_micecho;
+$micloopback = $CFG->filter_poodll_micloopback;
+$micdevice = $CFG->filter_poodll_studentmic;
+
+//removed from params to make way for moodle 2 filesystem params Justin 20120213
+$width="350";
+$height="200";
+$poodllfilelib= $CFG->wwwroot . '/repository/poodll/uploadHandler.php';
+
+//If we are using course ids then lets do that
+//else send -1 to widget (ignore flag)
+if ($CFG->filter_poodll_usecourseid){
+	$courseid = $COURSE->id;
+}else{
+	$courseid = -1;
+} 
+
+
+if ($updatecontrol == "saveflvvoice"){
+	$savecontrol = "<input name='saveflvvoice' type='hidden' value='' id='saveflvvoice' />";
+}else{
+	$savecontrol = "";
+}
+
+$params = array();
+
+		$params['rate'] = $micrate;
+		$params['gain'] = $micgain;
+		$params['prefdevice'] = $micdevice;
+		$params['loopback'] = $micloopback;
+		$params['echosupression'] = $micecho;
+		$params['silencelevel'] = $micsilence;
+		$params['course'] = $courseid;
+		$params['updatecontrol'] = $updatecontrol;
+		$params['uid'] = $USER->id;
+		//for file system in moodle 2
+		$params['poodllfilelib'] = $poodllfilelib;
+		$params['contextid'] = "0";
+		$params['component'] = "0";
+		$params['filearea'] = "0";
+		$params['itemid'] = "0";
+	
+    	$returnString=  fetchSWFWidgetCode('PoodLLMP3Recorder.lzx.swf10.swf',
+    						$params,$width,$height,'#CFCFCF');
+    						
+    	$returnString .= 	 $savecontrol;
+    						
+    	return $returnString ;
+
+}
+*/
 function fetchMP3RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid){
 global $CFG, $USER, $COURSE;
 
@@ -635,8 +697,8 @@ $micloopback = $CFG->filter_poodll_micloopback;
 $micdevice = $CFG->filter_poodll_studentmic;
 
 //removed from params to make way for moodle 2 filesystem params Justin 20120213
-$width="530";
-$height="220";
+$width="350";
+$height="200";
 $poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
 
 //If we are using course ids then lets do that
@@ -664,7 +726,7 @@ $params = array();
 		$params['silencelevel'] = $micsilence;
 		$params['course'] = $courseid;
 		$params['updatecontrol'] = $updatecontrol;
-		$params['uid'] = $userid;
+		$params['uid'] = $USER->id;
 		//for file system in moodle 2
 		$params['poodllfilelib'] = $poodllfilelib;
 		$params['contextid'] = $contextid;
@@ -690,7 +752,7 @@ global $CFG, $USER, $COURSE;
 //If standalone submission will always be standalone ... or will it ...
 //pair submissions could be interesting ..
 $boardname="solo";
-
+$mode="normal";
 //whats my name...? my name goddamit, I can't remember  N A mm eeeE
 //$mename=$USER->username;		
 
@@ -2433,11 +2495,13 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 	$retcode = "";
 	
 		
-	//added the global and conditional inclusion her because questions in a quiz don't get the JS loaded in the header
-	//it is only a problem in a quiz with student role. In other cases the load code at top of this file is on time. Justin 20120704
+	//added the global and conditional inclusion here because sometimes won't get the JS loaded in the header
+	//it is a problem because depending on mod, and user role, head code may or may not be loaded (eg page as admin ok, page as student no no
+	//previously spitting this out multi times, caused clicking on players to cause them to reload and autostart rather than pause.
+	//but now we seem to need one script per player if not in head. So i commented setting global flag go figure Justin 20120817
 	if(!$FPLAYERJSLOADED){
 		$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'></script>";
-		$FPLAYERJSLOADED=true;
+		//$FPLAYERJSLOADED=true;
 	}
 
 	//this conditional including of JS is actually bad, we should do this the same way as the flowplayer-3.2.9.mins.ja
@@ -2706,14 +2770,14 @@ $relpath=str_replace("?forcedownload=1","", $relpath);
 	//if name is too short, we didn't make it, it wont be on our red5 server
 	$filename = $file->get_filename();
 	if(strlen($filename)<5){
-		//return false;
-		return "bad filename ";
+		return false;
+		//return "bad filename ";
 	}
 	
 	//if name is not numeric, it is not a video file we made, it wont be on our red5 server
 	if(!is_numeric(substr($filename,0,strlen($filename)-4))){
-		//return false;
-		return "not nuimeric filename";
+		return false;
+		//return "not nuimeric filename";
 	}
 	
 	//check if we have an image file here already, if so return that URL
@@ -2726,7 +2790,7 @@ $relpath=str_replace("?forcedownload=1","", $relpath);
 	//if we don't have that image lets get it from tokyopoodll and return it
 	}else{
 		require_once($CFG->dirroot . '/filter/poodll/poodllfilelib.php');
-		instance_remotedownload($file->get_contextid(),
+		$result = instance_remotedownload($file->get_contextid(),
 					$imagefilename, 
 					$file->get_component(),
 					$file->get_filearea(),
@@ -2735,7 +2799,11 @@ $relpath=str_replace("?forcedownload=1","", $relpath);
 					$file->get_filepath()
 					);
 		
-		return $fullimagepath;
+		if(strpos($result,"success")){
+			return $fullimagepath;
+		}else{
+			return false;
+		}
 	}
 	
 	

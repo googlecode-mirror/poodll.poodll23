@@ -18,6 +18,8 @@ define('OM_REPLYVOICETHENTEXT',2);
 define('OM_REPLYVIDEOONLY',3);
 define('OM_REPLYVIDEOTHENTEXT',4);
 define('OM_REPLYTALKBACK',5);
+define('OM_REPLYWHITEBOARD',6);
+define('OM_REPLYMP3VOICE',7);
 define('OM_FEEDBACKTEXT',0);
 define('OM_FEEDBACKTEXTVOICE',1);
 define('OM_FEEDBACKTEXTVIDEO',2);
@@ -577,7 +579,8 @@ class assignment_poodllonline extends assignment_base {
 			//check if we need media output
 			switch($submissiontype){
 							
-				case OM_REPLYVOICEONLY:					
+				case OM_REPLYVOICEONLY:
+				case OM_REPLYMP3VOICE:
 						$responsestring .= format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http,embed=' . $embed . ',embedstring='. $embedstring .'}', FORMAT_HTML);
 						break;						
 					
@@ -592,6 +595,10 @@ class assignment_poodllonline extends assignment_base {
 				case OM_REPLYVIDEOTHENTEXT:						
 						$responsestring .= format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http,embed=' . $embed . ',embedstring='. $embedstring .'}', FORMAT_HTML);
 						break;
+						
+				case OM_REPLYWHITEBOARD:
+					$responsestring .= "<img alt=\"submittedimage\" src=\"" . urldecode($mediapath) . "\" />";
+					break;
 				
 			}//end of switch
 		}//end of if (checkfordata ...) 
@@ -601,6 +608,8 @@ class assignment_poodllonline extends assignment_base {
 		switch($submissiontype){
 			case OM_REPLYVIDEOONLY:
 			case OM_REPLYVOICEONLY:
+			case OM_REPLYWHITEBOARD:
+			case OM_REPLYMP3VOICE:
 				break;
 		
 			case OM_REPLYVOICETHENTEXT:
@@ -698,6 +707,8 @@ class assignment_poodllonline extends assignment_base {
 		//reply method for student
 		$qoptions[OM_REPLYVOICEONLY] = get_string('replyvoiceonly', 'assignment_poodllonline');
 		$qoptions[OM_REPLYVIDEOONLY] = get_string('replyvideoonly', 'assignment_poodllonline');
+		$qoptions[OM_REPLYMP3VOICE] = get_string('replymp3voice', 'assignment_poodllonline');
+		$qoptions[OM_REPLYWHITEBOARD] = get_string('replywhiteboard', 'assignment_poodllonline');
 		//We may re-enable these in the future. But for now in PoodLL 2.0 they are on hold Justin 20120208
 		//$qoptions[OM_REPLYTEXTONLY] = get_string('replytextonly', 'assignment_poodllonline');
 		//$qoptions[OM_REPLYVOICETHENTEXT] = get_string('replyvoicethentext', 'assignment_poodllonline');
@@ -792,6 +803,20 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 						$mform->addElement('static', 'description', '',$mediadata);
 
 						break;
+						
+					case OM_REPLYMP3VOICE:
+						//$mediadata= fetchSimpleAudioRecorder('onlinemedia' . $this->_customdata['cm']->id , $USER->id);
+						//$mediadata= fetchSimpleAudioRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
+						$mediadata= fetchMP3RecorderForSubmission(FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,640,400);
+						$mform->addElement('static', 'description', '',$mediadata);
+						break;
+						
+					case OM_REPLYWHITEBOARD:
+						//$mediadata= fetchSimpleAudioRecorder('onlinemedia' . $this->_customdata['cm']->id , $USER->id);
+						//$mediadata= fetchSimpleAudioRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
+						$mediadata= fetchWhiteboardForSubmission(FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid);
+						$mform->addElement('static', 'description', '',$mediadata);
+						break;
 
 					case OM_REPLYVIDEOONLY:
 						
@@ -832,6 +857,8 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 						case OM_REPLYVOICEONLY:	
 						case OM_REPLYVIDEOONLY:
 						case OM_REPLYTALKBACK:
+						case OM_REPLYWHITEBOARD:
+						case OM_REPLYMP3VOICE:
 							//We do not need a text box
 							break;
 						case OM_REPLYTEXTONLY:							
