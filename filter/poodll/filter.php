@@ -220,6 +220,14 @@ function filter_poodll_callback(array $link){
 				!empty($filterprops['iframe']) ? $filterprops['iframe']=='true' :  false);
 			break;
 			
+		case 'onceplayer':
+			$returnHtml= fetch_onceplayer($filterprops['runtime'],$filterprops['url'],
+				!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'http',
+				!empty($filterprops['width']) ? $filterprops['width'] :  0,
+				!empty($filterprops['height']) ? $filterprops['height'] :  0,
+				!empty($filterprops['iframe']) ? $filterprops['iframe']=='true' :  false);
+			break;
+			
 		case 'newpoodllpairwork':
 			$returnHtml= fetch_embeddablepairclient($filterprops['runtime'],!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_newpairwidth,
 				!empty($filterprops['height']) ? $filterprops['height'] : $CFG->filter_poodll_newpairheight,
@@ -421,9 +429,16 @@ global $CFG;
 	if (strrpos($link[2],'.mini.mp3')=== $len-9){
 		$returnHtml=fetch_miniplayer('auto',$rawurl,'http','',0,0,true);
 		
+	}else if (strrpos($link[2],'.once.mp3')=== $len-9){
+		$returnHtml=fetch_onceplayer('auto',$rawurl,'http');
+	
 	}elseif(strrpos($link[2],'.word.mp3')=== $len-9){
 		$word=substr($link[2],0,$len-9);
 		$returnHtml= fetch_wordplayer('auto',$rawurl,$word,0,'http',0,0,true);
+	
+	}elseif(strrpos($link[2],'.inlineword.mp3')=== $len-15){
+		$word=substr($link[2],0,$len-15);
+		$returnHtml= fetch_wordplayer('js',$rawurl,$word,0,'http',0,0,true);
 		
 	}else{
 		$returnHtml= fetchSimpleAudioPlayer('auto',$rawurl,'http',$CFG->filter_poodll_audiowidth,$CFG->filter_poodll_audioheight,false,'Play');
@@ -462,6 +477,9 @@ global $CFG;
 	$len = strlen($link[5]);
 	if (strrpos($link[5],'.mini.flv')=== $len-9){
 		$returnHtml=fetch_miniplayer('auto',$rawurl,'http','',0,0,true);
+	
+	}else if (strrpos($link[2],'.once.flv')=== $len-9){
+		$returnHtml=fetch_onceplayer('auto',$rawurl,'http');
 		
 	}elseif(strrpos($link[5],'.word.flv')=== $len-9){
 		$word=substr($link[5],0,$len-9);
