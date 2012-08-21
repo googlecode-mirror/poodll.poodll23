@@ -325,6 +325,26 @@ class repository_poodll extends repository {
 							'date'=>'',
 							'source'=>$source
 						);
+						
+					$list[] = array(
+							'title'=> substr_replace($filename,'.inlineword'. $ext,-4),
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/inlinewordplayer.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
+							'size'=>'',
+							'date'=>'',
+							'source'=>$source
+						);
+					
+					$list[] = array(
+							'title'=> substr_replace($filename,'.once'. $ext,-4),
+							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/onceplayer.jpg",
+							'thumbnail_width'=>280,
+							'thumbnail_height'=>100,
+							'size'=>'',
+							'date'=>'',
+							'source'=>$source
+						);
 				}
 				break;
 		default:
@@ -363,7 +383,9 @@ class repository_poodll extends repository {
 
 			case self::MP3AUDIO:
 			case self::POODLLWHITEBOARD:
-			
+					//get the filename as used by our recorder
+					$recordedname = basename($url);
+					
 					//get a temporary download path
 					$path = $this->prepare_file($filename);
 
@@ -371,7 +393,7 @@ class repository_poodll extends repository {
 				   $fs = get_file_storage();
 				   $context = get_context_instance(CONTEXT_USER, $USER->id);
 					$f = $fs->get_file($context->id, "user", "draft",
-                        "0", "/", $filename);
+                        "0", "/", $recordedname);
 				
 					//write the file out to the temporary location
 					$fhandle = fopen($path, 'w');
@@ -387,7 +409,7 @@ class repository_poodll extends repository {
 						return null;
 					}else{
 						//clear up the original file which we no longer need
-						self::delete_tempfile_from_draft("0", "/", $filename); 
+						self::delete_tempfile_from_draft("0", "/", $recordedname); 
 					}
 				
 				//return to Moodle what it needs to know

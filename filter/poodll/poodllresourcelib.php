@@ -555,7 +555,7 @@ if ($CFG->filter_poodll_usecourseid){
 
 }
 
-function fetchSimpleAudioRecorder($runtime, $assigname, $userid="", $updatecontrol="saveflvvoice", $filename="",$width="430",$height="220"){
+function fetchSimpleAudioRecorder($runtime, $assigname, $userid="", $updatecontrol="saveflvvoice", $filename="",$width="350",$height="200"){
 global $CFG, $USER, $COURSE, $PAGE;
 
 //Set the servername 
@@ -701,6 +701,10 @@ $width="350";
 $height="200";
 $poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
 
+//we can add or remove this, but right now, testing how good it works
+$autosubmit="true";
+
+
 //If we are using course ids then lets do that
 //else send -1 to widget (ignore flag)
 if ($CFG->filter_poodll_usecourseid){
@@ -733,6 +737,7 @@ $params = array();
 		$params['component'] = $component;
 		$params['filearea'] = $filearea;
 		$params['itemid'] = $itemid;
+		$params['autosubmit'] = $autosubmit;
 	
     	$returnString=  fetchSWFWidgetCode('PoodLLMP3Recorder.lzx.swf10.swf',
     						$params,$width,$height,'#CFCFCF');
@@ -816,8 +821,8 @@ $micdevice = $CFG->filter_poodll_studentmic;
 
 //removed from params to make way for moodle 2 filesystem params Justin 20120213
 $userid="dummy";
-$width="430";
-$height="220";
+$width="350";
+$height="200";
 $filename="12345"; 
 $poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
 
@@ -1482,6 +1487,54 @@ global  $CFG, $COURSE;
 							
     						
     	return $returnString;
+
+
+}
+
+//Plays audio file only once
+function fetch_onceplayer($runtime, $src,$protocol="http",$width=0,$height=0,$iframe=false){
+global  $CFG, $COURSE;
+
+		//support legacy files, just in case we have an old timer ...
+		if($protocol=='rtmp' || $protocol=='legacy'){
+			$src= $CFG->wwwroot . "/file.php/" .  $COURSE->id . "/" . $src;
+			$type = 'http';
+		}
+		
+		if($width==0){
+			$width=250;
+		}
+		if($height==0){
+			$height=100;
+		}
+	
+		$params = array();
+
+		$params['src']= $src;//urlencode($src);
+	
+				
+    	
+	//depending on runtime, we show a SWF or html5 player
+	//currently no js implementation	
+	if(false){
+	//if($runtime=="js" || ($runtime=="auto" && isMobile())){
+		$returnString=  "<a onclick=\"this.firstChild.play()\"><audio src=\"$src\"></audio><img height=\"$height\" width=\"$width\" src=\"" . 
+				$imageurl . 
+				"\"/></a>";
+		
+	}else{
+		//use iframe or not
+		if($iframe){
+				$returnString= fetchIFrameSWFWidgetCode('onceplayer.lzx.swf9.swf',
+							$params,$width,$height,'#FFFFFF');
+		}else{		
+    			$returnString=  fetchSWFWidgetCode('onceplayer.lzx.swf9.swf',
+							$params,$width,$height,'#FFFFFF');
+		}
+	}
+		
+		
+		return $returnString;
 
 
 }
