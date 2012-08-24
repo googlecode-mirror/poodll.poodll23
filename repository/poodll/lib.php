@@ -505,7 +505,7 @@ class repository_poodll extends repository {
 						);
 						//videorecorder
 						$list[] = array(
-							'title'=> "audiorecorder.pdl.mp4",
+							'title'=> "videorecorder.pdl.mp4",
 							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/repovideorecorder.jpg",
 							'thumbnail_width'=>280,
 							'thumbnail_height'=>100,
