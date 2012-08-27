@@ -246,12 +246,13 @@ class repository_poodll extends repository {
 						$CFG->filter_poodll_serverid . "&filename=" . $filename . "&caller=" . urlencode($CFG->wwwroot);
 				break;
 			
-			//this is the download script for snapshots and direct uploads
+			//this was the download script for snapshots and direct uploads
 			//the upload script is the same file, called from widget directly. Callback posted filename back to form
-			case self::POODLLSNAPSHOT:
-				$source=$CFG->wwwroot . '/repository/poodll/uploadHandler.php?filename=' . $filename;
-				break;
-				
+			//case self::POODLLSNAPSHOT:
+			//	$source=$CFG->wwwroot . '/repository/poodll/uploadHandler.php?filename=' . $filename;
+			//	break;
+			
+			case self::POODLLSNAPSHOT:	
 			case self::MP3AUDIO:
 			case self::POODLLWHITEBOARD:
 				//$source=$CFG->wwwroot . '/repository/poodll/uploadHandler.php?filename=' . $filename;
@@ -380,7 +381,7 @@ class repository_poodll extends repository {
 		
 		//determine the player options
 		switch($this->options['recording_format']){
-
+			case self::POODLLSNAPSHOT:
 			case self::MP3AUDIO:
 			case self::POODLLWHITEBOARD:
 					//get the filename as used by our recorder
@@ -651,7 +652,9 @@ class repository_poodll extends repository {
 				break;
 				
 			case self::POODLLSNAPSHOT:
-				$ret = fetchSnapshotCamera($filename,"apic.jpg", '290','340');
+				$context = get_context_instance(CONTEXT_USER, $USER->id);
+				$ret = fetchSnapshotCameraForSubmission($filename,"apic.jpg", '290','340',$context->id,"user","draft","0");
+	
 				break;
 		}
 		echo $ret;

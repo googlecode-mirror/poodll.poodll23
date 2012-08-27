@@ -1212,6 +1212,53 @@ $params = array();
 
 }
 
+function fetchSnapshotCameraForSubmission($updatecontrol="filename", $filename="apic.jpg", $width="350",$height="400",$contextid,$component,$filearea,$itemid){
+global $CFG, $USER, $COURSE;
+
+//Set the servername and a capture settings from config file
+
+$capturewidth=$CFG->filter_poodll_capturewidth;
+$captureheight=$CFG->filter_poodll_captureheight;
+$capturefps=$CFG->filter_poodll_capturefps;
+$prefcam=$CFG->filter_poodll_studentcam;
+$prefmic=$CFG->filter_poodll_studentmic;
+$bandwidth=$CFG->filter_poodll_bandwidth;
+$picqual=$CFG->filter_poodll_picqual;
+
+//poodllfilelib for file handling
+$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
+
+$params = array();
+		$params['capturefps'] = $capturefps;
+		$params['filename'] = $filename;
+		$params['captureheight'] = $captureheight;
+		$params['picqual'] = $picqual;
+		$params['bandwidth'] = $bandwidth;
+		$params['capturewidth'] = $capturewidth;
+		$params['prefcam'] = $prefcam;
+		$params['updatecontrol'] = $updatecontrol;
+		$params['moodlewww'] = $CFG->wwwroot;
+		
+		//for file system in moodle 2
+		$params['poodllfilelib'] = $poodllfilelib;
+		$params['contextid'] = $contextid;
+		$params['component'] = $component;
+		$params['filearea'] = $filearea;
+		$params['itemid'] = $itemid;
+		
+		//set to auto submit
+		$params['autosubmit'] = 'true';
+	
+    	$returnString=  fetchSWFWidgetCode('PoodLLSnapshot.lzx.swf9.swf',
+    						$params,$width,$height,'#FFFFFF');
+
+    						
+    	return $returnString;
+	
+
+}
+
+
 
 
 
