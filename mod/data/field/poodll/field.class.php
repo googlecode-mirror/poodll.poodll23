@@ -110,10 +110,9 @@ class data_field_poodll extends data_field_base {
         		break;
         		
         	case DBP_SNAPSHOT:
+
+        		$str .= fetchSnapshotCameraForSubmission($updatecontrol,'apic.jpg',350,400,$usercontextid,"user","draft",$draftitemid);
         		break;
-        		
-        	default:
-        		$str .= "nothing nothig nothging";
 
 		}
         
