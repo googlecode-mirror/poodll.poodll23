@@ -2599,6 +2599,8 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 	//it is a problem because depending on mod, and user role, head code may or may not be loaded (eg page as admin ok, page as student no no
 	//previously spitting this out multi times, caused clicking on players to cause them to reload and autostart rather than pause.
 	//but now we seem to need one script per player if not in head. So i commented setting global flag go figure Justin 20120817
+	
+	//this is now a problem in database area too! needs one in head. Multi js as student role, messes up
 	if(!$FPLAYERJSLOADED){
 		$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'></script>";
 		//$FPLAYERJSLOADED=true;
