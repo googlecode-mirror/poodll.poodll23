@@ -562,7 +562,7 @@ class repository_poodll extends repository {
 							'thumbnail_height'=>100,
 							'size'=>'',
 							'date'=>'',
-							'source'=>'poodll.pdl'
+							'source'=>'flashcards_1234.pdl'
 						);
 	
 			return $list;

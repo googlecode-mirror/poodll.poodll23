@@ -44,6 +44,9 @@ $string['talkbackheight'] = 'Talkback Player Height';
 $string['showwidth'] = 'Screencast Player Width';
 $string['showheight'] = 'Screencast Player Height';
 
+$string['datadir'] = 'PoodLL Data Dir';
+$string['datadirdetails'] = 'A sub directory of Moodle dir, to allow some components Moodle 1.9 style file access to media resources. Should only be used for non sensitive media resources. PoodLL will not create, or manage access rights for, this folder';
+
 $string['forum_recording'] = 'PoodLL Forum: AV Recording Enabled?';
 $string['forum_audio'] = 'PoodLL Forum: Audio?';
 $string['forum_video'] = 'PoodLL Forum: Video?';

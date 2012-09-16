@@ -2266,6 +2266,48 @@ global $CFG, $DB, $COURSE;
 				break;
 	}
 	
+	if(strlen($path)>6 && substr($path,1,6)=='poodll'){
+	//if(strlen($path)>6 && true){
+	//If we are using PoodLL Data Dir file handling, we build a list of files here:
+	//=============================================
+		//filter file types
+		$filterstring="/*.{flv,mp3,mp4}";
+		//set up the search dir
+		$baseDir = $CFG->{'dirroot'} . "/" . $CFG->{'filter_poodll_datadir'}  . $path;
+		$baseURL = $CFG->{'wwwroot'} . "/" . $CFG->{'filter_poodll_datadir'}  . $path;
+		$ret_output .= $baseDir . " " . $baseURL;
+		foreach (glob($baseDir . $filterstring,GLOB_BRACE) as $filename) {
+			$urltofile = $baseURL . basename($filename);
+			switch($listtype){
+				case "xml":
+					$ret_output .= "\t<audio audioname='" . basename($filename) ."' playertype='" . $playertype . "' url='" . $urltofile . "'/>\n";
+					break;
+				case "rss":
+					$ext = substr($filename,-4);
+					switch($ext){
+							case ".mp3": $mimetype="audio/mpeg3"; break;
+							case ".flv": $mimetype="audio/mp4"; break;
+							case ".mp4": $mimetype="video/x-flv"; break;
+					}
+					$ret_output .=  "\t<item><title>" . 
+						basename($filename) ."</title><media:content url=\"" .
+						trim($urltofile) . "\" type=\"" . $mimetype .
+						"\"/></item>";
+					break;
+				case "alist":
+					$ret_output  .= "<a href=\"" . trim($urltofile) . "\"><span>" . basename($filename). "</span></a>";
+					break;
+			}
+			
+			//$xml_output .=  "\t<audio audioname='" . basename($filename) ."' playertype='" . $playertype . "' url='" . $baseURL . basename($filename). "'/>\n";
+		}
+	
+	//=============================================
+	//end of PoodLL Data Dir
+	}else{
+	
+	//If we are using Moodle 2 file handling, we build a list of files here:
+	//=============================================
 	//get filehandling objects
 	$browser = get_file_browser();
 	$fs = get_file_storage();
@@ -2319,6 +2361,11 @@ global $CFG, $DB, $COURSE;
 				}
 			}
 		}
+	
+	//=============================================
+	//end of Moodle 2 file 
+	}
+	
 	
 	//for debugging
 	//$ret_output .=  "\t<audio audioname='" . $cm->modname  . " " . $filearea . " " . $urltofile ."' playertype='" . $playertype . "' url='" . $mediapath . basename($contextid). "'/>\n";

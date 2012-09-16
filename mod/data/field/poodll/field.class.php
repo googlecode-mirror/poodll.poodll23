@@ -186,7 +186,7 @@ class data_field_poodll extends data_field_base {
      * @return bool|string
      */
     function display_browse_field($recordid, $template) {
-        global $DB;
+        global $DB, $CFG;
         
         //lists of audio flowplayers/jw players will break if embedded and 
 		// flowplayers should have image link load deferral anyway
