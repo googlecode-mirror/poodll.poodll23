@@ -24,9 +24,9 @@ $items[] = new admin_setting_configselect('filter_poodll_html5controls', get_str
 
 	//PoodLL Filepicker intercept settings.
 $items[] = new admin_setting_heading('filter_poodll_intercept_settings', get_string('filter_poodll_intercept_heading', 'filter_poodll'), '');
-$items[] = new admin_setting_configcheckbox('filter_poodll_handleflv', get_string('handleflv', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_handlemp4', get_string('handlemp4', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_handlemp3', get_string('handlemp3', 'filter_poodll'), '', 0);
+$items[] = new admin_setting_configcheckbox('filter_poodll_handleflv', get_string('handleflv', 'filter_poodll'), '', 1);
+$items[] = new admin_setting_configcheckbox('filter_poodll_handlemp4', get_string('handlemp4', 'filter_poodll'), '', 1);
+$items[] = new admin_setting_configcheckbox('filter_poodll_handlemp3', get_string('handlemp3', 'filter_poodll'), '', 1);
 
 	//audio player settings.	
 $items[] = new admin_setting_heading('filter_poodll_audioplayer_settings', get_string('filter_poodll_audioplayer_heading', 'filter_poodll'), '');
@@ -46,7 +46,7 @@ $items[] = new admin_setting_configtext('filter_poodll_micecho', get_string('mic
 $items[] = new admin_setting_configtext('filter_poodll_micloopback', get_string('micloopback', 'filter_poodll'), '', 'no');
 $items[] = new admin_setting_configcheckbox('filter_poodll_audiotranscode', get_string('audiotranscode', 'filter_poodll'), get_string('audiotranscodedetails', 'filter_poodll'), 0);
 	
-		//video player settings.
+//video player settings.
 $items[] = new admin_setting_heading('filter_poodll_videoplayer_setting', get_string('filter_poodll_videoplayer_heading', 'filter_poodll'), '');
 $items[] = new admin_setting_configtext('filter_poodll_videowidth', get_string('videowidth', 'filter_poodll'), '', '480', PARAM_INT);
 $items[] = new admin_setting_configtext('filter_poodll_videoheight', get_string('videoheight', 'filter_poodll'), '', '360', PARAM_INT);
@@ -82,6 +82,7 @@ $items[] = new admin_setting_heading('filter_poodll_legacy_setting', get_string(
 $items[] = new admin_setting_configcheckbox('filter_poodll_usecourseid', get_string('usecourseid', 'filter_poodll'), '', 0);
 $items[] = new admin_setting_configtext('filter_poodll_filename', get_string('filename', 'filter_poodll'), '', 'poodll_file.flv');
 $items[] = new admin_setting_configcheckbox('filter_poodll_overwrite', get_string('overwrite', 'filter_poodll'), '', 1);
+$items[] = new admin_setting_configtext('filter_poodll_datadir', get_string('datadir', 'filter_poodll'), get_string('datadirdetails', 'filter_poodll'), 'poodlldata');
 
 $items[] = new admin_setting_configtext('filter_poodll_screencapturedevice', get_string('screencapturedevice', 'filter_poodll'), '', 'none');
 $items[] = new admin_setting_configtext('filter_poodll_talkbackwidth', get_string('talkbackwidth', 'filter_poodll'), '', '760', PARAM_INT);

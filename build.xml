@@ -16,7 +16,7 @@
 		<property name="dist.assig" value="poodllonline"/>
 		<property name="dist.question" value="poodllrecording"/>
 		<property name="dist.all" value="poodllall"/>
-		<property name="dist.version" value="2012082200"/>
+		<property name="dist.version" value="2012082900"/>
 	</target>
 	
 	<!-- Make All PoodLL package for this version -->
