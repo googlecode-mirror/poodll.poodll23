@@ -515,8 +515,8 @@ $fileroot="";
 //In Moodle 2 random F names should always be the case
 $randomfnames="true";
 		
-//streamtype will always be HTTP, courseid always blank
-$streamtype="http";
+//streamtype will always be HTTP or YUTU
+//$streamtype="http";
 $courseid="";
 
 //We need a filepath stub, just in case for fetching xml and media files
