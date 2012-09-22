@@ -501,9 +501,52 @@ $mename=$USER->username;
 	
 }
 
+//In Moodle 2, we may try to save the recordings, but right now we don't - Justin 20120921
+function fetchTalkbackPlayer($runtime, $descriptor_file, $streamtype="http",$recordable="false",$savefolder="default"){
+global $CFG, $USER,$COURSE;
+
+//Set the servername 
+$flvserver = $CFG->poodll_media_server;
+
+//for now the save directory is just the root of the Red5 record place.
+//when we do submissions this will probably still be the same location .
+$fileroot="";
+
+//In Moodle 2 random F names should always be the case
+$randomfnames="true";
+		
+//streamtype will always be HTTP, courseid always blank
+$streamtype="http";
+$courseid="";
+
+//We need a filepath stub, just in case for fetching xml and media files
+$basefile = $CFG->{'wwwroot'} . "/" . $CFG->{'filter_poodll_datadir'}  . "/";
 
 
-function fetchTalkbackPlayer($runtime, $descriptor_file, $streamtype="rtmp",$recordable="false",$savefolder="default"){
+		//merge config data with javascript embed code
+		$params = array();
+		$params['red5url'] = urlencode($flvserver);
+		$params['basefile'] = $basefile;
+		$params['recordable'] = $recordable;
+		$params['fileroot'] = $fileroot;
+		$params['randomfnames'] = $randomfnames;
+		$params['courseid'] = $courseid;
+		$params['username'] = $USER->id;
+		$params['streamtype'] = $streamtype;
+		$params['mediadescriptor'] = $basefile . $descriptor_file;
+		
+	
+    	$returnString=  fetchSWFWidgetCode('talkback.lzx.swf9.swf',
+    						$params,$CFG->filter_poodll_talkbackwidth,$CFG->filter_poodll_talkbackheight,'#FFFFFF');
+
+    						
+    	return $returnString ;
+		
+
+}
+
+
+function fetchTalkbackPlayerOld($runtime, $descriptor_file, $streamtype="rtmp",$recordable="false",$savefolder="default"){
 global $CFG, $USER,$COURSE;
 
 //Set the servername 
@@ -1626,9 +1669,8 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 	
 }
 
-
 //Audio playlist player with defaults, for use with directories of audio files
-function fetchAudioListPlayer($runtime, $playlist, $filearea="content",$protocol="", $width="400",$height="350",$sequentialplay="true",$useplayer,$showplaylist){
+function fetchAudioListPlayer($runtime, $playlist, $filearea="content",$protocol="", $width="400",$height="350",$sequentialplay="true",$useplayer,$showplaylist,$usepoodlldata=false){
 global $CFG, $USER, $COURSE;
 
 $moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current module (eg moodleurl/view.php?id=X )
@@ -1651,6 +1693,9 @@ $moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current modu
 					}
 					break;
 	}
+	
+	//if we are using poodll data, flag that in the filearea param
+	if($usepoodlldata){$filearea="poodlldata";}
 	
 	
 	//determine playlist url if necessary, if we are using fp player and a visible list we don't need this
@@ -2035,7 +2080,7 @@ $ismobile=isMobile();
 
 
 
-function fetchSmallVideoGallery($runtime, $playlist, $filearea="content", $protocol="", $width, $height,$permitfullscreen=false){
+function fetchSmallVideoGallery($runtime, $playlist, $filearea="content", $protocol="", $width, $height,$permitfullscreen=false, $usepoodlldata=false){
 global $CFG, $USER, $COURSE;
 
 //Set the servername 
@@ -2043,6 +2088,11 @@ $courseid= $COURSE->id;
 $flvserver = $CFG->poodll_media_server;
 
 $moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current module (eg moodleurl/view.php?id=X )
+
+//If we are using poodll data we fetch from data dir
+//So we just flag that in the filearea parameter
+if($usepoodlldata){ $filearea = "poodlldata";}
+
 
 //set size params
 if ($width==''){$width=$CFG->filter_poodll_smallgallwidth;}
@@ -2084,7 +2134,7 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 		
 }
 
-function fetchBigVideoGallery($runtime, $playlist,$filearea="content",  $protocol, $width, $height){
+function fetchBigVideoGallery($runtime, $playlist,$filearea="content",  $protocol, $width, $height, $usepoodlldata=false){
 global $CFG, $USER, $COURSE;
 
 //Set the servername 
@@ -2092,6 +2142,11 @@ $courseid= $COURSE->id;
 $flvserver = $CFG->poodll_media_server;
 
 $moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current module (eg moodleurl/view.php?id=X )
+
+//If we are using poodll data we fetch from data dir
+//So we just flag that in the filearea parameter
+if($usepoodlldata){ $filearea = "poodlldata";}
+
 
 //set size params
 if ($width==''){$width=$CFG->filter_poodll_biggallwidth;}
@@ -2117,7 +2172,8 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 	$params['red5url'] = urlencode($flvserver);
 	$params['playlist'] = urlencode($fetchdataurl);
 
-	if($runtime=='swf'){
+	//if($runtime=='swf'){
+	if(true){
 		//set the flash widget suffix
 		$widget = "bigvideogallery.lzx.swf9.swf";
     	$returnString=  fetchSWFWidgetCode($widget, $params,$width,$height,'#D5FFFA');
@@ -2266,7 +2322,7 @@ global $CFG, $DB, $COURSE;
 				break;
 	}
 	
-	if(strlen($path)>6 && substr($path,1,6)=='poodll'){
+	if($filearea=="poodlldata"){
 	//if(strlen($path)>6 && true){
 	//If we are using PoodLL Data Dir file handling, we build a list of files here:
 	//=============================================
@@ -2275,7 +2331,8 @@ global $CFG, $DB, $COURSE;
 		//set up the search dir
 		$baseDir = $CFG->{'dirroot'} . "/" . $CFG->{'filter_poodll_datadir'}  . $path;
 		$baseURL = $CFG->{'wwwroot'} . "/" . $CFG->{'filter_poodll_datadir'}  . $path;
-		$ret_output .= $baseDir . " " . $baseURL;
+		//for debugging
+		//$ret_output .= $baseDir . " " . $baseURL;
 		foreach (glob($baseDir . $filterstring,GLOB_BRACE) as $filename) {
 			$urltofile = $baseURL . basename($filename);
 			switch($listtype){
