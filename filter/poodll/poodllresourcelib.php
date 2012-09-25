@@ -19,41 +19,76 @@ define('MR_TYPEVIDEO',0);
 define('MR_TYPEAUDIO',1);
 define('MR_TYPETALKBACK',2);
  
-require_once($CFG->dirroot . '/filter/poodll/poodllinit.php');
-require_once($CFG->dirroot . '/filter/poodll/Browser.php');
-
-//added Justin 20120424 
-//unadded Justin 20120508 caused problems in repository and I guess elsewhere too ... need to investigate.
-//require_once($CFG->dirroot . '/filter/poodll/poodlllogiclib.php');
 
 global $PAGE, $FPLAYERJSLOADED, $EMBEDJSLOADED;
 
-//I have tried to remove calls to these libraries inline, though I did not change stuff we 
-//dont use in poodll 2 yet(e.g pairwork). I will test those when I enable them, Justin 20120724
-$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/swfobject.js'));
-$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/javascript.php'));
-
-
-//we need this for flowplayer and embedding it only works in head (hence the 'true' flag)
-//BUT in quizzes or poodll repository , with only student role, header is output before this point for some reason
-//so we need to set a flag to tell widgets to load it, but just once, hence the globals Justin 20120704
-
-if(!$PAGE->requires->is_head_done()){
-//if(!isset($FPLAYERJSLOADED) || !$FPLAYERJSLOADED){
-//if(true){
-	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot .'/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'),true);
-	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/embed-compressed.js'),true);
-	$FPLAYERJSLOADED=true;
-	$EMBEDJSLOADED=true;
-}else{
-	$FPLAYERJSLOADED=false;
-	$EMBEDJSLOADED=false;
+//Establish if PoodLL filter is enabled
+$poodllenabled=false;
+$context = $PAGE->context;
+$filters = filter_get_active_in_context($context);
+if (array_key_exists("filter_poodll",$filters)){
+	$poodllenabled =true;
 }
+
+//This file may get loaded even if PoodLL filter is disabled, because so much of the other poodll
+//requires it.	But we don't want all the JS loading unless it is really necessary
+//if($poodllenabled){
+if(true){
+
+	//these are required by poodll filter
+	require_once($CFG->dirroot . '/filter/poodll/poodllinit.php');
+	require_once($CFG->dirroot . '/filter/poodll/Browser.php');
+	
+	//I have tried to remove calls to these libraries inline, though I did not change stuff we 
+	//dont use in poodll 2 yet(e.g pairwork). I will test those when I enable them, Justin 20120724
+	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/swfobject.js'));
+	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/javascript.php'));
+	
+	
+	//we need this for flowplayer and embedding it only works in head (hence the 'true' flag)
+	//BUT in quizzes or poodll repository , with only student role, header is output before this point for some reason
+	//so we need to set a flag to tell widgets to load it, but just once, hence the globals Justin 20120704
+	if(!$PAGE->requires->is_head_done()){
+	//if(!isset($FPLAYERJSLOADED) || !$FPLAYERJSLOADED){
+	//if(true){
+		if(shouldLoadFlowPlayerJS()){
+			$PAGE->requires->js(new moodle_url($CFG->httpswwwroot .'/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'),true);
+			$FPLAYERJSLOADED=true;
+		}
+		$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/embed-compressed.js'),true);
+		
+		$EMBEDJSLOADED=true;
+	}else{
+		$FPLAYERJSLOADED=false;
+		$EMBEDJSLOADED=false;
+	}
+}//end of if PoodLL enabled
 
 //added for moodle 2
 require_once($CFG->libdir . '/filelib.php');
 
+//Trying to get the Flowplayer JS loaded nicely has been very tricky
+//this function checks if we should load it or not. If it is not the default player
+//and we are not intercepting mp3 or flv or mp4 links, we don't load it. If we do 
+//it messes up the multimedia plugin. Justin 20120924
+function shouldLoadFlowPlayerJS(){
+	global $CFG;
+	
+	//If the PoodLL filter is using the flowplayer by default and handling media file extensions,
+	//return true
+	if ($CFG->filter_poodll_defaultplayer =='fp'
+	 		&& ($CFG->filter_poodll_handleflv
+	 			|| $CFG->filter_poodll_handlemp4
+	 			|| $CFG->filter_poodll_handlemp3) 
+	 		){
+	 	return true;
+	 }else{
+	 	return false;
+	 }
+}
 
+
+//this is a legacy function, could probably be removed. Justin 20120924
 function fetch_slidemenu($runtime){
 	global $CFG, $USER, $COURSE;
 
@@ -87,6 +122,7 @@ function fetch_slidemenu($runtime){
 }
 
 
+//This fetches the admin console for pairwork and screencasting
 function fetch_poodllconsole($runtime, $coursedataurl="",$mename="", $courseid=-1, $embed=false){
 	global $CFG, $USER, $COURSE;
 	
@@ -116,6 +152,9 @@ function fetch_poodllconsole($runtime, $coursedataurl="",$mename="", $courseid=-
 		$courseid=$COURSE->id;
 	}
 	
+	//We need a moodle serverid
+	$moodleid = urlencode($CFG->wwwroot);
+	
 	//put in a coursedataurl if we need one
 	if ($coursedataurl=="") $coursedataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php%3F';
 	
@@ -133,6 +172,7 @@ function fetch_poodllconsole($runtime, $coursedataurl="",$mename="", $courseid=-
 		$baseUrl = $CFG->wwwroot . '/filter/poodll/flash/poodllconsole.lzx.swf9.swf';
 		$params= '?red5url='.urlencode($flvserver). 
 							'&mename=' . $mename . '&courseid=' . $courseid .  
+							'&moodleid=' . $moodleid .
 							'&teacherpairstreamname=' . $teacherpairstreamname . 
 							$cameraprefs .
 							'&coursedataurl=' . $coursedataurl . '&broadcastkey=' . $broadcastkey .
@@ -157,6 +197,8 @@ function fetch_poodllconsole($runtime, $coursedataurl="",$mename="", $courseid=-
 
 }
 
+//In Moodle 1.9 we had a dedicated header for controlling the client, 
+//may bring it back with a special PoodLL theme, so code remains Justin 20120924
 function fetch_poodllheader($runtime){
 	global $CFG, $USER, $COURSE;
 
@@ -245,13 +287,15 @@ function fetch_pairclient($runtime, $chat=true, $whiteboard=true, $showvideo=fal
 	//Set the servername
 	$flvserver = $CFG->poodll_media_server;
 	
-	//here in moodle 2.3 we may want to add the servername to this string
+	//in order that this works effectively on tokyo.poodll.com which services multiple Moodles
+	//we should change courseid (which creates a kind of virtual "room") to use the domainname of Moodle server
 	$courseid = $COURSE->id;
+	$moodleid  =urlencode($CFG->wwwroot);
 
-
+	
 	$baseUrl = $CFG->wwwroot . '/filter/poodll/flash/newpairclient.lzx.swf9.swf';
 	$params = '?red5url='.urlencode($flvserver) . '&mename=' . $mename . '&mefullname=' . $mefullname .   '&mepictureurl=' . urlencode($mepictureurl) 
-			. '&chat=' . $chat  . '&courseid=' . $courseid . '&useroles=' . $useroles  . '&whiteboard=' . $whiteboard . '&whiteboardback=' . $whiteboardback . '&showvideo=' . $showvideo  .'&teacherallstreamname=voiceofauthority&lzproxied=false';
+			. '&chat=' . $chat  . '&courseid=' . $courseid . '&moodleid=' . $moodleid .'&useroles=' . $useroles  . '&whiteboard=' . $whiteboard . '&whiteboardback=' . $whiteboardback . '&showvideo=' . $showvideo  .'&teacherallstreamname=voiceofauthority&lzproxied=false';
 	return $baseUrl . $params;	
 }
 
@@ -335,6 +379,8 @@ global $CFG, $USER, $COURSE;
 //Set the servername
 $flvserver = $CFG->poodll_media_server;
 
+//moodle id
+$moodleid  =urlencode($CFG->wwwroot);
 
 //get my name
 if($mename==""){$mename=$USER->username;}
@@ -348,7 +394,7 @@ if($showheight==0){$showheight=$CFG->filter_poodll_showheight;}
 
 //get the main url of the screensubcribe client
 $baseUrl = $CFG->wwwroot . '/filter/poodll/flash/screensubscribe.lzx.swf9.swf';
-$params = '?red5url='.urlencode($flvserver). '&broadcastkey='.$broadcastkey. '&showwidth='.$showwidth. '&showheight='.$showheight.'&courseid='.$COURSE->id  .'&mename='.$mename;
+$params = '?red5url='.urlencode($flvserver). '&broadcastkey='.$broadcastkey. '&showwidth='.$showwidth. '&showheight='.$showheight.'&courseid='.$COURSE->id . '&moodleid=' . $moodleid .'&mename='.$mename;
 //return $baseUrl . $params;	
 
 	//if necessary return the embed code, otherwise just return the url
@@ -2601,7 +2647,7 @@ function fetchSWFWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFF
        " . $embedcode . "
         <script type=\"text/javascript\">
 " . '	lz.embed.swf({url: \'' . $CFG->wwwroot . '/filter/poodll/flash/' . $widget . $params . 
-		 '\', bgcolor: \'' . $bgcolor . '\', cancelmousewheel: true, allowfullscreen: true, width: \'' .$width . '\', height: \'' . $height . '\', id: \'lzapp_' . rand(100000, 999999) . '\', accessible: \'false\'});	
+		 '\', bgcolor: \'' . $bgcolor . '\', cancelmousewheel: true, allowfullscreen: true, width: \'' .$width . '\', height: \'' . $height . '\', id: \'lzapp_' . rand(100000, 999999) . '\', accessible: true});	
 		
 ' . "
         </script>
@@ -2668,11 +2714,13 @@ function isMobile(){
 
 }
 
+
 function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=false, $playlisturlstring ="",$loop='false'){
 
 	global $CFG, $PAGE, $FPLAYERJSLOADED;
 	
 	$playerid = "flowplayer_" . rand(100000, 999999);
+	$playerpath = $CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.10.swf";
 	$playerclass = "flowplayer_poodll";
 	
 	
@@ -2719,6 +2767,212 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 	//If we are using JS controls
 	if($jscontrols){
 		$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.controls-3.2.8.min.js'></script>";
+	}
+	
+	
+	//the params are different depending on the playertype
+	//we need to specify provider for audio if the clips are not MP3 or mp3
+	//jqueryseems unavoidable even if not using it for playlists
+	switch($playertype){
+		case "audio":
+			//If we have a splash screen show it and enable autoplay(user only clicks once)
+			//best to have a splash screen to prevent browser hangs on many flashplayers in a forum etc
+			if($CFG->filter_poodll_audiosplash){
+				$splash = "<img src='" . $CFG->wwwroot . "/filter/poodll/flowplayer/audiosplash.jpg' alt='click to play audio' width='" . $width . "' height='" . $height . "'/>";
+			}else{
+				$splash = "";
+			}
+			break;
+		
+		case "audiolist":
+			$retcode .= "<script src=\"http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js\"></script>";
+			$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.playlist-3.2.8.min.js'></script>";
+			$splash = "";
+			break;
+		
+		case "video":
+			//If we have a splash screen show it and enable autoplay(user only clicks once)
+			//best to have a splash screen to prevent browser hangs on many flashplayers in a forum etc
+			if($CFG->filter_poodll_videosplash){
+				if($CFG->filter_poodll_thumbnailsplash){
+					$splashpath = fetchVideoSplash($path);
+				}else{
+					$splashpath=false;
+				}
+				if(!$splashpath){$splashpath = $CFG->wwwroot . "/filter/poodll/flowplayer/videosplash.jpg";}
+				$splash = "<img src='" . $splashpath . "' alt='click to play video' width='" . $width . "' height='" . $height . "'/>";
+			}else{
+				$splash="";
+			}
+			break;
+		
+		case "videolist":
+			$retcode .= "<script src=\"http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js\"></script>";
+			$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.playlist-3.2.8.min.js'></script>";
+			$splash ="";
+			break;
+	
+	
+	}
+	
+	//add a media rss playlist if one was passed in
+	if($playlisturlstring ==""){
+		$playlisturlstring =null;
+	}
+	
+	//put together the a link that will be replaced by a player
+	$retcode .= "<a href='" . $path . "'
+					style='display:block;width:" . $width. "px;height:" . $height . "px;'
+					id='" . $playerid . "' class='" . $playerclass . "' >
+					" . $splash . "
+				</a>";
+				
+	//put together the div that will be replaced by the JS controls if necessary
+	if($jscontrols){
+		$retcode .= "<div id='" . $jscontrolsid . "' class='" . $jscontrolsclass . "'></div>";
+	}
+	
+
+	
+	
+	//close off the javascript depending on the additional flowplayer components we need to incorp.
+	$controls="0";
+	$ipad=false;
+	$playlist=false;
+	$loop=false;
+	
+	if($ismobile){
+		if (($playertype=="audiolist" || $playertype=="videolist") && $jscontrols){
+			$controls =  $jscontrolsid ;
+			$ipad=true;
+			$playlist = true;
+			$loop=true;
+			//$retcode .= ").controls(\"" . $jscontrolsid ."\").ipad().playlist(\"div.poodllplaylist\", {loop:true});</script>";
+		} else if ($playertype=="audiolist" || $playertype=="videolist"){
+			$ipad=true;
+			$playlist=true;
+			$loop=true;
+			//$retcode .= ").ipad().playlist(\"div.poodllplaylist\", {loop:true});</script>";
+		}else if($jscontrols){
+			$controls=$jscontrolsid ;
+			$ipad=true;
+			//$retcode .= ").controls(\"" . $jscontrolsid ."\").ipad();</script>";
+		}else{
+			$ipad=true;
+			//$retcode .= ").ipad();</script>";
+		}
+	}else{
+		if (($playertype=="audiolist" || $playertype=="videolist") && $jscontrols){
+			$controls =  $jscontrolsid ;
+			$playlist=true;
+			$loop=true;
+			//$retcode .= ").controls(\"" . $jscontrolsid ."\").playlist(\"div.poodllplaylist\", {loop:true});</script>";
+		} else if ($playertype=="audiolist" || $playertype=="videolist"){
+			$playlist=true;
+			$loop=true;
+			//$retcode .= ").playlist(\"div.poodllplaylist\", {loop:" . $loop . "});</script>";
+		}else if($jscontrols){
+			$controls =  $jscontrolsid ;
+			//$retcode .= ").controls(\"" . $jscontrolsid ."\");</script>";
+		}else{
+			//$retcode .= ");</script>";
+		}
+	}
+
+	//configure our options array
+	$opts = array(
+		"path"=> $path,
+		"playerid"=> $playerid, 
+		"playerpath"=> $playerpath, 
+		"poodll_audiosplash"=> $CFG->filter_poodll_audiosplash, 
+		"poodll_videosplash"=> $CFG->filter_poodll_videosplash, 
+		"jscontrols"=> $jscontrols,
+		"height"=> $height,
+		"defaultcontrolsheight"=> $defaultcontrolsheight,
+		"playertype"=>$playertype,
+		"playlisturl"=>$playlisturlstring,
+		"controls"=>$controls,
+		"ipad"=>false,
+		"playlist"=>false,
+		"loop"=>false
+		);
+		
+	//setup our JS call
+	$PAGE->requires->js_init_call('M.filter_poodll.loadflowplayer', array($opts),true);
+
+	
+	
+	//return the code
+	return $retcode;
+}
+
+
+
+
+function XXfetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=false, $playlisturlstring ="",$loop='false'){
+
+	global $CFG, $PAGE, $FPLAYERJSLOADED;
+	
+	$playerid = "flowplayer_" . rand(100000, 999999);
+	$playerpath = $CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.10.swf";
+	$playerclass = "flowplayer_poodll";
+	
+	
+	$jscontrolsid = "flowplayer_js_" . rand(100000, 999999); 
+	
+	$defaultcontrolsheight = $CFG->filter_poodll_audioheight;
+	
+	//usually we displayhtml5 controls depending on config prefs
+	//but for lists, so if we are mobile we use js, if not we use flash
+	if($playertype=='audiolist' || $playertype=='videolist') {
+		if($ismobile){
+			$jscontrols= true;
+		}else{
+			$jscontrols=false;
+		}
+	}else{
+		$jscontrols= ($CFG->filter_poodll_html5controls == 'js') && $ismobile;
+	}
+
+	//This is used in styles.css in poodll filter folder, so it needs to be hard coded
+	$jscontrolsclass = "fpjscontrols";
+
+	//init our return code
+	$retcode = "";
+	
+		
+	//added the global and conditional inclusion here because sometimes won't get the JS loaded in the header
+	//it is a problem because depending on mod, and user role, head code may or may not be loaded (eg page as admin ok, page as student no no
+	//previously spitting this out multi times, caused clicking on players to cause them to reload and autostart rather than pause.
+	//but now we seem to need one script per player if not in head. So i commented setting global flag go figure Justin 20120817
+	
+	//this is now a problem in database area too! needs one in head. Multi js as student role, messes up
+	if(!$FPLAYERJSLOADED){
+		$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'></script>";
+		//$FPLAYERJSLOADED=true;
+	}
+
+	//this conditional including of JS is actually bad, we should do this the same way as the flowplayer-3.2.9.mins.ja
+	//by adding it to head. And then weirding around with the GLOBAL Justin 20120704
+	if($ismobile){
+		$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.ipad-3.2.8.min.js'></script>";
+	}
+	
+	//If we are using JS controls
+	if($jscontrols){
+		$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.controls-3.2.8.min.js'></script>";
+	}
+	
+	//put together the a link that will be replaced by a player
+	$retcode .= "<a href='" . $path . "'
+					style='display:block;width:" . $width. "px;height:" . $height . "px;'
+					id='" . $playerid . "' class='" . $playerclass . "' >
+					" . $splash . "
+				</a>";
+				
+	//put together the div that will be replaced by the JS controls if necessary
+	if($jscontrols){
+		$retcode .= "<div id='" . $jscontrolsid . "' class='" . $jscontrolsclass . "'></div>";
 	}
 	
 	//styling for our flowplayer controls. very slight PoodLL branding going on here.
@@ -2770,7 +3024,7 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 			if(strlen($path)>4){
 				$ext = substr($path,-4);
 				if($ext==".mp3" || $ext==".MP3"){
-					$providerstring = ", provider: \"audio\"";			
+					$providerstring = ", provider: 'audio'";			
 				}
 			}
 						
@@ -2798,7 +3052,7 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 			
 			//without looking inside the playlist we don't know if the audios are flv or mp3.
 			//here we assume that audio playlists are mp3. If not we need to remove the provider element
-			$clip = "{ autoPlay: true, provider: \"audio\" }";
+			$clip = "{ autoPlay: true, provider: 'audio' }";
 			$splash = "";
 			break;
 		
@@ -2844,22 +3098,9 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 		$playlisturlstring = " null ";
 	}
 	
-
-	//put together the a link that will be replaced by a player
-	$retcode .= "<a href='" . $path . "'
-					style='display:block;width:" . $width. "px;height:" . $height . "px;'
-					id='" . $playerid . "' class='" . $playerclass . "' >
-					" . $splash . "
-				</a>";
-				
-	//put together the div that will be replaced by the JS controls
-	if($jscontrols){
-		$retcode .= "<div id='" . $jscontrolsid . "' class='" . $jscontrolsclass . "'></div>";
-	}
 	
 	//Add the script that will do the div replacing. Most of the important stuff is in here.
-	$retcode .= "<script language='JavaScript'>
-					flowplayer('" . $playerid . "', '" . $CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.10.swf',";
+//	$retcode .= "<script language='JavaScript'>	flowplayer('" . $playerid . "', '" . $playerpath . "',";
 	
 	$fpconfig ="
 						{
@@ -2876,9 +3117,57 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 	
 	
 	
-	$retcode .= $fpconfig;
+	//$retcode .= $fpconfig;
+	
 	
 	//close off the javascript depending on the additional flowplayer components we need to incorp.
+	$controls="";
+	$ipad=false;
+	$playlist=false;
+	$loop=false;
+	
+	if($ismobile){
+		if (($playertype=="audiolist" || $playertype=="videolist") && $jscontrols){
+			$controls =  $jscontrolsid ;
+			$ipad=true;
+			$playlist = true;
+			$loop=true;
+			//$retcode .= ").controls(\"" . $jscontrolsid ."\").ipad().playlist(\"div.poodllplaylist\", {loop:true});</script>";
+		} else if ($playertype=="audiolist" || $playertype=="videolist"){
+			$ipad=true;
+			$playlist=true;
+			$loop=true;
+			//$retcode .= ").ipad().playlist(\"div.poodllplaylist\", {loop:true});</script>";
+		}else if($jscontrols){
+			$controls=$jscontrolsid ;
+			$ipad=true;
+			//$retcode .= ").controls(\"" . $jscontrolsid ."\").ipad();</script>";
+		}else{
+			$ipad=true;
+			//$retcode .= ").ipad();</script>";
+		}
+	}else{
+		if (($playertype=="audiolist" || $playertype=="videolist") && $jscontrols){
+			$controls =  $jscontrolsid ;
+			$playlist=true;
+			$loop=true;
+			//$retcode .= ").controls(\"" . $jscontrolsid ."\").playlist(\"div.poodllplaylist\", {loop:true});</script>";
+		} else if ($playertype=="audiolist" || $playertype=="videolist"){
+			$playlist=true;
+			$loop=true;
+			//$retcode .= ").playlist(\"div.poodllplaylist\", {loop:" . $loop . "});</script>";
+		}else if($jscontrols){
+			$controls =  $jscontrolsid ;
+			//$retcode .= ").controls(\"" . $jscontrolsid ."\");</script>";
+		}else{
+			//$retcode .= ");</script>";
+		}
+	}
+	//$fpconfig="";
+	//$PAGE->requires->yui2_lib('json');
+	$PAGE->requires->js_init_call('M.filter_poodll.loadflowplayer', array($playerid, $playerpath,$fpconfig,$controls,$ipad,$playlist,$loop),true);
+	$retcode .= $fpconfig;
+	/*
 	if($ismobile){
 		if (($playertype=="audiolist" || $playertype=="videolist") && $jscontrols){
 			$retcode .= ").controls(\"" . $jscontrolsid ."\").ipad().playlist(\"div.poodllplaylist\", {loop:true});</script>";
@@ -2900,7 +3189,7 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 			$retcode .= ");</script>";
 		}
 	}
-	
+	*/
 	
 	//js init call, tried any number of combinations, but couldn't get it to work J 20120604
 	/*
