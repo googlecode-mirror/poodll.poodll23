@@ -50,8 +50,8 @@ if(true){
 	//so we need to set a flag to tell widgets to load it, but just once, hence the globals Justin 20120704
 	if(!$PAGE->requires->is_head_done()){
 	//if(!isset($FPLAYERJSLOADED) || !$FPLAYERJSLOADED){
-	//if(true){
-		if(shouldLoadFlowPlayerJS()){
+		if(false){
+		//if(shouldLoadFlowPlayerJS()){
 			$PAGE->requires->js(new moodle_url($CFG->httpswwwroot .'/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'),true);
 			$FPLAYERJSLOADED=true;
 		}
@@ -2753,22 +2753,27 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 	//but now we seem to need one script per player if not in head. So i commented setting global flag go figure Justin 20120817
 	
 	//this is now a problem in database area too! needs one in head. Multi js as student role, messes up
+	/*
 	if(!$FPLAYERJSLOADED){
 		$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'></script>";
 		//$FPLAYERJSLOADED=true;
 	}
+	*/
 
 	//this conditional including of JS is actually bad, we should do this the same way as the flowplayer-3.2.9.mins.ja
 	//by adding it to head. And then weirding around with the GLOBAL Justin 20120704
+	/*
 	if($ismobile){
 		$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.ipad-3.2.8.min.js'></script>";
 	}
+	*/
 	
 	//If we are using JS controls
+	/*
 	if($jscontrols){
 		$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.controls-3.2.8.min.js'></script>";
 	}
-	
+	*/
 	
 	//the params are different depending on the playertype
 	//we need to specify provider for audio if the clips are not MP3 or mp3
@@ -2785,8 +2790,8 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 			break;
 		
 		case "audiolist":
-			$retcode .= "<script src=\"http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js\"></script>";
-			$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.playlist-3.2.8.min.js'></script>";
+			//$retcode .= "<script src=\"http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js\"></script>";
+			//$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.playlist-3.2.8.min.js'></script>";
 			$splash = "";
 			break;
 		
@@ -2807,8 +2812,8 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 			break;
 		
 		case "videolist":
-			$retcode .= "<script src=\"http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js\"></script>";
-			$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.playlist-3.2.8.min.js'></script>";
+			//$retcode .= "<script src=\"http://cdn.jquerytools.org/1.2.7/full/jquery.tools.min.js\"></script>";
+			//$retcode .= "<script src='" .$CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.playlist-3.2.8.min.js'></script>";
 			$splash ="";
 			break;
 	
@@ -2879,6 +2884,16 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 		}
 	}
 
+	
+	
+	//Load JS dependancies
+	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'));
+	//these are for the list players, but i wonder if list players from flowplayer re too much hassle ...
+	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flowplayer/jquery.tools.min.js'));
+	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flowplayer/flowplayer.playlist-3.2.8.min.js'));
+	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flowplayer/flowplayer.ipad-3.2.8.min.js'));
+	
+	
 	//configure our options array
 	$opts = array(
 		"path"=> $path,
@@ -2892,17 +2907,17 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 		"playertype"=>$playertype,
 		"playlisturl"=>$playlisturlstring,
 		"controls"=>$controls,
-		"ipad"=>false,
-		"playlist"=>false,
-		"loop"=>false
+		"ipad"=>$ipad,
+		"playlist"=>$playlist,
+		"loop"=>($loop ? 'true' : 'false')
 		);
 		
 	//setup our JS call
-	$PAGE->requires->js_init_call('M.filter_poodll.loadflowplayer', array($opts),true);
+	$PAGE->requires->js_init_call('M.filter_poodll.loadflowplayer', array($opts),false);
 
 	
 	
-	//return the code
+	//return the html that the Flowplayer JS will swap out
 	return $retcode;
 }
 
