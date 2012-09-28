@@ -46,7 +46,7 @@ theconfig = { plugins:
                                                 opacity: 1.0 },
                                        
                                 audio:
-                                        { url: 'http://m23.poodll.com/filter/poodll/flowplayer/flowplayer.audio-3.2.9.swf' }
+                                        { url: opts['audiocontrolsurl'] }
                                 },
                 playlist: opts['playlisturl'] ,
                 clip:
