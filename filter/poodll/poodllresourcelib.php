@@ -2918,7 +2918,8 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 		"playlist"=>$playlist,
 		"loop"=>($loop ? 'true' : 'false'),
 		"embedtype"=>$embedtype,
-		"bgcolor"=> $CFG->filter_poodll_fp_bgcolor
+		"bgcolor"=> $CFG->filter_poodll_fp_bgcolor,
+		"audiocontrolsurl" => . $CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.audio-3.2.9.swf" 
 		);
 		
 	//setup our JS call
