@@ -19,7 +19,7 @@ theconfig = { plugins:
                                                 height: 40,
                                                 autoHide: false,
                                                 buttonColor: '#ffffff',
-                                                backgroundColor: '#0a2bb5',
+                                                backgroundColor: opts['bgcolor'],
                                                 disabledWidgetColor: '#555555',
                                                 bufferGradient: 'none',
                                                 timeSeparator: ' ',
@@ -52,6 +52,8 @@ theconfig = { plugins:
                 clip:
                         { autoPlay: true }
         } ;
+		
+	var splash=false;
 
 	//the params are different depending on the playertype
 	//we need to specify provider for audio if the clips are not MP3 or mp3
@@ -81,6 +83,7 @@ theconfig = { plugins:
 			//best to have a splash screen to prevent browser hangs on many flashplayers in a forum etc
 			if(opts['poodll_audiosplash']){
 				theconfig.clip.autoPlay=true;
+				splash=true;
 			}else{
 				theconfig.clip.autoPlay=false;
 			}
@@ -122,6 +125,7 @@ theconfig = { plugins:
 			//best to have a splash screen to prevent browser hangs on many flashplayers in a forum etc
 			if(opts['poodll_videosplash']){
 				theconfig.clip.autoPlay=true;
+				splash=true;
 			}else{
 				theconfig.clip.autoPlay=false;
 			}
@@ -140,17 +144,75 @@ theconfig = { plugins:
 	
 	}
 	
-	/* output the flowplayer */	
-	$fp = flowplayer(opts['playerid'],opts['playerpath'],theconfig);
+	//should there be a problem with standard embedding, we can try this simpler
+	//way
+	if(opts['embedtype']=='flashembed'){
+       theconfig.clip.url= opts['path'];
+		//we should not have to specify this, but we do ...?
 	
-	//output any other bits and pieces required
-	if(opts['controls']!="0"){$fp = $fp.controls(opts['controls']);}
-	if(opts['ipad']){$fp=$fp.ipad();}
-	if(opts['playlist']){$fp=$fp.playlist("div.poodllplaylist", {loop: opts["loop"]});}
+		if(splash){
+			document.getElementById(opts['playerid']).onclick = function() {
+				flashembed(opts['playerid'], opts['playerpath'], {config: theconfig});
+			}
+		}else{
+			flashembed(opts['playerid'], opts['playerpath'], {config: theconfig});
+		}
+		//console.log("flashembed embedded");
+	
+	//embed via swf object
+	}else if(opts['embedtype']=='swfobject'){
 
-	//console.log(theconfig);
+       //we should not have to specify this, but we do ...?
+       theconfig.clip.url= opts['path'];
+       
+	   if(splash){
+			// get flash container and assign click handler for it
+			document.getElementById(opts['playerid']).onclick = function() {
+				swfobject.embedSWF(opts['playerpath'],
+						opts['playerid'], opts['width'], 
+						opts['height'] , 
+						"9.0.0", 
+						null, 
+						{config: JSON.stringify(theconfig)}
+					);
+			}
+		}else{
+			swfobject.embedSWF(opts['playerpath'],
+    				opts['playerid'], opts['width'], 
+    				opts['height'] , 
+    				"9.0.0", 
+    				null, 
+    				{config: JSON.stringify(theconfig)}
+    			);
+		}
+    	//console.log(JSON.stringify(theconfig));
+    	//console.log("swfobject embedded");
+    	
+    	
+    	
+    	
+    	
+    	
+	
+	//usually we will try this, though.
+	}else{
+	
+		/* output the flowplayer */	
+		$fp = flowplayer(opts['playerid'],opts['playerpath'],theconfig);
+		
+		//output any other bits and pieces required
+		if(opts['controls']!="0"){$fp = $fp.controls(opts['controls']);}
+		if(opts['ipad']){$fp=$fp.ipad();}
+		if(opts['playlist']){$fp=$fp.playlist("div.poodllplaylist", {loop: opts["loop"]});}
+	
+	}
+
+	//for debugging
+//	console.log(theconfig);
 
 	
 }
+
+
 
 

@@ -16,6 +16,7 @@ $string['filter_poodll_whiteboard_heading'] = 'Whiteboard Settings';
 $string['filter_poodll_legacy_heading'] = 'PoodLL Legacy Settings';
 $string['filter_poodll_playertypes_heading'] = 'Default Player Types';
 $string['filter_poodll_intercept_heading'] = 'Filetypes PoodLL Handles by Default';
+$string['filter_poodll_flowplayer_heading'] = 'Flowplayer Settings'; 
 
      
 $string['defaultplayer'] = 'Default A/V Player';
@@ -102,5 +103,9 @@ $string['micecho'] = 'Mic. Echo';
 $string['micloopback'] = 'Mic. Loopback';
 $string['audiotranscode'] = 'Auto Conv. to MP3';
 $string['audiotranscodedetails'] = 'Automatically convert recorded audio file to MP3 format before copying back into Moodle. Only use this when using server tokyo.poodll.com.';
+
+//fpembedtype
+$string['fpembedtype'] = 'Flowplayer Embed Method';
+$string['fp_bgcolor'] = 'Flowplayer Color';
 
 ?>

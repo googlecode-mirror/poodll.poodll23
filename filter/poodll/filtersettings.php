@@ -32,7 +32,6 @@ $items[] = new admin_setting_configcheckbox('filter_poodll_handlemp3', get_strin
 $items[] = new admin_setting_heading('filter_poodll_audioplayer_settings', get_string('filter_poodll_audioplayer_heading', 'filter_poodll'), '');
 $items[] = new admin_setting_configtext('filter_poodll_audiowidth', get_string('audiowidth', 'filter_poodll'), '', '320', PARAM_INT);
 $items[] = new admin_setting_configtext('filter_poodll_audioheight', get_string('audioheight', 'filter_poodll'), '', '40', PARAM_INT);
-$items[] = new admin_setting_configcheckbox('filter_poodll_audiosplash', get_string('audiosplash', 'filter_poodll'), get_string('audiosplashdetails', 'filter_poodll'), 1);
 $items[] = new admin_setting_configtext('filter_poodll_miniplayerwidth', get_string('miniplayerwidth', 'filter_poodll'), '', '32', PARAM_INT);
 $items[] = new admin_setting_configtext('filter_poodll_wordplayerfontsize', get_string('wordplayerfontsize', 'filter_poodll'), '', '24', PARAM_INT);
 
@@ -50,9 +49,16 @@ $items[] = new admin_setting_configcheckbox('filter_poodll_audiotranscode', get_
 $items[] = new admin_setting_heading('filter_poodll_videoplayer_setting', get_string('filter_poodll_videoplayer_heading', 'filter_poodll'), '');
 $items[] = new admin_setting_configtext('filter_poodll_videowidth', get_string('videowidth', 'filter_poodll'), '', '480', PARAM_INT);
 $items[] = new admin_setting_configtext('filter_poodll_videoheight', get_string('videoheight', 'filter_poodll'), '', '360', PARAM_INT);
+
+
+//flow player settings.
+$items[] = new admin_setting_heading('filter_poodll_flowplayer_setting', get_string('filter_poodll_flowplayer_heading', 'filter_poodll'), '');
+$items[] = new admin_setting_configcheckbox('filter_poodll_audiosplash', get_string('audiosplash', 'filter_poodll'), get_string('audiosplashdetails', 'filter_poodll'), 1);
 $items[] = new admin_setting_configcheckbox('filter_poodll_videosplash', get_string('videosplash', 'filter_poodll'), get_string('videosplashdetails', 'filter_poodll'), 1);
 $items[] = new admin_setting_configcheckbox('filter_poodll_thumbnailsplash', get_string('thumbnailsplash', 'filter_poodll'), get_string('thumbnailsplashdetails', 'filter_poodll'), 1);
-
+$embedoptions = array('swfobject' => 'SWF Object', 'flowplayer' => 'Flowplayer JS', 'flashembed' => 'Flashembed JS');
+$items[] = new admin_setting_configselect('filter_poodll_fp_embedtype', get_string('fpembedtype', 'filter_poodll'), '', 'swfobject', $embedoptions);
+$items[] = new admin_setting_configtext('filter_poodll_fp_bgcolor', get_string('fp_bgcolor', 'filter_poodll'), '', '#0a2bb5');
 
 //video capture settings.
 $items[] = new admin_setting_heading('filter_poodll_camera_settings', get_string('filter_poodll_camera_heading', 'filter_poodll'), '');
@@ -63,6 +69,7 @@ $items[] = new admin_setting_configtext('filter_poodll_capturefps', get_string('
 $items[] = new admin_setting_configtext('filter_poodll_bandwidth', get_string('bandwidth', 'filter_poodll'), '', '0', PARAM_INT);
 $items[] = new admin_setting_configtext('filter_poodll_picqual', get_string('picqual', 'filter_poodll'), '', '5', PARAM_INT);
 $items[] = new admin_setting_configcheckbox('filter_poodll_videotranscode', get_string('videotranscode', 'filter_poodll'), get_string('videotranscodedetails', 'filter_poodll'), 0);
+
 
 //PoodLL Whiteboard
 $items[] = new admin_setting_heading('filter_poodll_whiteboard_setting', get_string('filter_poodll_whiteboard_heading', 'filter_poodll'), '');
