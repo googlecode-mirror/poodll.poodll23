@@ -1390,6 +1390,7 @@ $params = array();
 		//$params['echosupression'] = $micecho;
 		//$params['silencelevel'] = $micsilence;
 		$params['capturefps'] = $capturefps;
+		$params['capturedevice'] = $capturedevice;
 		$params['captureheight'] = $captureheight;
 		$params['picqual'] = $picqual;
 		$params['bandwidth'] = $bandwidth;
@@ -2966,8 +2967,8 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 		"path"=> $path,
 		"playerid"=> $playerid, 
 		"playerpath"=> $playerpath, 
-		"poodll_audiosplash"=> $CFG->filter_poodll_audiosplash, 
-		"poodll_videosplash"=> $CFG->filter_poodll_videosplash, 
+		"poodll_audiosplash"=> ($CFG->filter_poodll_audiosplash==1), 
+		"poodll_videosplash"=> ($CFG->filter_poodll_videosplash==1), 
 		"jscontrols"=> $jscontrols,
 		"height"=> $height,
 		"width"=> $width,

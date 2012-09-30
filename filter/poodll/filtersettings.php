@@ -100,8 +100,8 @@ $items[] = new admin_setting_configtext('filter_poodll_newpairwidth', get_string
 $items[] = new admin_setting_configtext('filter_poodll_newpairheight', get_string('newpairheight', 'filter_poodll'), '', '480', PARAM_INT);
 
 //screencast
-$items[] = new admin_setting_configtext('filter_poodll_showwidth', get_string('showwidth', 'filter_poodll'), '', '750', PARAM_INT);
-$items[] = new admin_setting_configtext('filter_poodll_showheight', get_string('showheight', 'filter_poodll'), '', '480', PARAM_INT);
+$items[] = new admin_setting_configtext('filter_poodll_showwidth', get_string('showwidth', 'filter_poodll'), '', '322', PARAM_INT);
+$items[] = new admin_setting_configtext('filter_poodll_showheight', get_string('showheight', 'filter_poodll'), '', '242', PARAM_INT);
 
 //$items[] = new admin_setting_configcheckbox('filter_poodll_forum_recording', get_string('forum_recording', 'filter_poodll'), '', 0);
 //$items[] = new admin_setting_configcheckbox('filter_poodll_forum_audio', get_string('forum_audio', 'filter_poodll'), '', 1);
