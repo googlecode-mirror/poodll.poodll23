@@ -23,47 +23,37 @@ define('MR_TYPETALKBACK',2);
 global $PAGE, $FPLAYERJSLOADED, $EMBEDJSLOADED;
 
 //Establish if PoodLL filter is enabled
+/*
 $poodllenabled=false;
 $context = $PAGE->context;
 $filters = filter_get_active_in_context($context);
 if (array_key_exists("filter_poodll",$filters)){
 	$poodllenabled =true;
 }
+*/
 
-//This file may get loaded even if PoodLL filter is disabled, because so much of the other poodll
-//requires it.	But we don't want all the JS loading unless it is really necessary
-//if($poodllenabled){
-if(true){
 
 	//these are required by poodll filter
 	require_once($CFG->dirroot . '/filter/poodll/poodllinit.php');
 	require_once($CFG->dirroot . '/filter/poodll/Browser.php');
 	
-	//I have tried to remove calls to these libraries inline, though I did not change stuff we 
-	//dont use in poodll 2 yet(e.g pairwork). I will test those when I enable them, Justin 20120724
 	//$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/swfobject.js'));
 	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/swfobject_22.js'));
 	$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/javascript.php'));
 	
 	
-	//we need this for flowplayer and embedding it only works in head (hence the 'true' flag)
-	//BUT in quizzes or poodll repository , with only student role, header is output before this point for some reason
-	//so we need to set a flag to tell widgets to load it, but just once, hence the globals Justin 20120704
+	//we need this for  embedding widgets it only works in head (hence the 'true' flag)
+	//adn we set theglobal to try to ensure it is only loaded once. Later we could try to optimize this and call it from footer
 	if(!$PAGE->requires->is_head_done()){
-	//if(!isset($FPLAYERJSLOADED) || !$FPLAYERJSLOADED){
-		if(false){
-		//if(shouldLoadFlowPlayerJS()){
-			$PAGE->requires->js(new moodle_url($CFG->httpswwwroot .'/filter/poodll/flowplayer/flowplayer-3.2.9.min.js'),true);
-			$FPLAYERJSLOADED=true;
-		}
+
 		$PAGE->requires->js(new moodle_url($CFG->httpswwwroot . '/filter/poodll/flash/embed-compressed.js'),true);
-		
 		$EMBEDJSLOADED=true;
+		
 	}else{
-		$FPLAYERJSLOADED=false;
+		//$FPLAYERJSLOADED=false;
 		$EMBEDJSLOADED=false;
 	}
-}//end of if PoodLL enabled
+
 
 //added for moodle 2
 require_once($CFG->libdir . '/filelib.php');
@@ -1234,7 +1224,8 @@ global $CFG,$COURSE;
 		$fetchdataurl=$cardset;
 	}elseif(strlen($cardset) > 4 && substr($cardset,-4)==".xml"){
 		//get a manually made playlist
-		$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $COURSE->id . "/" . $cardset;
+		//$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $COURSE->id . "/" . $cardset;
+		$fetchdataurl = $CFG->wwwroot . "/" . $CFG->filter_poodll_datadir  . "/" .  $cardset ;
 	}else{
 		//get the url to the automated medialist maker
 		$fetchdataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?datatype=poodllflashcards&courseid=' . $COURSE->id 
@@ -1736,7 +1727,7 @@ global  $CFG, $COURSE;
 
 }
 
-//Audio playltest player with defaults, for use with directories of audio files
+//Audio playlisttest player with defaults, for use with directories of audio files
 function fetchAudioTestPlayer($runtime, $playlist,$protocol="", $width="400",$height="150",$filearea="content"){
 global $CFG, $USER, $COURSE;
 
@@ -1746,10 +1737,11 @@ $moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current modu
 $flvserver = $CFG->poodll_media_server;
 
 
+
 //determine which of, automated or manual playlists to use
 if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
 	//get a manually made playlist
-	$fetchdataurl= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $playlist;
+	$fetchdataurl = $CFG->wwwroot . "/" . $CFG->filter_poodll_datadir  . "/" . $playlist ;
 }else{
 	//get the url to the automated medialist maker
 	$fetchdataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?datatype=poodllaudiolist'
