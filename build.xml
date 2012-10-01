@@ -10,17 +10,29 @@
 
 	<target name="init"  description="Initialize environment">
 		<property name="path.dist" value="dist"/>
+		<property name="dist.datafield" value="poodlldatafield"/>
 		<property name="dist.filter" value="poodllfilter"/>
 		<property name="dist.filterxjs" value="poodllfilterxjs"/>
 		<property name="dist.repo" value="poodllrepository"/>
 		<property name="dist.assig" value="poodllonline"/>
 		<property name="dist.question" value="poodllrecording"/>
 		<property name="dist.all" value="poodllall"/>
-		<property name="dist.version" value="2012082900"/>
+		<property name="dist.version" value="2012100100"/>
 	</target>
 	
 	<!-- Make All PoodLL package for this version -->
-	<target name="makeall" depends="init,zip-filter,zip-filter-xjs,zip-repo,zip-assig,zip-question,zip-all" description="Creates distros for PoodLL 2 Online Question" />
+	<target name="makeall" depends="init,zip-filter,zip-filter-xjs,zip-repo,zip-assig,zip-question,zip-datafield,zip-all" description="Creates distros for PoodLL 2 Online Question" />
+	
+	<!-- The PoodLL Database Activity Field package -->
+	<target name="zip-datafield" depends="init" description="Creates distro for PoodLL 2 Database activity field">
+		<delete>
+	            <fileset dir="${path.dist}" includes="${dist.datafield}_${dist.version}.zip"/>
+	    </delete>
+		<zip destfile="${path.dist}/${dist.datafield}_${dist.version}.zip" whenempty="fail">
+			<zipfileset dir="mod/data/field/poodll" prefix="poodll"/>
+			<zipfileset dir="readmes" prefix="poodll" includes="README.${dist.datafield}.txt" />
+		</zip>
+	</target>
 	
 	<!-- The PoodLL Filter (complete flash AND JS) package -->
 	<target name="zip-filter" depends="init" description="Creates distro for PoodLL 2 filter">
