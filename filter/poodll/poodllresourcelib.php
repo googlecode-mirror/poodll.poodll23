@@ -2126,7 +2126,7 @@ $ismobile=isMobile();
 				$poster=$splashurl;
 			}else  if($CFG->filter_poodll_videosplash){
 				if($CFG->filter_poodll_thumbnailsplash){
-					$splashurl = fetchVideoSplash($path);
+					$splashurl = fetchVideoSplash($rtmp_file);
 				}else{
 					$splashurl=false;
 				}
