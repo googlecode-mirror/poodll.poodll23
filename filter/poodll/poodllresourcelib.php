@@ -2016,7 +2016,7 @@ $useplayer=$CFG->filter_poodll_defaultplayer;
 
 
 //Video player with defaults, for use with PoodLL filter
-function fetchSimpleVideoPlayer($runtime, $rtmp_file, $width="400",$height="380",$protocol="",$embed=false,$permitfullscreen=false, $embedstring="Play"){
+function fetchSimpleVideoPlayer($runtime, $rtmp_file, $width="400",$height="380",$protocol="",$embed=false,$permitfullscreen=false, $embedstring="Play", $splashurl=""){
 global $CFG, $USER, $COURSE;
 
 //Set our servername .
@@ -2120,8 +2120,20 @@ $ismobile=isMobile();
 		if($runtime=='js' && ($CFG->filter_poodll_html5controls=='native')){
 				$returnString="";
 
+			//get a poster image if it is appropriate
+			$poster = "";
+			if ($splashurl!=""){
+				$poster=$splashurl;
+			}else  if($CFG->filter_poodll_videosplash){
+				if($CFG->filter_poodll_thumbnailsplash){
+					$splashurl = fetchVideoSplash($path);
+				}else{
+					$splashurl=false;
+				}
+				if(!$splashurl){$splashurl = $CFG->wwwroot . "/filter/poodll/flowplayer/videosplash.jpg";}
+				$poster=$splashurl;
+			}
 			
-			$poster="";//To do add poster code, once we have thought it all through a bit better
 			$returnString .="<video controls poster='" . $poster . "' width='" . $width . "' height='" . $height . "'>
 								<source type='video/mp4' src='" .$rtmp_file . "'/>
 							</video>";
@@ -2150,7 +2162,7 @@ $ismobile=isMobile();
 				//Flowplayer
 				if($useplayer=="fp" || $CFG->filter_poodll_html5controls=="js"){
 					
-					$returnString= fetchFlowPlayerCode($width,$height,$rtmp_file,"video",$ismobile);
+					$returnString= fetchFlowPlayerCode($width,$height,$rtmp_file,"video",$ismobile,"",false,$splashurl);
 				
 				//JW player
 				} else if($useplayer=="jw"){
@@ -2768,7 +2780,7 @@ function isMobile(){
 }
 
 
-function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=false, $playlisturlstring ="",$loop='false'){
+function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=false, $playlisturlstring ="",$loop='false',$splashurl=''){
 
 	global $CFG, $PAGE, $FPLAYERJSLOADED;
 	
@@ -2827,15 +2839,19 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 		
 		case "video":
 			//If we have a splash screen show it and enable autoplay(user only clicks once)
-			//best to have a splash screen to prevent browser hangs on many flashplayers in a forum etc
-			if($CFG->filter_poodll_videosplash){
+			//best to have a splash screen to prevent browser hangs on many flowplayers in a forum etc
+			if($splashurl !=''){
+				$splash = "<img src='" . $splashurl . "' alt='click to play video' width='" . $width . "' height='" . $height . "'/>";
+				
+			}else if($CFG->filter_poodll_videosplash){
 				if($CFG->filter_poodll_thumbnailsplash){
-					$splashpath = fetchVideoSplash($path);
+					$splashurl = fetchVideoSplash($path);
 				}else{
-					$splashpath=false;
+					$splashurl=false;
 				}
-				if(!$splashpath){$splashpath = $CFG->wwwroot . "/filter/poodll/flowplayer/videosplash.jpg";}
-				$splash = "<img src='" . $splashpath . "' alt='click to play video' width='" . $width . "' height='" . $height . "'/>";
+				if(!$splashurl){$splashurl = $CFG->wwwroot . "/filter/poodll/flowplayer/videosplash.jpg";}
+				$splash = "<img src='" . $splashurl . "' alt='click to play video' width='" . $width . "' height='" . $height . "'/>";
+			
 			}else{
 				$splash="";
 			}
