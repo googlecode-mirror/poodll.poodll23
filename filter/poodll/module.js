@@ -103,7 +103,11 @@ theconfig = { plugins:
 			
 			//without looking inside the playlist we don't know if the audios are flv or mp3.
 			//here we assume that audio playlists are mp3. If not we need to remove the provider element
-			theconfig.clip.autoPlay=true;
+			if (opts['loop']=='true'){
+				theconfig.clip.autoPlay=true;
+			}else{
+				theconfig.clip.autoPlay=false;
+			}
 			theconfig.clip.provider='audio';
 			break;
 		

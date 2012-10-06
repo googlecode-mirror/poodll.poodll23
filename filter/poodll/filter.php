@@ -405,7 +405,8 @@ function filter_poodll_callback(array $link){
 			!empty($filterprops['protocol']) ? $filterprops['protocol'] : 'rtmp',
 			!empty($filterprops['embed']) ? $filterprops['embed']=='true' : false,
 			!empty($filterprops['permitfullscreen']) ? $filterprops['permitfullscreen'] : false ,
-			!empty($filterprops['embedstring']) ? $filterprops['embedstring'] : 'Play');
+			!empty($filterprops['embedstring']) ? $filterprops['embedstring'] : 'Play',
+			!empty($filterprops['splashurl']) ? $filterprops['splashurl'] : '') ;
 			break;
 		
 		case 'wmvvideo': 
