@@ -153,7 +153,10 @@ function filter_poodll_callback(array $link){
 				!empty($filterprops['width']) ? $filterprops['width'] : $CFG->filter_poodll_audiowidth,
 				!empty($filterprops['height']) ? $filterprops['height'] :  $CFG->filter_poodll_audioheight,
 				!empty($filterprops['embed']) ? $filterprops['embed']=='true' : false,
-				!empty($filterprops['embedstring']) ? $filterprops['embedstring'] : 'Play');
+				!empty($filterprops['embedstring']) ? $filterprops['embedstring'] : 'Play',
+				false,
+				!empty($filterprops['usepoodlldata']) ? $filterprops['usepoodlldata']=='true' : false,
+				!empty($filterprops['splashurl']) ? $filterprops['splashurl'] : '') ;
 			break;
 			
 		case 'audiolist':
