@@ -1854,7 +1854,9 @@ $moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current modu
 }
 
 //Audio player with defaults, for use with PoodLL filter
-function fetchSimpleAudioPlayer($runtime, $rtmp_file, $protocol="", $width="450",$height="25",$embed=false, $embedstring="Play",$permitfullscreen=false){
+function fetchSimpleAudioPlayer($runtime, $rtmp_file, $protocol="", $width="450",$height="25",
+										$embed=false, $embedstring="Play",$permitfullscreen=false,
+										$usepoodlldata=false, $splashurl=''){
 global $CFG, $USER, $COURSE;
 
 //Set our servername .
@@ -1915,6 +1917,10 @@ $useplayer=$CFG->filter_poodll_defaultplayer;
 	if($protocol=='rtmp' || $protocol=='legacy'){
 		$rtmp_file= $CFG->wwwroot . "/file.php/" .  $courseid . "/" . $rtmp_file;
         $type = 'http';
+	//if using poodlldata, take stub from base dir + poodlldatadir then add file name/path	
+	}else if($usepoodlldata){
+		$baseURL = $CFG->{'wwwroot'} . "/" . $CFG->{'filter_poodll_datadir'}  . "/" ;
+		$rtmp_file = $baseURL . $rtmp_file;
 	}
 	
 	//If we want to avoid loading many players per page, this loads the player only after a text link is clicked
@@ -1983,7 +1989,7 @@ $useplayer=$CFG->filter_poodll_defaultplayer;
 				//Flowplayer
 				if($useplayer=="fp" || $CFG->filter_poodll_html5controls=="js"){
 					
-					$returnString= fetchFlowPlayerCode($width,$height,$rtmp_file,"audio",$ismobile);
+					$returnString= fetchFlowPlayerCode($width,$height,$rtmp_file,"audio",$ismobile,"",false,$splashurl);
 				
 				//JW player
 				} else if($useplayer=="jw"){
@@ -2826,7 +2832,10 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 		case "audio":
 			//If we have a splash screen show it and enable autoplay(user only clicks once)
 			//best to have a splash screen to prevent browser hangs on many flashplayers in a forum etc
-			if($CFG->filter_poodll_audiosplash){
+			if($splashurl !=''){
+				$splash = "<img src='" . $splashurl . "' alt='click to play audio' width='" . $width . "' height='" . $height . "'/>";
+				
+			}else if($CFG->filter_poodll_audiosplash){
 				$splash = "<img src='" . $CFG->wwwroot . "/filter/poodll/flowplayer/audiosplash.jpg' alt='click to play audio' width='" . $width . "' height='" . $height . "'/>";
 			}else{
 				$splash = "";
