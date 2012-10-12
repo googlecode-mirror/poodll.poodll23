@@ -768,6 +768,11 @@ $params = array();
 function fetchMP3RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid){
 global $CFG, $USER, $COURSE;
 
+//get our HTML5 Uploader if we have a mobile device
+if(isMobile()){
+	return fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "audio");
+}
+
 //Set the microphone config params
 $micrate = $CFG->filter_poodll_micrate;
 $micgain = $CFG->filter_poodll_micgain;
@@ -834,6 +839,12 @@ global $CFG, $USER, $COURSE;
  //Set the servername 
 ///$flvserver = $CFG->poodll_media_server;
 
+//head off to HTML5 logic if mobile
+//if(true){
+if(isMobile()){
+	return fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "image");
+}
+
 //If standalone submission will always be standalone ... or will it ...
 //pair submissions could be interesting ..
 $boardname="solo";
@@ -888,6 +899,12 @@ $mode="normal";
 
 function fetchAudioRecorderForSubmission($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid){
 global $CFG, $USER, $COURSE;
+
+//get our HTML5 Uploader if we have a mobile device
+if(isMobile()){
+	return fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "audio");
+}
+
 
 //Set the servername 
 $flvserver = $CFG->poodll_media_server;
@@ -1296,6 +1313,11 @@ $params = array();
 function fetchSnapshotCameraForSubmission($updatecontrol="filename", $filename="apic.jpg", $width="350",$height="400",$contextid,$component,$filearea,$itemid){
 global $CFG, $USER, $COURSE;
 
+//get our HTML5 Uploader if we have a mobile device
+if(isMobile()){
+	return fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "image");
+}
+
 //Set the servername and a capture settings from config file
 
 $capturewidth=$CFG->filter_poodll_capturewidth;
@@ -1487,6 +1509,11 @@ $params = array();
 function fetchVideoRecorderForSubmission($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid){
 global $CFG, $USER, $COURSE;
 
+//head off to HTML5 logic if mobile
+if (isMobile()){
+	return fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "video");
+}
+
 //Set the servername and a capture settings from config file
 $flvserver = $CFG->poodll_media_server;
 $capturewidth=$CFG->filter_poodll_capturewidth;
@@ -1576,6 +1603,63 @@ $params = array();
     	return $returnString ;
 	
 
+}
+
+function fetch_HTML5RecorderForSubmission($updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid, $mediatype="image"){
+global $CFG,$PAGE;
+
+	//configure our options array for the JS Call
+	$fileliburl = $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
+	/*
+	$opts = array(
+		"updatecontrol"=> $updatecontrol,
+		"contextid"=> $contextid, 
+		"component"=> $component, 
+		"filearea"=> $filearea, 
+		"itemid"=> $itemid,
+		"fileliburl"=> $CFG->wwwroot . '/filter/poodll/poodllfilelib.php'
+		);
+		*/
+		$opts = array();
+		
+	//setup our JS call
+	$PAGE->requires->js_init_call('M.filter_poodll.loadmobileupload', array($opts),false);
+
+	//the control to put the filename of our data. The saveflvvoice is a legacy, needs to be changed
+	//check at least poodllrecordingquestion and poodll online assignment and poodll database field for it
+	if ($updatecontrol == "saveflvvoice"){
+		$savecontrol = "<input name='saveflvvoice' type='hidden' value='' id='saveflvvoice' />";
+	}else{
+		$savecontrol = "";
+	}
+
+	//depending on our media type, tell the mobile device what kind of file we want
+	switch($mediatype){
+		case "image": $mediatype="accept=\"image/*\"";break;
+		case "audio":
+		case "video": $mediatype="accept=\"video/*\"";break;
+		default: $mediatype="";
+	}
+	
+	//Output our HTML
+	$returnString="
+		<div>
+			$savecontrol
+			<input type=\"hidden\" id=\"p_updatecontrol\" value=\"$updatecontrol\" />
+			<input type=\"hidden\" id=\"p_contextid\" value=\"$contextid\" />
+			<input type=\"hidden\" id=\"p_component\" value=\"$component\" />
+			<input type=\"hidden\" id=\"p_filearea\" value=\"$filearea\" />
+			<input type=\"hidden\" id=\"p_itemid\" value=\"$itemid\" />
+			<input type=\"hidden\" id=\"p_fileliburl\" value=\"$fileliburl\" />
+			
+			<label for=\"poodllfileselect\">UploadFile:</label>
+			<input type=\"file\" id=\"poodllfileselect\" name=\"poodllfileselect[]\" $mediatype />
+		</div>
+		<div id=\"p_progress\"></div>
+		<div id=\"p_messages\"></div>
+	";
+
+	return $returnString;
 }
 
 //Audio playltest player with defaults, for use with directories of audio files
@@ -2022,13 +2106,19 @@ $useplayer=$CFG->filter_poodll_defaultplayer;
 
 
 //Video player with defaults, for use with PoodLL filter
-function fetchSimpleVideoPlayer($runtime, $rtmp_file, $width="400",$height="380",$protocol="",$embed=false,$permitfullscreen=false, $embedstring="Play", $splashurl=""){
+function fetchSimpleVideoPlayer($runtime, $rtmp_file, $width="400",$height="380",$protocol="",$embed=false,$permitfullscreen=false, $embedstring="Play", $splashurl="",$useplayer=""){
 global $CFG, $USER, $COURSE;
 
 //Set our servername .
 $flvserver = $CFG->poodll_media_server;
 $courseid= $COURSE->id;
-$useplayer=$CFG->filter_poodll_defaultplayer;
+
+//Set the playertype to use
+if($protocol=="yutu"){
+	$useplayer="pd";
+}else if($useplayer==""){
+	$useplayer=$CFG->filter_poodll_defaultplayer;
+}
 
 //determine if we are on a mobile device or not
 $ismobile=isMobile();

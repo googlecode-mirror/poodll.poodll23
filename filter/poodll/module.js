@@ -218,6 +218,177 @@ theconfig = { plugins:
 	
 }
 
+// Replace poodll_flowplayer divs with flowplayers
+M.filter_poodll.loadmobileupload = function(Y,opts) {
+	var fileselect = $id('poodllfileselect');
+	if(fileselect){
+		fileselect.addEventListener("change", FileSelectHandler, false);
+	}
+}
+
+	// file selection
+	function FileSelectHandler(e) {
+
+		// fetch FileList object
+		var files = e.target.files || e.dataTransfer.files;
+
+		// process all File objects
+		for (var i = 0, f; f = files[i]; i++) {
+			ParseFile(f);
+			//UploadFile(f);
+		}
+
+	}//end of FileSelectHandler
+	
+	// output file information
+	function ParseFile(file) {
+
+	/*
+		//output basic file info. good for debugging
+		Output(
+			"<p>File information: <strong>" + file.name +
+			"</strong> type: <strong>" + file.type +
+			"</strong> size: <strong>" + file.size +
+			"</strong> bytes</p>"
+		);
+		*/
+		
+/*
+		// display an image, nice but not necessary in ios, it does it anyway
+		if (file.type.indexOf("image") == 0) {
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				Output(
+					"<p><strong>" + file.name + ":</strong><br />" +
+					'<img src="' + e.target.result + '" /></p>'
+				);
+			}
+			reader.readAsDataURL(file);
+		}
+		
+*/		
+		
+		
+/*
+		// display text
+		if (file.type.indexOf("text") == 0) {
+			var reader = new FileReader();
+			reader.onload = function(e) {
+				Output(
+					"<p><strong>" + file.name + ":</strong></p><pre>" +
+					e.target.result.replace(/</g, "&lt;").replace(/>/g, "&gt;") +
+					"</pre>"
+				);
+			}
+			reader.readAsText(file);
+		}
+		*/
+			
+			// start upload
+			var filedata ="";
+			var reader = new FileReader();
+			//reader.onloadend = UploadFile;
+			reader.onloadend = function(e) {
+						filedata = e.target.result;
+						UploadFile(file, filedata);
+			}
+			reader.readAsDataURL(file);
+
+	}//end of ParseFile
+
+
+// output information
+	function Output(msg) {
+		var m = $id('p_messages');
+		m.innerHTML = msg + m.innerHTML;
+	}
+	
+	// getElementById
+	function $id(id) {
+		return document.getElementById(id);
+	}
+
+	// upload Media files
+	function UploadFile(file, filedata) {
+
+
+		var xhr = new XMLHttpRequest();
+		//if (xhr.upload && file.type == "image/jpeg" && file.size <= $id("MAX_FILE_SIZE").value) {
+
+		//Might need more mimetypes than this, and 3gpp maynot work
+		var ext="";
+		switch(file.type){
+			case "image/jpeg": ext = "jpg";break;
+			case "image/png": ext = "png";break;
+			case "video/quicktime": ext = "mov";break;
+			case "audio/mpeg3": ext = "mp3";break;
+			case "audio/x-mpeg-3": ext = "mp3";break;
+			case "audio/mpeg3": ext = "mp3";break;
+			case "audio/3gpp": ext = "3gpp";break;
+			case "video/mpeg3": ext = "3gpp";break;
+			case "video/mp4": ext = "mp4";break;	
+		}
+		
+		if(true){
+			// create progress bar
+			var o = $id("p_progress");
+			var progress = o.appendChild(document.createElement("p"));
+			//progress.appendChild(document.createTextNode("upload ing" ));
+
+			// progress bar
+			xhr.upload.addEventListener("progress", function(e) {
+				var pc = parseInt(100 - (e.loaded / e.total * 100));
+				progress.style.backgroundPosition = pc + "% 0";
+			}, false);
+
+			// file received/failed
+			xhr.onreadystatechange = function(e) {
+				
+				if (xhr.readyState == 4 ) {
+					progress.className = (xhr.status == 200 ? "success" : "failure");
+					if(xhr.status==200){
+						var resp = xhr.responseText;
+						var start= resp.indexOf("success<error>");
+						if (start<1){return;}
+						var end = resp.indexOf("</error>");
+						var filename= resp.substring(start+14,end);
+						//Output("gotten filename:" + filename);
+						$id($id("p_updatecontrol").value).value=filename;
+						//$id("saveflvvoice").value=filename;
+					}
+				}
+			};
+
+	
+		
+			
+		
+			var params = "datatype=uploadfile";
+			//We must URI encode the base64 filedata, because otherwise the "+" characters get turned into spaces
+			//spent hours tracking that down ...justin 20121012
+			params += "&paramone=" + encodeURIComponent(filedata);
+			params += "&paramtwo=" + ext;
+			params += "&requestid=12345";
+			params += "&contextid=" + $id("p_contextid").value;
+			params += "&component=" + $id("p_component").value;
+			params += "&filearea=" + $id("p_filearea").value;
+			params += "&itemid=" + $id("p_itemid").value;
+			
+			
+			xhr.open("POST", $id("p_fileliburl").value, true);
+			xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+			xhr.setRequestHeader("Content-length", params.length);
+			xhr.setRequestHeader("Connection", "close");
+
+			xhr.send(params);
+			
+
+		}
+
+	}//end of upload file
+
+
+
 
 
 
