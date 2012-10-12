@@ -300,7 +300,8 @@ M.filter_poodll.loadmobileupload = function(Y,opts) {
 // output information
 	function Output(msg) {
 		var m = $id('p_messages');
-		m.innerHTML = msg + m.innerHTML;
+		//m.innerHTML = msg + m.innerHTML;
+		m.innerHTML = msg;
 	}
 	
 	// getElementById
@@ -332,8 +333,14 @@ M.filter_poodll.loadmobileupload = function(Y,opts) {
 		if(true){
 			// create progress bar
 			var o = $id("p_progress");
-			var progress = o.appendChild(document.createElement("p"));
-			//progress.appendChild(document.createTextNode("upload ing" ));
+			var progress = o.firstChild;
+			if(progress==null){
+				progress = o.appendChild(document.createElement("p"));
+			}
+			//reset/set background position to 0, and label to "uploading
+			progress.className="";
+			progress.style.backgroundPosition = "100% 0";
+			Output("Uploading.");
 
 			// progress bar
 			xhr.upload.addEventListener("progress", function(e) {
@@ -353,8 +360,11 @@ M.filter_poodll.loadmobileupload = function(Y,opts) {
 						var end = resp.indexOf("</error>");
 						var filename= resp.substring(start+14,end);
 						//Output("gotten filename:" + filename);
+						Output("File uploaded successfully.");
 						$id($id("p_updatecontrol").value).value=filename;
 						//$id("saveflvvoice").value=filename;
+					}else{
+						Output("File could not be uploaded.");
 					}
 				}
 			};
