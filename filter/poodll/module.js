@@ -308,6 +308,10 @@ M.filter_poodll.loadmobileupload = function(Y,opts) {
 	function $id(id) {
 		return document.getElementById(id);
 	}
+	// getElementById
+	function $parentid(id) {
+		return parent.document.getElementById(id);
+	}
 
 	// upload Media files
 	function UploadFile(file, filedata) {
@@ -361,7 +365,9 @@ M.filter_poodll.loadmobileupload = function(Y,opts) {
 						var filename= resp.substring(start+14,end);
 						//Output("gotten filename:" + filename);
 						Output("File uploaded successfully.");
-						$id($id("p_updatecontrol").value).value=filename;
+						var upc = $id($id("p_updatecontrol").value);
+						if(!upc){upc = $parentid($id("p_updatecontrol").value);}
+						upc.value=filename;
 						//$id("saveflvvoice").value=filename;
 					}else{
 						Output("File could not be uploaded.");

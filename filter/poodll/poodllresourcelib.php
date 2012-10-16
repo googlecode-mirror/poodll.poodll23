@@ -840,7 +840,7 @@ global $CFG, $USER, $COURSE;
 ///$flvserver = $CFG->poodll_media_server;
 
 //head off to HTML5 logic if mobile
-//if(true){
+
 if(isMobile()){
 	return fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "image");
 }
@@ -1605,7 +1605,7 @@ $params = array();
 
 }
 
-function fetch_HTML5RecorderForSubmission($updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid, $mediatype="image"){
+function fetch_HTML5RecorderForSubmission($updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid, $mediatype="image",$fromrepo=false){
 global $CFG,$PAGE;
 
 	//configure our options array for the JS Call
@@ -1623,7 +1623,9 @@ global $CFG,$PAGE;
 		$opts = array();
 		
 	//setup our JS call
-	$PAGE->requires->js_init_call('M.filter_poodll.loadmobileupload', array($opts),false);
+	if(!$fromrepo){
+		$PAGE->requires->js_init_call('M.filter_poodll.loadmobileupload', array($opts),false);
+	}
 
 	//the control to put the filename of our data. The saveflvvoice is a legacy, needs to be changed
 	//check at least poodllrecordingquestion and poodll online assignment and poodll database field for it
