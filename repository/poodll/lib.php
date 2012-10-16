@@ -636,8 +636,8 @@ class repository_poodll extends repository {
      $filename = 'filename' . '_' . $this->options['recording_format'] ;
 
 	  
-	//if(isMobile()){
-   if(true){
+	if(isMobile()){
+   //if(true){
 			switch($this->options['recording_format']){
 				case self::POODLLAUDIO:
 				case self::POODLLVIDEO:
