@@ -169,7 +169,7 @@ theconfig = { plugins:
        //we should not have to specify this, but we do ...?
        theconfig.clip.url= opts['path'];
        //we declare this here so that when called from click it refers to this config, and not a later one (object referecnes ...)
-       var configstring=JSON.stringify(theconfig);
+       var configstring=Y.JSON.stringify(theconfig);
 	   if(splash){
 			// get flash container and assign click handler for it
 			document.getElementById(opts['playerid']).onclick = function() {
