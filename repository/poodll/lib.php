@@ -234,16 +234,23 @@ class repository_poodll extends repository {
 		switch($this->options['recording_format']){
 			case self::POODLLAUDIO:
 			case self::POODLLVIDEO:
-				//set up auto transcoding (mp3) or not
-				//The jsp to call is different.
-				$jsp="download.jsp";
-				if($ext ==".mp4" || $ext ==".mp3"){
-					$jsp = "convert.jsp";
-				}
+			
+				if (isMobile()){
+					$urltofile = moodle_url::make_draftfile_url("0", "/", $filename)->out(false);
+					$source=$urltofile;
+					
+				}else{
+					//set up auto transcoding (mp3) or not
+					//The jsp to call is different.
+					$jsp="download.jsp";
+					if($ext ==".mp4" || $ext ==".mp3"){
+						$jsp = "convert.jsp";
+					}
 						
-				$source="http://" . $CFG->filter_poodll_servername . 
+					$source="http://" . $CFG->filter_poodll_servername . 
 						":" . $CFG->filter_poodll_serverhttpport . "/poodll/" . $jsp. "?poodllserverid=" . 
 						$CFG->filter_poodll_serverid . "&filename=" . $filename . "&caller=" . urlencode($CFG->wwwroot);
+				}
 				break;
 			
 			//this was the download script for snapshots and direct uploads
@@ -296,7 +303,7 @@ class repository_poodll extends repository {
 					
 					}else{
 						$list[] = array(
-							'title'=> substr_replace($filename,'.audio.flv',-4),
+							'title'=> substr_replace($filename,'.audio' . $ext,-4),
 							'thumbnail'=>"{$CFG->wwwroot}/repository/poodll/pix/audionormal.jpg",
 							'thumbnail_width'=>280,
 							'thumbnail_height'=>100,
@@ -379,7 +386,43 @@ class repository_poodll extends repository {
     public function get_file($url, $filename = '') {
         global $CFG,$USER;
 		
-		//determine the player options
+		//if its mobile then we need to treat it as an upload
+		if(isMobile()){
+			//get the filename as used by our recorder
+					$recordedname = basename($url);
+					
+					//get a temporary download path
+					$path = $this->prepare_file($filename);
+
+					//fetch the file we submitted earlier
+				   $fs = get_file_storage();
+				   $context = get_context_instance(CONTEXT_USER, $USER->id);
+					$f = $fs->get_file($context->id, "user", "draft",
+                        "0", "/", $recordedname);
+				
+					//write the file out to the temporary location
+					$fhandle = fopen($path, 'w');
+					$data = $f->get_content();
+					$result= fwrite($fhandle,$data);
+
+					// Close file handler.
+					fclose($fhandle);
+					
+					//bail if we errored out
+					if ($result===false) {
+						unlink($path);
+						return null;
+					}else{
+						//clear up the original file which we no longer need
+						self::delete_tempfile_from_draft("0", "/", $recordedname); 
+					}
+				
+				//return to Moodle what it needs to know
+				return array('path'=>$path, 'url'=>$url);
+		
+		}
+		
+		//if not mobile, determine the player options
 		switch($this->options['recording_format']){
 			case self::POODLLSNAPSHOT:
 			case self::MP3AUDIO:
