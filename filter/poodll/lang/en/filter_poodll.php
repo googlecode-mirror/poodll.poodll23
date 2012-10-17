@@ -23,6 +23,7 @@ $string['defaultplayer'] = 'Default A/V Player';
 $string['html5controls'] = 'HTML5 Controls';
 $string['handleflv'] = 'Handle FLV Files';
 $string['handlemp4'] = 'Handle MP4 Files';
+$string['handlemov'] = 'Handle MOV Files';
 $string['handlemp3'] = 'Handle MP3 Files';
 
 
