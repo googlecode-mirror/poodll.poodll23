@@ -841,7 +841,8 @@ global $CFG, $USER, $COURSE;
 
 //head off to HTML5 logic if mobile
 
-if(isMobile()){
+//if(isMobile()){
+if(true){
 	return fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "image");
 }
 
@@ -1654,7 +1655,7 @@ global $CFG,$PAGE;
 			<input type=\"hidden\" id=\"p_itemid\" value=\"$itemid\" />
 			<input type=\"hidden\" id=\"p_fileliburl\" value=\"$fileliburl\" />
 			
-			<label for=\"poodllfileselect\">UploadFile:</label>
+			<label for=\"poodllfileselect\">Upload File:</label>
 			<input type=\"file\" id=\"poodllfileselect\" name=\"poodllfileselect[]\" $mediatype />
 		</div>
 		<div id=\"p_progress\"></div>
@@ -1695,6 +1696,12 @@ global  $CFG, $COURSE;
     	
 	//depending on runtime, we show a SWF or html5 player			
 	if($runtime=="js" || ($runtime=="auto" && isMobile())){
+	
+		//the $src url as it comes from assignment and questions, is urlencoded,
+		//unlikely to arrive here encoded, but lets just be safe 
+		//or html 5 playback will fail Justin 20121016
+		$src= urldecode($src);
+	
 		$returnString=  "<a onclick=\"this.firstChild.play()\"><audio src=\"$src\"></audio><img height=\"$height\" width=\"$width\" src=\"" . 
 				$imageurl . 
 				"\"/></a>";
@@ -1745,6 +1752,12 @@ global  $CFG, $COURSE;
 	
 		//depending on runtime, we show a SWF or html5 player					
 		if($runtime=="js" || ($runtime=="auto" && isMobile())){
+		
+			//the $src url as it comes from assignment and questions, is urlencoded,
+			//unlikely to arrive here encoded, but lets just be safe 
+			//or html 5 playback will fail Justin 20121016
+			$src= urldecode($src);
+		
 			$returnString=  "<a onclick=\"this.firstChild.play()\"><audio src=\"$src\"></audio>$word</a>";
 		
 		}else{
@@ -1792,6 +1805,12 @@ global  $CFG, $COURSE;
 	//currently no js implementation	
 	if(false){
 	//if($runtime=="js" || ($runtime=="auto" && isMobile())){
+	
+		//the $src url as it comes from assignment and questions, is urlencoded,
+		//unlikely to arrive here encoded, but lets just be safe 
+		//or html 5 playback will fail Justin 20121016
+		$src= urldecode($src);
+	
 		$returnString=  "<a onclick=\"this.firstChild.play()\"><audio src=\"$src\"></audio><img height=\"$height\" width=\"$width\" src=\"" . 
 				$imageurl . 
 				"\"/></a>";
@@ -2042,6 +2061,11 @@ $useplayer=$CFG->filter_poodll_defaultplayer;
 		if($runtime=='js' && ($CFG->filter_poodll_html5controls=='native')){
 				$returnString="";
 				
+				
+				//the $rtmp_file as it comes from assignment and questions, is urlencoded, we need to decode 
+				//or html 5 playback will fail Justin 20121016
+				$rtmp_file = urldecode($rtmp_file);
+				
 				//The HTML5 Code (can be used on its own OR with the mediaelement code below it
 				$returnString .="<audio controls width='" . $width . "' height='" . $height . "'>
 								<source src='" .$rtmp_file . "'/>
@@ -2124,6 +2148,7 @@ if($protocol=="yutu"){
 
 //determine if we are on a mobile device or not
 $ismobile=isMobile();
+//$ismobile=true;
 
 
 	//Massage the media file name if we have a username variable passed in.	
@@ -2232,6 +2257,11 @@ $ismobile=isMobile();
 				$poster=$splashurl;
 			}
 			
+			//the $rtmp_file as it comes from assignment and questions, is urlencoded, we need to decode 
+			//or html 5 playback will fail Justin 20121016
+			$rtmp_file = urldecode($rtmp_file);
+			
+			//return the html5 video code
 			$returnString .="<video controls poster='" . $poster . "' width='" . $width . "' height='" . $height . "'>
 								<source type='video/mp4' src='" .$rtmp_file . "'/>
 							</video>";
@@ -3093,8 +3123,15 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 		"audiocontrolsurl" =>  $CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer.audio-3.2.9.swf" 
 		);
 		
+		//We need this so that we can require the JSON , for json stringify
+		$jsmodule = array(
+			'name'     => 'filter_poodll',
+			'fullpath' => '/filter/poodll/module.js',
+			'requires' => array('json')
+		);
+		
 	//setup our JS call
-	$PAGE->requires->js_init_call('M.filter_poodll.loadflowplayer', array($opts),false);
+	$PAGE->requires->js_init_call('M.filter_poodll.loadflowplayer', array($opts),false,$jsmodule);
 
 	
 	
