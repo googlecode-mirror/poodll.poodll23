@@ -2048,14 +2048,21 @@ $useplayer=$CFG->filter_poodll_defaultplayer;
 		$params['permitfullscreen'] = $permitfullscreen;
 		
 		
+		//establish the fileextension
+		$ext = substr($rtmp_file,-3);
+	
 		//if we are on mobile we want to play mp3 using html5 tags
+		//if we have a file type that flash wont play, default to runtime = js
 		if($runtime=='auto' ){
 			if($ismobile){		
+					$runtime='js';
+			}else if($ext=='3gp' || $ext=='ebm' || $ext=='3g2'){
 					$runtime='js';
 			}else{
 					$runtime='swf';
 			}
 		}//end of if runtime=auto
+
 	
 	
 		if($runtime=='js' && ($CFG->filter_poodll_html5controls=='native')){
@@ -2066,9 +2073,20 @@ $useplayer=$CFG->filter_poodll_defaultplayer;
 				//or html 5 playback will fail Justin 20121016
 				$rtmp_file = urldecode($rtmp_file);
 				
+				//figure out the mime type by the extension
+				$mime = "";
+				switch($ext){
+					case "mov":
+					case "mp4": $mime = "video/mp4"; break;
+					case "3gp": $mime = "video/3gpp"; break;
+					case "3g2": $mime = "video/3gpp2"; break;
+					case "ebm": $mime = "video/webm"; break;
+					default: $mime = "video/mp4";
+				}
+				
 				//The HTML5 Code (can be used on its own OR with the mediaelement code below it
 				$returnString .="<audio controls width='" . $width . "' height='" . $height . "'>
-								<source src='" .$rtmp_file . "'/>
+								<source type='" . $mime . "' src='" .$rtmp_file . "'/>
 								</audio>";
 				
 				//=======================
@@ -2229,10 +2247,15 @@ $ismobile=isMobile();
 		$params['playertype'] = $type;
 		$params['mediapath'] = $rtmp_file;
 		$params['permitfullscreen'] = $permitfullscreen;
+		
+		//establish the fileextension
+		$ext = substr($rtmp_file,-3);
 	
 		//if we are on mobile we want to play mp3 using html5 tags
 		if($runtime=='auto' ){
 			if($ismobile){		
+					$runtime='js';
+			}else if($ext=='3gp' || $ext=='ebm' || $ext=='3g2'){
 					$runtime='js';
 			}else{
 					$runtime='swf';
@@ -2261,9 +2284,20 @@ $ismobile=isMobile();
 			//or html 5 playback will fail Justin 20121016
 			$rtmp_file = urldecode($rtmp_file);
 			
+			//figure out the mime type by the extension
+			$mime = "";
+			switch($ext){
+				case "mov":
+				case "mp4": $mime = "video/mp4"; break;
+				case "3gp": $mime = "video/3gpp"; break;
+				case "3g2": $mime = "video/3gpp2"; break;
+				case "ebm": $mime = "video/webm"; break;
+				default: $mime = "video/mp4";
+			}
+			
 			//return the html5 video code
 			$returnString .="<video controls poster='" . $poster . "' width='" . $width . "' height='" . $height . "'>
-								<source type='video/mp4' src='" .$rtmp_file . "'/>
+								<source type='" . $mime . "' src='" .$rtmp_file . "'/>
 							</video>";
 			//============================
 			//if we are using mediaelement js use this
@@ -2889,6 +2923,7 @@ function fetchSWFObjectWidgetCode($widget,$flashvarsArray,$width,$height,$bgcolo
 //Here we try to detect if this is a mobile device or not
 //this is used to determine whther to return a JS or SWF widget
 function isMobile(){
+
 	
 	$browser = new Browser();
 	 switch($browser->getBrowser()){

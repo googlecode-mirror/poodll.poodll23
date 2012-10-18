@@ -170,6 +170,8 @@ theconfig = { plugins:
        theconfig.clip.url= opts['path'];
        //we declare this here so that when called from click it refers to this config, and not a later one (object referecnes ...)
        var configstring=Y.JSON.stringify(theconfig);
+	   //we need to convert double to single quotes, for IE's benefit
+	   configstring= configstring.replace(/"/g,"'");
 	   if(splash){
 			// get flash container and assign click handler for it
 			document.getElementById(opts['playerid']).onclick = function() {
@@ -192,6 +194,7 @@ theconfig = { plugins:
 		}
     	//console.log(JSON.stringify(theconfig));
     	//console.log("swfobject embedded");
+		//console.log(configstring);
     	
     	
     	
