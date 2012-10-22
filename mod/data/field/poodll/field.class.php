@@ -23,6 +23,7 @@
 
 require_once($CFG->dirroot.'/lib/filelib.php');
 require_once($CFG->dirroot.'/repository/lib.php');
+require_once($CFG->dirroot . '/filter/poodll/poodllresourcelib.php');
 
 define('DBP_AUDIO',0);
 define('DBP_VIDEO',1);
