@@ -546,7 +546,7 @@ global $CFG;
 	
 	//test for presence of player selectors and serve up the correct player
 	//determine the file extension
-	$ext = substr($filename,-3); 
+	$ext = substr($link[5],-3); 
 	$len = strlen($link[5]);
 	if (strrpos($link[5],'.mini.' . $ext)=== $len-9){
 		$returnHtml=fetch_miniplayer('auto',$rawurl,'http','',0,0,true);
