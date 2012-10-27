@@ -81,8 +81,10 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 				OM_REPLYVOICE => get_string("replyvoice", "assignsubmission_onlinepoodll"), 
 				OM_REPLYVIDEO => get_string("replyvideo", "assignsubmission_onlinepoodll"),
 				OM_REPLYWHITEBOARD => get_string("replywhiteboard", "assignsubmission_onlinepoodll"),
-				OM_REPLYSNAPSHOT => get_string("replysnapshot", "assignsubmission_onlinepoodll"),
-				OM_REPLYTALKBACK => get_string("replytalkback", "assignsubmission_onlinepoodll"));
+				OM_REPLYSNAPSHOT => get_string("replysnapshot", "assignsubmission_onlinepoodll"));
+		
+		//we don't support talkback yet
+		//OM_REPLYTALKBACK => get_string("replytalkback", "assignsubmission_onlinepoodll"));
         
 		$mform->addElement('select', 'assignsubmission_onlinepoodll_recordertype', get_string("recordertype", "assignsubmission_onlinepoodll"), $recorderoptions);
         $mform->addHelpButton('assignsubmission_onlinepoodll_recordertype', 'defaultname', 'assignsubmission_onlinepoodll');
@@ -256,6 +258,10 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 				case OM_REPLYSNAPSHOT:
 					$responsestring .= "<img alt=\"submittedimage\" width=\"" . $CFG->filter_poodll_videowidth . "\" src=\"" . urldecode($mediapath) . "\" />";
 					break;
+					
+				default:
+					$responsestring .= format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http,embed=' . $embed . ',embedstring='. $embedstring .'}', FORMAT_HTML);
+					break;	
 				
 			}//end of switch
 		}//end of if (checkfordata ...) 
@@ -267,23 +273,6 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 	
 	
 	
-    /**
-     * Editor format options
-     *
-     * @return array
-     */
-	 /*
-    private function get_edit_options() {
-         $editoroptions = array(
-           'noclean' => false,
-           'maxfiles' => EDITOR_UNLIMITED_FILES,
-           'maxbytes' => $this->assignment->get_course()->maxbytes,
-           'context' => $this->assignment->get_context(),
-           'return_types' => FILE_INTERNAL | FILE_EXTERNAL
-        );
-        return $editoroptions;
-    }
-*/
      /**
       * Save data to the database
       *
@@ -294,10 +283,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
      public function save(stdClass $submission, stdClass $data) {
         global $DB;
 
-      //  $editoroptions = $this->get_edit_options();
 
-       // $data = file_postupdate_standard_editor($data, FILENAMECONTROL, $editoroptions, $this->assignment->get_context(), 'assignsubmission_onlinepoodll', ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA, $submission->id);
-		
 		//Move recorded files from draft to the correct area
 		$this->shift_draft_file($submission);
 
@@ -363,46 +349,6 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 	}//end of shift_draft_file
     
 
-    /**
-     * Get the saved text content from the editor
-     *
-     * @param string $name
-     * @param int $submissionid
-     * @return string
-     */
-	 /*
-    public function get_editor_text($name, $submissionid) {
-        if ($name == 'onlinepoodll') {
-            $onlinepoodllsubmission = $this->get_onlinepoodll_submission($submissionid);
-            if ($onlinepoodllsubmission) {
-                return $onlinepoodllsubmission->onlinepoodll;
-            }
-        }
-
-        return '';
-    }
-	*/
-
-    /**
-     * Get the content format for the editor
-     *
-     * @param string $name
-     * @param int $submissionid
-     * @return int
-     */
-	 /*
-    public function get_editor_format($name, $submissionid) {
-        if ($name == 'onlinepoodll') {
-            $onlinepoodllsubmission = $this->get_onlinepoodll_submission($submissionid);
-            if ($onlinepoodllsubmission) {
-                return $onlinepoodllsubmission->onlineformat;
-            }
-        }
-
-
-         return 0;
-    }
-	*/
 
 
     /**
