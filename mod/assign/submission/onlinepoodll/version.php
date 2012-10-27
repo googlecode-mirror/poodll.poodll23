@@ -15,17 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    datafield
- * @subpackage poodll
- * @copyright  2012 onwards Justin Hunt
+ * This file contains the version information for the onlinepoodll submission plugin
+ *
+ * @package    assignsubmission_onlinepoodll
+ * @copyright 2012 Justin Hunt {@link http://www.poodll.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2012102500;        // The current plugin version (Date: YYYYMMDDXX)
-$plugin->requires  = 2011070100.00;        // Requires this Moodle version
-$plugin->component = 'datafield_poodll'; // Full name of the plugin (used for diagnostics)
-$plugin->release   = '1.0 (Build 2012102500)';
-$plugin->dependencies = array('filter_poodll' => 2012102100);
-$plugin->maturity  = MATURITY_BETA;
+$plugin->version   = 2012061700;
+$plugin->requires  = 2012061700;
+$plugin->component = 'assignsubmission_onlinepoodll';
