@@ -173,6 +173,13 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 				$mediadata= fetchWhiteboardForSubmission(FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid);
 				$mform->addElement('static', 'description', '',$mediadata);
 				break;
+			
+			case OM_REPLYSNAPSHOT:
+				//$mediadata= fetchSimpleAudioRecorder('onlinemedia' . $this->_customdata['cm']->id , $USER->id);
+				//$mediadata= fetchSimpleAudioRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
+				$mediadata= fetchSnapshotCameraForSubmission(FILENAMECONTROL,"snap.jpg" ,350,400,$usercontextid ,'user','draft',$draftitemid);
+				$mform->addElement('static', 'description', '',$mediadata);
+				break;
 
 			case OM_REPLYVIDEO:
 				
