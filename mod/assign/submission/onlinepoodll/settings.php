@@ -22,7 +22,4 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$settings->add(new admin_setting_configcheckbox('assignsubmission_onlinepoodll/default',
-                   new lang_string('default', 'assignsubmission_onlinepoodll'),
-                   new lang_string('default_help', 'assignsubmission_onlinepoodll'), 0));
 
