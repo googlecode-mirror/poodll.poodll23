@@ -252,6 +252,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 				case OM_REPLYMP3VOICE:
 				case OM_REPLYTALKBACK:
 						$responsestring .= format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http,embed=' . $embed . ',embedstring='. $embedstring .'}', FORMAT_HTML);
+						//$responsestring .= "hello" . fetchSimpleAudioPlayer('auto', $mediapath, 'http',700,25);
 						break;						
 					
 				case OM_REPLYVIDEO:
@@ -268,6 +269,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 					
 				default:
 					$responsestring .= format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http,embed=' . $embed . ',embedstring='. $embedstring .'}', FORMAT_HTML);
+					//$responsestring .= "hello" . fetchSimpleAudioPlayer('auto', $mediapath, 'http',700,25);
 					break;	
 				
 			}//end of switch

@@ -172,9 +172,11 @@ theconfig = { plugins:
        var configstring=Y.JSON.stringify(theconfig);
 	   //we need to convert double to single quotes, for IE's benefit
 	   configstring= configstring.replace(/"/g,"'");
-	   if(splash){
+	   var playerdiv= document.getElementById(opts['playerid']);
+	   if(splash && playerdiv){
+			//console.log("playerid:" + opts['playerid']);
 			// get flash container and assign click handler for it
-			document.getElementById(opts['playerid']).onclick = function() {
+			playerdiv.onclick = function() {
 				swfobject.embedSWF(opts['playerpath'],
 						opts['playerid'], opts['width'], 
 						opts['height'] , 
@@ -221,7 +223,7 @@ theconfig = { plugins:
 	
 }
 
-// Replace poodll_flowplayer divs with flowplayers
+// Called in case of mobile devices 
 M.filter_poodll.loadmobileupload = function(Y,opts) {
 	var fileselect = $id('poodllfileselect');
 	if(fileselect){
