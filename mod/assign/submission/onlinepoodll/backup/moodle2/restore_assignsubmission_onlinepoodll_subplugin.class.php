@@ -21,6 +21,8 @@
  * @copyright 2012 Justin Hunt {@link http://www.poodll.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+ 
+ define('ASSIGNSUBMISSION_ONLINEPOODLL_TABLE', 'assignsubmission_onlinepoodl');
 
 /**
  * restore subplugin class that provides the necessary information needed to restore one assign_submission subplugin.
@@ -61,9 +63,9 @@ class restore_assignsubmission_onlinepoodll_subplugin extends restore_subplugin 
         // the mapping is set in the restore for the core assign activity. When a submission node is processed
         $data->submission = $this->get_mappingid('submission', $data->submission);
 
-        $DB->insert_record('assignsubmission_onlinepood', $data);
+        $DB->insert_record(ASSIGNSUBMISSION_ONLINEPOODLL_TABLE, $data);
 
-        $this->add_related_files('assignsubmission_onlinepood', 'submissions_onlinepoodll', 'submission', null, $oldsubmissionid);
+        $this->add_related_files(ASSIGNSUBMISSION_ONLINEPOODLL_TABLE, 'submissions_onlinepoodll', 'submission', null, $oldsubmissionid);
     }
 
 }
