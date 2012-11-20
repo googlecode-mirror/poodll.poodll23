@@ -27,11 +27,17 @@
 //Get our poodll resource handling lib
 require_once($CFG->dirroot . '/filter/poodll/poodllresourcelib.php');
 
+/** Include eventslib.php */
+require_once($CFG->libdir.'/eventslib.php');
+
 defined('MOODLE_INTERNAL') || die();
 /**
- * File area for online text submission assignment
+ * File area/component/table name for online text submission assignment
  */
 define('ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA', 'submissions_onlinepoodll');
+define('ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT', 'assignsubmission_onlinepoodll');
+define('ASSIGNSUBMISSION_ONLINEPOODLL_TABLE', 'assignsubmission_onlinepoodl');
+
 
 //some constants for the type of online poodll assignment
 define('OM_REPLYMP3VOICE',0);
@@ -60,7 +66,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
      * @return string
      */
     public function get_name() {
-        return get_string('onlinepoodll', 'assignsubmission_onlinepoodll');
+        return get_string('onlinepoodll', ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT);
     }
 
 	    /**
@@ -87,7 +93,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		//OM_REPLYTALKBACK => get_string("replytalkback", "assignsubmission_onlinepoodll"));
         
 		$mform->addElement('select', 'assignsubmission_onlinepoodll_recordertype', get_string("recordertype", "assignsubmission_onlinepoodll"), $recorderoptions);
-        $mform->addHelpButton('assignsubmission_onlinepoodll_recordertype', 'defaultname', 'assignsubmission_onlinepoodll');
+        $mform->addHelpButton('assignsubmission_onlinepoodll_recordertype', 'defaultname', ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT);
         $mform->setDefault('assignsubmission_onlinepoodll_recordertype', $recordertype);
       //  $mform->disabledIf('assignsubmission_onlinepoodll_recordertype', 'assignsubmission_onlinepoodll_enabled', 'eq', 0);
 
@@ -114,7 +120,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
     private function get_onlinepoodll_submission($submissionid) {
         global $DB;
 
-        return $DB->get_record('assignsubmission_onlinepood', array('submission'=>$submissionid));
+        return $DB->get_record(ASSIGNSUBMISSION_ONLINEPOODLL_TABLE, array('submission'=>$submissionid));
     }
 
     /**
@@ -140,7 +146,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		$usercontextid=get_context_instance(CONTEXT_USER, $USER->id)->id;
 		$draftitemid = file_get_submitted_draft_itemid(FILENAMECONTROL);
 		$contextid=$this->assignment->get_context()->id;
-		file_prepare_draft_area($draftitemid, $contextid, 'assignsubmission_onlinepoodll', ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA, $submissionid, null,null);
+		file_prepare_draft_area($draftitemid, $contextid, ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA, $submissionid, null,null);
 		$mform->addElement('hidden', 'draftitemid', $draftitemid);
 		$mform->addElement('hidden', 'usercontextid', $usercontextid);	
 		$mform->addElement('hidden', FILENAMECONTROL, '',array('id' => FILENAMECONTROL));
@@ -229,7 +235,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		//there should be only one.
 		$fs = get_file_storage();
 		$filename="";
-        $files = $fs->get_area_files($this->assignment->get_context()->id, 'assignsubmission_onlinepoodll', ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA, $submissionid, "id", false);
+        $files = $fs->get_area_files($this->assignment->get_context()->id, ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA, $submissionid, "id", false);
         if (!empty($files)) {
             foreach ($files as $file) {
                 $filename = $file->get_filename();
@@ -276,6 +282,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		}//end of if (checkfordata ...) 
 		
 		
+		
 		return $responsestring;
 		
 	}//end of fetchResponses
@@ -298,7 +305,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 
         $onlinepoodllsubmission = $this->get_onlinepoodll_submission($submission->id);
         if ($onlinepoodllsubmission) {
-            return $DB->update_record('assignsubmission_onlinepood', $onlinepoodllsubmission);
+            return $DB->update_record(ASSIGNSUBMISSION_ONLINEPOODLL_TABLE, $onlinepoodllsubmission);
         } else {
 
             $onlinepoodllsubmission = new stdClass();
@@ -306,7 +313,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
             $onlinepoodllsubmission->submission = $submission->id;
             $onlinepoodllsubmission->assignment = $this->assignment->get_instance()->id;
             $onlinepoodllsubmission->recorder = $this->get_config('recordertype');
-            return $DB->insert_record('assignsubmission_onlinepood', $onlinepoodllsubmission) > 0;
+            return $DB->insert_record(ASSIGNSUBMISSION_ONLINEPOODLL_TABLE, $onlinepoodllsubmission) > 0;
         }
 
 
@@ -327,7 +334,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		$usercontextid = optional_param('usercontextid', '', PARAM_RAW);
 		 $fs = get_file_storage();
 		 $browser = get_file_browser();
-         $fs->delete_area_files($this->assignment->get_context()->id, 'assignsubmission_onlinepoodll',ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA , $submission->id);
+         $fs->delete_area_files($this->assignment->get_context()->id, ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT,ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA , $submission->id);
 
 		
 		//fetch the file info object for our original file
@@ -341,7 +348,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 			$file_record = array(
 			'userid' => $USER->id,
 			'contextid'=>$this->assignment->get_context()->id, 
-			'component'=>'assignsubmission_onlinepoodll', 
+			'component'=>ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, 
 			'filearea'=>ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA ,
 			'itemid'=>$submission->id, 
 			'filepath'=>'/', 
@@ -370,11 +377,11 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
     public function view_summary(stdClass $submission, & $showviewlink) {
     	$showviewlink = false;
 
-		//our response, this will output a player/image
-		return $this->fetchResponses($submission->id);
+		//our response, this will output a player/image, and optionally a portfolio export link
+		return $this->fetchResponses($submission->id) . $this->get_p_links($submission->id) ;
 
 		//the default return method, this just produces a link.
-      // return $this->assignment->render_area_files('assignsubmission_onlinepoodll', ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA, $submission->id);
+      // return $this->assignment->render_area_files(ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA, $submission->id);
     }
 
       /**
@@ -387,7 +394,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
         $result = array();
         $fs = get_file_storage();
 
-        $files = $fs->get_area_files($this->assignment->get_context()->id, 'assignsubmission_onlinepoodll', ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA, $submission->id, "timemodified", false);
+        $files = $fs->get_area_files($this->assignment->get_context()->id, ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA, $submission->id, "timemodified", false);
 
         foreach ($files as $file) {
             $result[$file->get_filename()] = $file;
@@ -414,15 +421,62 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 			$result = $this->fetchResponses($submission->id);
 		
 			//the default render method. Only shows a link
-			// return $this->assignment->render_area_files('assignsubmission_onlinepoodll', ASSIGN_FILEAREA_SUBMISSION_ONLINEPOODLL, $submission->id);
+			// return $this->assignment->render_area_files(ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, ASSIGN_FILEAREA_SUBMISSION_ONLINEPOODLL, $submission->id);
 
         }
 
         return $result;
     }
 	
+	
+	    /**
+     * Produces a list of portfolio links to the file recorded byuser
+     *
+     * @param $submissionid this submission's id
+     * @return string the portfolio export link
+     */
+    public function get_p_links($submissionid) {
+        global $CFG, $OUTPUT, $DB;
 
-    
+		$output ="";
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($this->assignment->get_context()->id, 
+					ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, 
+					ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA, 
+					$submissionid, "id", false);
+					
+        if (!empty($files)) {
+            require_once($CFG->dirroot . '/mod/assignment/locallib.php');
+            if ($CFG->enableportfolios) {
+                require_once($CFG->libdir.'/portfoliolib.php');
+            }
+            
+			//Add portfolio download links if appropriate
+            foreach ($files as $file) {
+					
+                if ($CFG->enableportfolios && has_capability('mod/assign:exportownsubmission', $this->assignment->get_context())){
+					require_once($CFG->libdir . '/portfoliolib.php');
+					$button = new portfolio_add_button();
+                   
+					$button->set_callback_options('assign_portfolio_caller', 
+							array('cmid' => $this->assignment->get_course_module()->id,
+											'component' => "assignsubmission_onlinepoodll",
+											'area'=>ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA,
+											'sid' => $submissionid),
+							'/mod/assign/portfolio_callback.php');
+                    $button->set_format_by_file($file);
+                    $output .= $button->to_html(PORTFOLIO_ADD_TEXT_LINK);
+                }
+               
+                $output .= '<br />';
+            }
+        }
+
+        $output = '<div class="files" style="float:left;margin-left:5px;">'.$output.'</div><br clear="all" />';
+        
+        return $output;
+
+    }
 
      /**
      * Return true if this plugin can upgrade an old Moodle 2.2 assignment of this type and version.
@@ -492,7 +546,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 
     
 
-        if (!$DB->insert_record('assignsubmission_onlinepood', $onlinepoodllsubmission) > 0) {
+        if (!$DB->insert_record(ASSIGNSUBMISSION_ONLINEPOODLL_TABLE, $onlinepoodllsubmission) > 0) {
             $log .= get_string('couldnotconvertsubmission', 'mod_assign', $submission->userid);
             return false;
         }
@@ -504,7 +558,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
                                                         $oldsubmission->id,
                                                         // New file area
                                                         $this->assignment->get_context()->id,
-                                                        'assignsubmission_onlinepoodll',
+                                                        ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT,
                                                         ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA,
                                                         $submission->id);
         return true;
@@ -534,7 +588,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
     public function delete_instance() {
         global $DB;
         // will throw exception on failure
-        $DB->delete_records('assignsubmission_onlinepood', array('assignment'=>$this->assignment->get_instance()->id));
+        $DB->delete_records(ASSIGNSUBMISSION_ONLINEPOODLL_TABLE, array('assignment'=>$this->assignment->get_instance()->id));
 
         return true;
     }

@@ -28,9 +28,26 @@
  * @return bool
  */
 function xmldb_assignsubmission_onlinepoodll_upgrade($oldversion) {
+	 global $CFG, $DB;
+
+    $dbman = $DB->get_manager();
+
     // Moodle v2.3.0 release upgrade line
     // Put any upgrade step following this
-
+	    // Moodle v2.3.0 release upgrade line
+    // Put any upgrade step following this
+    
+	//Change table name to satisfy Moodle.org plugin submissions component name v table name check
+	//ie it checks(or will) check 1st 28 chars of component name matches table name.
+    if ($oldversion < 20121129000) {
+    	$table = new xmldb_table('assignsubmission_onlinepood');	
+		if ($dbman->table_exists($table)){
+			$dbman->rename_table( $table, 'assignsubmission_onlinepoodl', $continue=true, $feedback=true);   
+        }
+		 // online PoodLL savepoint reached
+        upgrade_plugin_savepoint(true, 2012112000, 'assignsubmission', 'onlinepoodll');
+    
+    }
 
     return true;
 }

@@ -18,7 +18,7 @@
 		<property name="dist.assig23" value="onlinepoodll"/>
 		<property name="dist.question" value="poodllrecording"/>
 		<property name="dist.all" value="poodllall"/>
-		<property name="dist.version" value="2012103000"/>
+		<property name="dist.version" value="2012110500"/>
 	</target>
 	
 	<!-- Make All PoodLL package for this version -->
@@ -110,9 +110,12 @@
 				<zipfileset dir="filter/poodll" prefix="${dist.all}_${dist.version}/filter/poodll"/>
 				<zipfileset dir="repository/poodll" prefix="${dist.all}_${dist.version}/repository/poodll"/>
 				<zipfileset dir="mod/assignment/type/poodllonline" prefix="${dist.all}_${dist.version}/mod/assignment/type/poodllonline"/>
+				<zipfileset dir="mod/assign/submission/onlinepoodll" prefix="${dist.all}_${dist.version}/mod/assign/submission/onlinepoodll"/>
 				<zipfileset dir="question/type/poodllrecording" prefix="${dist.all}_${dist.version}/question/type/poodllrecording"/>
+				<zipfileset dir="mod/data/field/poodll" prefix="${dist.all}_${dist.version}/mod/data/field/poodll"/>
 				<zipfileset dir="readmes" prefix="${dist.all}_${dist.version}" includes="README.${dist.all}.txt" />
 	        </zip>
+		
 	</target>
 
 </project>
