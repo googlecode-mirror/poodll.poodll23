@@ -45,11 +45,18 @@ $items[] = new admin_setting_configtext('filter_poodll_micgain', get_string('mic
 $items[] = new admin_setting_configtext('filter_poodll_micecho', get_string('micecho', 'filter_poodll'), '', 'yes');
 $items[] = new admin_setting_configtext('filter_poodll_micloopback', get_string('micloopback', 'filter_poodll'), '', 'no');
 $items[] = new admin_setting_configcheckbox('filter_poodll_audiotranscode', get_string('audiotranscode', 'filter_poodll'), get_string('audiotranscodedetails', 'filter_poodll'), 0);
-	
+//This is a hack for Juan. Later we can remove it
+//Justin 2012/11/23
+//$items[] = new admin_setting_configtext('filter_poodll_audiotimelimit', "Audio Rec. Time Limit(secs)", '', '0', PARAM_INT);	
+
 //video player settings.
 $items[] = new admin_setting_heading('filter_poodll_videoplayer_setting', get_string('filter_poodll_videoplayer_heading', 'filter_poodll'), '');
 $items[] = new admin_setting_configtext('filter_poodll_videowidth', get_string('videowidth', 'filter_poodll'), '', '480', PARAM_INT);
 $items[] = new admin_setting_configtext('filter_poodll_videoheight', get_string('videoheight', 'filter_poodll'), '', '360', PARAM_INT);
+//This is a hack for Juan. Later we can remove it 
+//Justin 2012/11/23
+//$items[] = new admin_setting_configtext('filter_poodll_videotimelimit', "Video Rec. Time Limit(secs)", '', '0', PARAM_INT);
+
 
 
 //flow player settings.
