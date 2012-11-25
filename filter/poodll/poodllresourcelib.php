@@ -681,6 +681,9 @@ if ($updatecontrol == "saveflvvoice"){
 	$savecontrol = "";
 }
 
+//auto try ports, try 2 x on standard port, then 80, then 1935,then 80,1935 ad nauseum
+ $autotryports = $CFG->filter_poodll_autotryports==1 ? "yes" : "no" ;
+
 $params = array();
 		$params['red5url'] = urlencode($flvserver);
 		$params['overwritefile'] = $overwritemediafile;
@@ -697,6 +700,7 @@ $params = array();
 		$params['saveformat'] = $saveformat;
 		$params['uid'] = $userid;
 		$params['timelimit'] = $timelimit;
+		$params['autotryports'] = $autotryports;
 	
     	$returnString=  fetchSWFWidgetCode('PoodLLAudioRecorder.lzx.swf9.swf',
     						$params,$width,$height,'#CFCFCF');
@@ -955,6 +959,9 @@ if ($updatecontrol == "saveflvvoice"){
 	$savecontrol = "";
 }
 
+//auto try ports, try 2 x on standard port, then 80, then 1935,then 80,1935 ad nauseum
+ $autotryports = $CFG->filter_poodll_autotryports==1 ? "yes" : "no" ;
+
 $params = array();
 
 		$params['red5url'] = urlencode($flvserver);
@@ -978,6 +985,7 @@ $params = array();
 		$params['filearea'] = $filearea;
 		$params['itemid'] = $itemid;
 		$params['timelimit'] = $timelimit;
+		$params['autotryports'] = $autotryports;
 	
     	$returnString=  fetchSWFWidgetCode('PoodLLAudioRecorder.lzx.swf9.swf',
     						$params,$width,$height,'#CFCFCF');
@@ -1478,6 +1486,9 @@ if ($updatecontrol == "saveflvvoice"){
 	$savecontrol = "";
 }
 
+//auto try ports, try 2 x on standard port, then 80, then 1935,then 80,1935 ad nauseum
+ $autotryports = $CFG->filter_poodll_autotryports==1 ? "yes" : "no" ;
+
 $params = array();
 		$params['red5url'] = urlencode($flvserver);
 		$params['overwritefile'] = $overwritemediafile;
@@ -1500,6 +1511,8 @@ $params = array();
 		$params['saveformat'] = $saveformat;
 		$params['uid'] = $userid;
 		$params['timelimit'] = $timelimit;
+		$params['autotryports'] = $autotryports;
+		
 	
     	$returnString=  fetchSWFWidgetCode('PoodLLVideoRecorder.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
@@ -1572,6 +1585,9 @@ if ($updatecontrol == "saveflvvoice"){
 	$savecontrol = "";
 }
 
+//auto try ports, try 2 x on standard port, then 80, then 1935,then 80,1935 ad nauseum
+ $autotryports = $CFG->filter_poodll_autotryports==1 ? "yes" : "no" ;
+
 $params = array();
 		$params['red5url'] = urlencode($flvserver);
 		$params['overwritefile'] = $overwritemediafile;
@@ -1600,6 +1616,7 @@ $params = array();
 		$params['filearea'] = $filearea;
 		$params['itemid'] = $itemid;
 		$params['timelimit'] = $timelimit;
+		$params['autotryports'] = $autotryports;
 	
     	$returnString=  fetchSWFWidgetCode('PoodLLVideoRecorder.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
