@@ -635,7 +635,7 @@ if ($CFG->filter_poodll_usecourseid){
 
 }
 
-function fetchSimpleAudioRecorder($runtime, $assigname, $userid="", $updatecontrol="saveflvvoice", $filename="",$width="350",$height="200"){
+function fetchSimpleAudioRecorder($runtime, $assigname, $userid="", $updatecontrol="saveflvvoice", $filename="",$width="350",$height="200",$timelimit="0"){
 global $CFG, $USER, $COURSE, $PAGE;
 
 //Set the servername 
@@ -696,6 +696,7 @@ $params = array();
 		$params['updatecontrol'] = $updatecontrol;
 		$params['saveformat'] = $saveformat;
 		$params['uid'] = $userid;
+		$params['timelimit'] = $timelimit;
 	
     	$returnString=  fetchSWFWidgetCode('PoodLLAudioRecorder.lzx.swf9.swf',
     						$params,$width,$height,'#CFCFCF');
@@ -765,7 +766,7 @@ $params = array();
 
 }
 */
-function fetchMP3RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid){
+function fetchMP3RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$timelimit="0"){
 global $CFG, $USER, $COURSE;
 
 //get our HTML5 Uploader if we have a mobile device
@@ -823,6 +824,7 @@ $params = array();
 		$params['filearea'] = $filearea;
 		$params['itemid'] = $itemid;
 		$params['autosubmit'] = $autosubmit;
+		$params['timelimit'] = $timelimit;
 	
     	$returnString=  fetchSWFWidgetCode('PoodLLMP3Recorder.lzx.swf10.swf',
     						$params,$width,$height,'#CFCFCF');
@@ -898,7 +900,7 @@ $mode="normal";
 
 }
 
-function fetchAudioRecorderForSubmission($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid){
+function fetchAudioRecorderForSubmission($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid,$timelimit="0"){
 global $CFG, $USER, $COURSE;
 
 //get our HTML5 Uploader if we have a mobile device
@@ -975,6 +977,7 @@ $params = array();
 		$params['component'] = $component;
 		$params['filearea'] = $filearea;
 		$params['itemid'] = $itemid;
+		$params['timelimit'] = $timelimit;
 	
     	$returnString=  fetchSWFWidgetCode('PoodLLAudioRecorder.lzx.swf9.swf',
     						$params,$width,$height,'#CFCFCF');
@@ -1426,7 +1429,7 @@ $params = array();
 }
 
 
-function fetchSimpleVideoRecorder($runtime, $assigname, $userid="", $updatecontrol="saveflvvoice", $filename="", $width="350",$height="400"){
+function fetchSimpleVideoRecorder($runtime, $assigname, $userid="", $updatecontrol="saveflvvoice", $filename="", $width="350",$height="400",$timelimit="0"){
 global $CFG, $USER, $COURSE;
 
 //Set the servername and a capture settings from config file
@@ -1496,6 +1499,7 @@ $params = array();
 		$params['updatecontrol'] = $updatecontrol;
 		$params['saveformat'] = $saveformat;
 		$params['uid'] = $userid;
+		$params['timelimit'] = $timelimit;
 	
     	$returnString=  fetchSWFWidgetCode('PoodLLVideoRecorder.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
@@ -1507,7 +1511,7 @@ $params = array();
 
 }
 
-function fetchVideoRecorderForSubmission($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid){
+function fetchVideoRecorderForSubmission($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid,$timelimit="0"){
 global $CFG, $USER, $COURSE;
 
 //head off to HTML5 logic if mobile
@@ -1595,6 +1599,7 @@ $params = array();
 		$params['component'] = $component;
 		$params['filearea'] = $filearea;
 		$params['itemid'] = $itemid;
+		$params['timelimit'] = $timelimit;
 	
     	$returnString=  fetchSWFWidgetCode('PoodLLVideoRecorder.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
