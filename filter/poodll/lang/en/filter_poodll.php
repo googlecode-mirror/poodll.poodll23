@@ -86,7 +86,7 @@ $string['wboardwidth'] = 'Whiteboard Width ';
 $string['wboardheight'] = 'Whiteboard Height';
 
 //video capture settings
-$string['capturewidth'] = 'Video Recorder Capture Width';
+$string['capturewidth'] = 'Video Recorder Capture Size';
 $string['captureheight'] = 'Video Recorder Capture Height';
 $string['capturefps'] = 'Video Recorder Capture FPS';
 $string['studentcam'] = 'Preferred device name for camera';

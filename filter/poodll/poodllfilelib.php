@@ -815,6 +815,33 @@ $red5_fileurl= "http://" . $CFG->filter_poodll_servername .
 						array_push($return['messages'],"Unable to get URL for file." );
 					}
 				}//end of if fileinfo
+				
+				//Here we can try to get an automated thumbnail of a video file
+				//this will return nothing great if it is an audio flv ...
+				//Set this to NOT process, because it wont work for repo. code in
+				//poodll reseource lib, fetchvideosplash is better cos video will always go through there
+				//in the 30 min req.
+				if($ext==".flv" || $ext==".mp4"){
+					if($CFG->filter_poodll_thumbnailsplash && false){
+					
+						//create a new file fetch url for the splash
+						$filename = substr($filename,0,-3) . "png";
+						$jsp = "snapshot.jsp";						
+						$red5_fileurl= "http://" . $CFG->filter_poodll_servername . 
+						":"  .  $CFG->filter_poodll_serverhttpport . "/poodll/" . $jsp . "?poodllserverid=" . 
+						$CFG->filter_poodll_serverid . "&filename=" . $filename . "&caller=" . urlencode($CFG->wwwroot);
+						
+						//update our file record with image name
+						$file_record['filename']=$filename;
+		
+						//fetch image
+						//we are not concerned if it works or not. If it fails, its just a shame.
+						$fs->create_file_from_url($file_record, $red5_fileurl,$options, false);
+						
+					}
+				}
+				
+				
 		}//end of if could create_file_from_url
 		
 

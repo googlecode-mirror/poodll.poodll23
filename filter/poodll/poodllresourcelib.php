@@ -121,7 +121,7 @@ function fetch_poodllconsole($runtime, $coursedataurl="",$mename="", $courseid=-
 
 	//Set the camera prefs
 	$capturewidth=$CFG->filter_poodll_capturewidth;
-	$captureheight=$CFG->filter_poodll_captureheight;
+	$captureheight=(string)(0.75 * intval($CFG->filter_poodll_capturewidth));
 	$capturefps=$CFG->filter_poodll_capturefps;
 	$prefcam=$CFG->filter_poodll_screencapturedevice;
 	$prefmic=$CFG->filter_poodll_studentmic;
@@ -333,7 +333,7 @@ $poodlllogicurl = $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php';
 
 //Set the camera prefs
 $capturewidth=$CFG->filter_poodll_capturewidth;
-$captureheight=$CFG->filter_poodll_captureheight;
+$captureheight=(string)(0.75 * intval($CFG->filter_poodll_capturewidth));
 $capturefps=$CFG->filter_poodll_capturefps;
 $prefcam=$CFG->filter_poodll_studentcam;
 $prefmic=$CFG->filter_poodll_studentmic;
@@ -431,7 +431,7 @@ if ($filename == ""){
 
 //Set the camera prefs
 $capturewidth=$CFG->filter_poodll_capturewidth;
-$captureheight=$CFG->filter_poodll_captureheight;
+$captureheight=(string)(0.75 * intval($CFG->filter_poodll_capturewidth));
 $capturefps=$CFG->filter_poodll_capturefps;
 $prefcam=$CFG->filter_poodll_studentcam;
 $prefmic=$CFG->filter_poodll_studentmic;
@@ -1293,7 +1293,7 @@ global $CFG, $USER, $COURSE;
 //Set the servername and a capture settings from config file
 
 $capturewidth=$CFG->filter_poodll_capturewidth;
-$captureheight=$CFG->filter_poodll_captureheight;
+$captureheight=(string)(0.75 * intval($CFG->filter_poodll_capturewidth));
 $capturefps=$CFG->filter_poodll_capturefps;
 $prefcam=$CFG->filter_poodll_studentcam;
 $prefmic=$CFG->filter_poodll_studentmic;
@@ -1333,7 +1333,7 @@ if(isMobile()){
 //Set the servername and a capture settings from config file
 
 $capturewidth=$CFG->filter_poodll_capturewidth;
-$captureheight=$CFG->filter_poodll_captureheight;
+$captureheight=(string)(0.75 * intval($CFG->filter_poodll_capturewidth));
 $capturefps=$CFG->filter_poodll_capturefps;
 $prefcam=$CFG->filter_poodll_studentcam;
 $prefmic=$CFG->filter_poodll_studentmic;
@@ -1380,7 +1380,7 @@ global $CFG, $USER, $COURSE;
 //Set the servername and a capture settings from config file
 $flvserver = $CFG->poodll_media_server;
 $capturewidth=$CFG->filter_poodll_capturewidth;
-$captureheight=$CFG->filter_poodll_captureheight;
+$captureheight=(string)(0.75 * intval($CFG->filter_poodll_capturewidth));
 $capturefps=$CFG->filter_poodll_capturefps;
 $prefcam=$CFG->filter_poodll_studentcam;
 $prefmic=$CFG->filter_poodll_studentmic;
@@ -1443,7 +1443,7 @@ global $CFG, $USER, $COURSE;
 //Set the servername and a capture settings from config file
 $flvserver = $CFG->poodll_media_server;
 $capturewidth=$CFG->filter_poodll_capturewidth;
-$captureheight=$CFG->filter_poodll_captureheight;
+$captureheight=(string)(0.75 * intval($CFG->filter_poodll_capturewidth));
 $capturefps=$CFG->filter_poodll_capturefps;
 $prefcam=$CFG->filter_poodll_studentcam;
 $prefmic=$CFG->filter_poodll_studentmic;
@@ -1535,7 +1535,7 @@ if (isMobile()){
 //Set the servername and a capture settings from config file
 $flvserver = $CFG->poodll_media_server;
 $capturewidth=$CFG->filter_poodll_capturewidth;
-$captureheight=$CFG->filter_poodll_captureheight;
+$captureheight= (string)(0.75 * intval($CFG->filter_poodll_capturewidth));
 $capturefps=$CFG->filter_poodll_capturefps;
 $prefcam=$CFG->filter_poodll_studentcam;
 $prefmic=$CFG->filter_poodll_studentmic;
