@@ -12,7 +12,7 @@ $items = array();
 $items[] = new admin_setting_heading('filter_poodll_network_settings', get_string('filter_poodll_network_heading', 'filter_poodll'), '');
 $items[] = new admin_setting_configtext('filter_poodll_servername', get_string('servername', 'filter_poodll'), '', 'tokyo.poodll.com');
 $items[] = new admin_setting_configtext('filter_poodll_serverid', get_string('serverid', 'filter_poodll'), '', 'poodll');
-$items[] = new admin_setting_configtext('filter_poodll_serverport', get_string('serverport', 'filter_poodll'), '', '80', PARAM_INT);
+$items[] = new admin_setting_configtext('filter_poodll_serverport', get_string('serverport', 'filter_poodll'), '', '1935', PARAM_INT);
 $items[] = new admin_setting_configtext('filter_poodll_serverhttpport', get_string('serverhttpport', 'filter_poodll'), '', '443', PARAM_INT);
 $items[] = new admin_setting_configcheckbox('filter_poodll_autotryports', get_string('autotryports', 'filter_poodll'), '', 1);
 
@@ -45,7 +45,6 @@ $items[] = new admin_setting_configtext('filter_poodll_micsilencelevel', get_str
 $items[] = new admin_setting_configtext('filter_poodll_micgain', get_string('micgain', 'filter_poodll'), '', '50', PARAM_INT); 
 $items[] = new admin_setting_configtext('filter_poodll_micecho', get_string('micecho', 'filter_poodll'), '', 'yes');
 $items[] = new admin_setting_configtext('filter_poodll_micloopback', get_string('micloopback', 'filter_poodll'), '', 'no');
-$items[] = new admin_setting_configcheckbox('filter_poodll_audiotranscode', get_string('audiotranscode', 'filter_poodll'), get_string('audiotranscodedetails', 'filter_poodll'), 0);
 //This is a hack for Juan. Later we can remove it
 //Justin 2012/11/23
 //$items[] = new admin_setting_configtext('filter_poodll_audiotimelimit', "Audio Rec. Time Limit(secs)", '', '0', PARAM_INT);	
@@ -80,32 +79,24 @@ $items[] = new admin_setting_configselect('filter_poodll_capturewidth', get_stri
 $items[] = new admin_setting_configtext('filter_poodll_capturefps', get_string('capturefps', 'filter_poodll'), '', '17', PARAM_INT);
 $items[] = new admin_setting_configtext('filter_poodll_bandwidth', get_string('bandwidth', 'filter_poodll'), '', '0', PARAM_INT);
 $items[] = new admin_setting_configtext('filter_poodll_picqual', get_string('picqual', 'filter_poodll'), '', '5', PARAM_INT);
-$items[] = new admin_setting_configcheckbox('filter_poodll_videotranscode', get_string('videotranscode', 'filter_poodll'), get_string('videotranscodedetails', 'filter_poodll'), 0);
+
 /*
 //HTML5 Recording
-$items[] = new admin_setting_heading('filter_poodll_html5rec_settings', get_string('filter_poodll_html5rec_heading', 'filter_poodll'), '');
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_chrome_rec', get_string('chromerec', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_safari_rec', get_string('safarirec', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_ffox_rec', get_string('ffoxrec', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_op_rec', get_string('oprec', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_sm_rec', get_string('smrec', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_ie_rec', get_string('ierec', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_android_rec', get_string('androidrec', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_ios_rec', get_string('iosrec', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_bbrec_rec', get_string('iosrec', 'filter_poodll'), '', 0);
-
-//HTML5 Playback
-$items[] = new admin_setting_heading('filter_poodll_html5play_settings', get_string('filter_poodll_html5play_heading', 'filter_poodll'), '');
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_chrome_rec', get_string('chromerec', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_safari_rec', get_string('safarirec', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_ffox_rec', get_string('ffoxrec', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_op_rec', get_string('oprec', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_sm_rec', get_string('smrec', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_ie_rec', get_string('ierec', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_android_rec', get_string('androidrec', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_ios_rec', get_string('iosrec', 'filter_poodll'), '', 0);
-$items[] = new admin_setting_configcheckbox('filter_poodll_html5_bbrec_rec', get_string('iosrec', 'filter_poodll'), '', 0);
 */
+$items[] = new admin_setting_heading('filter_poodll_html5use_settings', get_string('html5use_heading', 'filter_poodll'), '');
+$options = array('never' => 'Never use HTML5','mobile' => 'Mobile devices', 'webkit' => 'Mobile + Webkit browsers(Safari,Chrome)','always' => 'Always use HTML5');
+$items[] = new admin_setting_configselect('filter_poodll_html5rec', get_string('html5rec', 'filter_poodll'), '', 'mobile', $options);
+$items[] = new admin_setting_configselect('filter_poodll_html5play', get_string('html5play', 'filter_poodll'), '', 'mobile', $options);
+$items[] = new admin_setting_configselect('filter_poodll_html5widgets', get_string('html5widgets', 'filter_poodll'), '', 'mobile', $options);
+
+/*
+//File Conversions
+*/
+$items[] = new admin_setting_heading('filter_poodll_transcode_settings', get_string('transcode_heading', 'filter_poodll'), '');
+$items[] = new admin_setting_configcheckbox('filter_poodll_videotranscode', get_string('videotranscode', 'filter_poodll'), get_string('videotranscodedetails', 'filter_poodll'), 0);
+$items[] = new admin_setting_configcheckbox('filter_poodll_audiotranscode', get_string('audiotranscode', 'filter_poodll'), get_string('audiotranscodedetails', 'filter_poodll'), 0);
+$items[] = new admin_setting_configcheckbox('filter_poodll_ffmpeg', get_string('ffmpeg', 'filter_poodll'), get_string('ffmpeg_details', 'filter_poodll'), 0);
+
 
 //PoodLL Whiteboard
 $items[] = new admin_setting_heading('filter_poodll_whiteboard_setting', get_string('filter_poodll_whiteboard_heading', 'filter_poodll'), '');

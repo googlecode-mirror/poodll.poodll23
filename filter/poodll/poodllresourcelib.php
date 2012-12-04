@@ -774,7 +774,7 @@ function fetchMP3RecorderForSubmission($updatecontrol, $contextid,$component,$fi
 global $CFG, $USER, $COURSE;
 
 //get our HTML5 Uploader if we have a mobile device
-if(isMobile()){
+if(isMobile($CFG->filter_poodll_html5rec)){
 	return fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "audio");
 }
 
@@ -847,7 +847,7 @@ global $CFG, $USER, $COURSE;
 
 //head off to HTML5 logic if mobile
 
-if(isMobile()){
+if(isMobile($CFG->filter_poodll_html5widgets)){
 //if(true){
 	return fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "image");
 }
@@ -908,7 +908,7 @@ function fetchAudioRecorderForSubmission($runtime, $assigname, $updatecontrol="s
 global $CFG, $USER, $COURSE;
 
 //get our HTML5 Uploader if we have a mobile device
-if(isMobile()){
+if(isMobile($CFG->filter_poodll_html5rec)){
 	return fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "audio");
 }
 
@@ -1326,7 +1326,7 @@ function fetchSnapshotCameraForSubmission($updatecontrol="filename", $filename="
 global $CFG, $USER, $COURSE;
 
 //get our HTML5 Uploader if we have a mobile device
-if(isMobile()){
+if(isMobile($CFG->filter_poodll_html5widgets)){
 	return fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "image");
 }
 
@@ -1528,7 +1528,7 @@ function fetchVideoRecorderForSubmission($runtime, $assigname, $updatecontrol="s
 global $CFG, $USER, $COURSE;
 
 //head off to HTML5 logic if mobile
-if (isMobile()){
+if (isMobile($CFG->filter_poodll_html5rec)){
 	return fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "video");
 }
 
@@ -1717,7 +1717,7 @@ global  $CFG, $COURSE;
     						
     	
 	//depending on runtime, we show a SWF or html5 player			
-	if($runtime=="js" || ($runtime=="auto" && isMobile())){
+	if($runtime=="js" || ($runtime=="auto" && isMobile($CFG->filter_poodll_html5play))){
 	
 		//the $src url as it comes from assignment and questions, is urlencoded,
 		//unlikely to arrive here encoded, but lets just be safe 
@@ -1773,7 +1773,7 @@ global  $CFG, $COURSE;
 		$params['fontsize']= $fontsize;
 	
 		//depending on runtime, we show a SWF or html5 player					
-		if($runtime=="js" || ($runtime=="auto" && isMobile())){
+		if($runtime=="js" || ($runtime=="auto" && isMobile($CFG->filter_poodll_html5play))){
 		
 			//the $src url as it comes from assignment and questions, is urlencoded,
 			//unlikely to arrive here encoded, but lets just be safe 
@@ -1826,7 +1826,7 @@ global  $CFG, $COURSE;
 	//depending on runtime, we show a SWF or html5 player
 	//currently no js implementation	
 	if(false){
-	//if($runtime=="js" || ($runtime=="auto" && isMobile())){
+	//if($runtime=="js" || ($runtime=="auto" && isMobile($CFG->filter_poodll_html5play))){
 	
 		//the $src url as it comes from assignment and questions, is urlencoded,
 		//unlikely to arrive here encoded, but lets just be safe 
@@ -1903,7 +1903,7 @@ $moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current modu
 
 
 //determine if we are on a mobile device or not
- $ismobile = isMobile();
+ $ismobile = isMobile($CFG->filter_poodll_html5play);
 
 	//if its a poodll player we want an xml feed
 	//if its jw or fp we want an rss feed
@@ -1992,7 +1992,7 @@ $courseid= $COURSE->id;
 $useplayer=$CFG->filter_poodll_defaultplayer;
 
 //determine if we are on a mobile device or not
- $ismobile = isMobile();
+ $ismobile = isMobile($CFG->filter_poodll_html5play);
 
 	//Set our use protocol type
 	//if one was not passed, then it may have been tagged to the url
@@ -2187,7 +2187,7 @@ if($protocol=="yutu"){
 }
 
 //determine if we are on a mobile device or not
-$ismobile=isMobile();
+$ismobile=isMobile($CFG->filter_poodll_html5play);
 //$ismobile=true;
 
 
@@ -2371,8 +2371,6 @@ $ismobile=isMobile();
 	}
 
 }
-
-
 
 
 function fetchSmallVideoGallery($runtime, $playlist, $filearea="content", $protocol="", $width, $height,$permitfullscreen=false, $usepoodlldata=false){
@@ -2944,8 +2942,11 @@ function fetchSWFObjectWidgetCode($widget,$flashvarsArray,$width,$height,$bgcolo
 
 //Here we try to detect if this is a mobile device or not
 //this is used to determine whther to return a JS or SWF widget
-function isMobile(){
-
+function isMobile($profile='mobile'){
+	global $CFG;
+	
+	if ($profile=='never'){return false;}
+	if ($profile=='always'){return true;}
 	
 	$browser = new Browser();
 	 switch($browser->getBrowser()){
@@ -2960,6 +2961,36 @@ function isMobile(){
 			$ismobile = false;
 	}
 
+	if (!$ismobile){
+		switch($browser->getPlatform()){
+
+			case Browser::PLATFORM_IPHONE:
+			case Browser::PLATFORM_IPOD:
+			case Browser::PLATFORM_IPAD:
+			case Browser::PLATFORM_BLACKBERRY:
+			case Browser::PLATFORM_NOKIA:
+			case Browser::PLATFORM_ANDROID:
+			case Browser::PLATFORM_WINDOWS_CE:
+				$ismobile = true;
+		}//end of switch
+	}//end of is not mobile
+	
+	//if we are stil lnot mobile, but webkit browwsers count, check that too
+	if (!$ismobile && ($profile=='webkit')){
+		 switch($browser->getBrowser()){
+			case Browser::BROWSER_SAFARI:
+			case Browser::BROWSER_ICAB:
+			case Browser::BROWSER_OMNIWEB:
+			case Browser::BROWSER_NOKIA_S60:
+			case Browser::BROWSER_CHROME:
+				$ismobile = true;
+				break;
+			default:
+		}		$ismobile = false;
+		
+	
+	}
+	
 	return $ismobile;
 
 }

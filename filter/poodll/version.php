@@ -25,8 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2012112500; 
+$plugin->version   = 2012120300; 
 $plugin->requires  = 2011070100.00; 
 $plugin->component = 'filter_poodll'; 
 $plugin->maturity  = MATURITY_BETA;
-$plugin->release   = '2.3.9 (Build 2012112500)';
+$plugin->release   = '2.3.10 (Build 2012120300)';
