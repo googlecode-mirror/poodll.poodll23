@@ -273,7 +273,22 @@ function uploadfile($filedata,  $fileextension, $actionid,$contextid, $comp, $fa
 	
 		//actually make the file
 		$xfiledata = base64_decode($filedata);
-		 $stored_file = $fs->create_file_from_string($record, $xfiledata);
+		
+		if($CFG->filter_poodll_ffmpeg){
+			//do something like this
+			/*
+			$path = $temppath . $filename;
+			//write out to path
+			
+			$stored_file = 	$fs->create_file_from_pathname($record, $path);
+			
+			//delete original path
+			
+			*/
+			$stored_file = $fs->create_file_from_string($record, $xfiledata);
+		}else
+			$stored_file = $fs->create_file_from_string($record, $xfiledata);
+		}
 		//if successful return filename
 		if($stored_file){
 			array_push($return['messages'],$filename );
