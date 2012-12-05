@@ -18,7 +18,7 @@
 		<property name="dist.assig23" value="onlinepoodll"/>
 		<property name="dist.question" value="poodllrecording"/>
 		<property name="dist.all" value="poodllall"/>
-		<property name="dist.version" value="2012110500"/>
+		<property name="dist.version" value="2012120400"/>
 	</target>
 	
 	<!-- Make All PoodLL package for this version -->
@@ -31,7 +31,6 @@
 	    </delete>
 		<zip destfile="${path.dist}/${dist.datafield}_${dist.version}.zip" whenempty="fail">
 			<zipfileset dir="mod/data/field/poodll" prefix="poodll"/>
-			<zipfileset dir="readmes" prefix="poodll" includes="README.${dist.datafield}.txt" />
 		</zip>
 	</target>
 	
@@ -42,7 +41,6 @@
 	    </delete>
 		<zip destfile="${path.dist}/${dist.filter}_${dist.version}.zip" whenempty="fail">
 			<zipfileset dir="filter/poodll" prefix="poodll"/>
-			<zipfileset dir="readmes" prefix="poodll" includes="README.${dist.filter}.txt" />
 		</zip>
 	</target>
 	
@@ -53,7 +51,6 @@
 	    </delete>
 		<zip destfile="${path.dist}/${dist.filterxjs}_${dist.version}.zip" whenempty="fail">
 			<zipfileset dir="filter/poodll" prefix="poodll" excludes="**/js/**" />
-			<zipfileset dir="readmes" prefix="poodll" includes="README.${dist.filter}.txt" />
 		</zip>
 	</target>
 	
@@ -64,7 +61,6 @@
 	    </delete>
 		<zip destfile="${path.dist}/${dist.repo}_${dist.version}.zip" whenempty="fail">
 			<zipfileset dir="repository/poodll" prefix="poodll"/>
-			<zipfileset dir="readmes" prefix="poodll" includes="README.${dist.repo}.txt" />
 		</zip>
 	</target>
 	
@@ -75,7 +71,6 @@
 	    </delete>
 		<zip destfile="${path.dist}/${dist.assig}_${dist.version}.zip" whenempty="fail">
 			<zipfileset dir="mod/assignment/type/poodllonline" prefix="poodllonline"/>
-			<zipfileset dir="readmes" prefix="poodllonline" includes="README.${dist.assig}.txt" />
 		</zip>
 	</target>
 	
@@ -86,7 +81,6 @@
 	    </delete>
 		<zip destfile="${path.dist}/${dist.assig23}_${dist.version}.zip" whenempty="fail">
 			<zipfileset dir="mod/assign/submission/onlinepoodll" prefix="onlinepoodll"/>
-			<zipfileset dir="readmes" prefix="onlinepoodll" includes="README.${dist.assig23}.txt" />
 		</zip>
 	</target>
 	
@@ -97,7 +91,6 @@
 	    </delete>
 		<zip destfile="${path.dist}/${dist.question}_${dist.version}.zip" whenempty="fail">
 			<zipfileset dir="question/type/poodllrecording" prefix="poodllrecording"/>
-			<zipfileset dir="readmes" prefix="poodllrecording" includes="README.${dist.question}.txt" />
 		</zip>
 	</target>
 	
