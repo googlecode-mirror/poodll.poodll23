@@ -47,6 +47,7 @@ class assignment_poodllonline extends assignment_base {
 
         global $CFG, $USER, $DB , $OUTPUT, $PAGE;
 
+
         $edit  = optional_param('edit', 0, PARAM_BOOL);
         $saved = optional_param('saved', 0, PARAM_BOOL);
 		$print  = optional_param('print', 0, PARAM_BOOL);
@@ -354,23 +355,27 @@ class assignment_poodllonline extends assignment_base {
 		//perform the copy	
 		if($draft_fileinfo){
 			//this changed in 2.3 Justin 201206276 We need to write out a filerecord
-			//$ret = $draft_fileinfo->copy_to_storage($this->context->id, 'mod_assignment', 'submission', $submission->id, '/', $filename);
+			if ($CFG->version < 2012062500){
+				$ret = $draft_fileinfo->copy_to_storage($this->context->id, 'mod_assignment', 'submission', $submission->id, '/', $filename);
+			}else{
 			
-			//create the file record for our new file
-			$file_record = array(
-			'userid' => $USER->id,
-			'contextid'=>$this->context->id, 
-			'component'=>'mod_assignment', 
-			'filearea'=>'submission',
-			'itemid'=>$submission->id, 
-			'filepath'=>'/', 
-			'filename'=>$filename,
-			'author'=>'moodle user',
-			'license'=>'allrighttsreserved',		
-			'timecreated'=>time(), 
-			'timemodified'=>time()
-			);
-			$ret = $draft_fileinfo->copy_to_storage($file_record);
+				//create the file record for our new file
+				$file_record = array(
+				'userid' => $USER->id,
+				'contextid'=>$this->context->id, 
+				'component'=>'mod_assignment', 
+				'filearea'=>'submission',
+				'itemid'=>$submission->id, 
+				'filepath'=>'/', 
+				'filename'=>$filename,
+				'author'=>'moodle user',
+				'license'=>'allrighttsreserved',		
+				'timecreated'=>time(), 
+				'timemodified'=>time()
+				);
+				$ret = $draft_fileinfo->copy_to_storage($file_record);
+			
+			}
 			
 		}//end of if $original_fileinfo
 

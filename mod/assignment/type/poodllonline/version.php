@@ -22,9 +22,9 @@
  * @copyright  2012 Justin Hunt
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version   = 2012102100;
-$plugin->requires  = 2012062500;
+$plugin->version   = 2012120400;
+$plugin->requires  = 2011070100.00;        // Requires this Moodle version
 $plugin->component = 'assignment_poodllonline'; 
 $plugin->maturity  = MATURITY_BETA;
-$plugin->release   = '2.3.8 (Build 2012102100)';
-$plugin->dependencies = array('filter_poodll' => 2012102100);
+$plugin->release   = '2.3.9 (Build 2012120400)';
+$plugin->dependencies = array('filter_poodll' => 2012120400);
