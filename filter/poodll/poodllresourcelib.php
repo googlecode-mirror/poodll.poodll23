@@ -1660,10 +1660,10 @@ global $CFG,$PAGE;
 
 	//depending on our media type, tell the mobile device what kind of file we want
 	switch($mediatype){
-		case "image": $mediatype="accept=\"image/*\"";break;
+		case "image": $acceptmedia="accept=\"image/*\"";break;
 		case "audio":
-		case "video": $mediatype="accept=\"video/*\"";break;
-		default: $mediatype="";
+		case "video": $acceptmedia="accept=\"video/*\"";break;
+		default: $acceptmedia="";
 	}
 	
 	//Output our HTML
@@ -1675,10 +1675,11 @@ global $CFG,$PAGE;
 			<input type=\"hidden\" id=\"p_component\" value=\"$component\" />
 			<input type=\"hidden\" id=\"p_filearea\" value=\"$filearea\" />
 			<input type=\"hidden\" id=\"p_itemid\" value=\"$itemid\" />
+			<input type=\"hidden\" id=\"p_mediatype\" value=\"$mediatype\" />
 			<input type=\"hidden\" id=\"p_fileliburl\" value=\"$fileliburl\" />
 			
 			<label for=\"poodllfileselect\">Upload File:</label>
-			<input type=\"file\" id=\"poodllfileselect\" name=\"poodllfileselect[]\" $mediatype />
+			<input type=\"file\" id=\"poodllfileselect\" name=\"poodllfileselect[]\" $acceptmedia />
 		</div>
 		<div id=\"p_progress\"></div>
 		<div id=\"p_messages\"></div>
@@ -2838,12 +2839,8 @@ function fetch_filter_properties($filterstring){
 function fetchAutoWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF"){
 	global $CFG, $PAGE;
 	$ret="";
-	 $browser = new Browser();
-	 switch($browser->getBrowser()){
-		case Browser::BROWSER_IPAD:
-		case Browser::BROWSER_IPOD:
-		case Browser::BROWSER_IPHONE:
-		case Browser::BROWSER_ANDROID:
+	//determine if this is mobile or not
+	 if(isMobile($CFG->filter_poodll_html5widgets)){
 			
 			$pos =strPos($widget,".lzx.");
 			if ($pos > 0){
@@ -2851,8 +2848,7 @@ function fetchAutoWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFF
 					$widget=$basestring . ".js";
 					$ret= fetchJSWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF");	
 			}
-			break;
-		default:
+	}else{
 			//$ret=$browser->getPlatform();
 			$ret = fetchSWFWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF");	
 	 }
@@ -2949,20 +2945,18 @@ function isMobile($profile='mobile'){
 	if ($profile=='always'){return true;}
 	
 	$browser = new Browser();
+	
+	//check by browser
 	 switch($browser->getBrowser()){
 		case Browser::BROWSER_IPAD:
 		case Browser::BROWSER_IPOD:
 		case Browser::BROWSER_IPHONE:
 		case Browser::BROWSER_ANDROID:
-			$ismobile = true;
-			break;
-				
-		default: 
-			$ismobile = false;
+		return true;
 	}
 
-	if (!$ismobile){
-		switch($browser->getPlatform()){
+	//check by platform
+	switch($browser->getPlatform()){
 
 			case Browser::PLATFORM_IPHONE:
 			case Browser::PLATFORM_IPOD:
@@ -2971,28 +2965,22 @@ function isMobile($profile='mobile'){
 			case Browser::PLATFORM_NOKIA:
 			case Browser::PLATFORM_ANDROID:
 			case Browser::PLATFORM_WINDOWS_CE:
-				$ismobile = true;
-		}//end of switch
-	}//end of is not mobile
+			return true;
+	}//end of switch
+
 	
-	//if we are stil lnot mobile, but webkit browwsers count, check that too
-	if (!$ismobile && ($profile=='webkit')){
+	//if we are still not mobile, but webkit browwsers count, check that too
+	if ($profile=='webkit'){
 		 switch($browser->getBrowser()){
 			case Browser::BROWSER_SAFARI:
 			case Browser::BROWSER_ICAB:
 			case Browser::BROWSER_OMNIWEB:
 			case Browser::BROWSER_NOKIA_S60:
 			case Browser::BROWSER_CHROME:
-				$ismobile = true;
-				break;
-			default:
-		}		$ismobile = false;
-		
-	
+			return true;
+		}		
 	}
-	
-	return $ismobile;
-
+	return false;
 }
 
 

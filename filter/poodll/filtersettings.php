@@ -84,7 +84,7 @@ $items[] = new admin_setting_configtext('filter_poodll_picqual', get_string('pic
 //HTML5 Recording
 */
 $items[] = new admin_setting_heading('filter_poodll_html5use_settings', get_string('html5use_heading', 'filter_poodll'), '');
-$options = array('never' => 'Never use HTML5','mobile' => 'Mobile devices', 'webkit' => 'Mobile + Webkit browsers(Safari,Chrome)','always' => 'Always use HTML5');
+$options = array('never' => 'Never use HTML5','mobile' => 'Mobile devices', 'webkit' => 'Mobile + Webkit browsers(Safari,Chrome etc)','always' => 'Always use HTML5');
 $items[] = new admin_setting_configselect('filter_poodll_html5rec', get_string('html5rec', 'filter_poodll'), '', 'mobile', $options);
 $items[] = new admin_setting_configselect('filter_poodll_html5play', get_string('html5play', 'filter_poodll'), '', 'mobile', $options);
 $items[] = new admin_setting_configselect('filter_poodll_html5widgets', get_string('html5widgets', 'filter_poodll'), '', 'mobile', $options);
