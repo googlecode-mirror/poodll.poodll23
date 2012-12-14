@@ -384,6 +384,21 @@ function filter_poodll_callback(array $link){
 				;
 			break;	
 			
+		case 'scrollerstart':
+			$returnHtml= fetch_poodllscroller(true,
+				!empty($filterprops['width']) ? $filterprops['width'] :  '400',
+				!empty($filterprops['height']) ? $filterprops['height'] :  '200',
+				!empty($filterprops['speed']) ? $filterprops['speed'] :  '3',
+				!empty($filterprops['repeat']) ? $filterprops['repeat'] :  'yes',
+				!empty($filterprops['axis']) ? $filterprops['axis'] :  'y')
+				;
+			break;	
+		
+		case 'scrollerstop':
+			$returnHtml= fetch_poodllscroller(false);
+
+			break;
+				
 		case 'sliderocket':
 			$returnHtml= fetch_sliderocket($filterprops['id'],
 				!empty($filterprops['width']) ? $filterprops['width'] :  '400',
