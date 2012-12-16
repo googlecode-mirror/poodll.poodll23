@@ -256,7 +256,11 @@ function filter_poodll_callback(array $link){
 			break;
 			
 		case 'flashcards':
-			$returnHtml= fetch_flashcards($filterprops['runtime'],$filterprops['cardset'],
+			$returnHtml= fetch_flashcards($filterprops['runtime'],
+				!empty($filterprops['cardset']) ? $filterprops['cardset'] : -1,
+				!empty($filterprops['qname']) ? $filterprops['qname'] : "",
+				!empty($filterprops['frontcolor']) ? $filterprops['frontcolor'] : "0xDDDDDD",
+				!empty($filterprops['backcolor']) ? $filterprops['backcolor'] : "0x000000",
 				!empty($filterprops['cardwidth']) ? $filterprops['cardwidth'] : 300,
 				!empty($filterprops['cardheight']) ? $filterprops['cardheight'] : 150,
 				!empty($filterprops['randomize']) ? $filterprops['randomize'] : 'yes',
