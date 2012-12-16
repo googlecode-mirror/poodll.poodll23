@@ -1305,7 +1305,7 @@ global $CFG;
 
 }
 
-function fetch_flashcards($runtime, $cardset,$cardwidth,$cardheight,$randomize,$width,$height){
+function fetch_flashcards($runtime, $cardset,$cardsetname, $frontcolor,$backcolor, $cardwidth,$cardheight,$randomize,$width,$height){
 global $CFG,$COURSE;
 
 
@@ -1320,6 +1320,9 @@ global $CFG,$COURSE;
 		//get the url to the automated medialist maker
 		$fetchdataurl= $CFG->wwwroot . '/filter/poodll/poodlllogiclib.php?datatype=poodllflashcards&courseid=' . $COURSE->id 
 			. '&paramone=' . $cardset 
+			. '&paramtwo=' . $cardsetname
+			. '&paramthree=' . $frontcolor 			
+			. '&paramfour=' . $backcolor 	
 			. '&cachekiller=' . rand(10000,999999);
 	}
 	
