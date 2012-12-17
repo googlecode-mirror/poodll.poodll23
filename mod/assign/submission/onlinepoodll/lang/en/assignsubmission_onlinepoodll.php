@@ -39,4 +39,6 @@ $string['replyvideo'] = 'Video Recorder';
 $string['replywhiteboard'] = 'Whiteboard';
 $string['replysnapshot'] = 'Snapshot';
 $string['replytalkback'] = 'Talkback';
+$string['backimage'] = 'Background Image';
+$string['boardsize'] = 'Board Size';
 
