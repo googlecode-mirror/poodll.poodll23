@@ -37,6 +37,7 @@ defined('MOODLE_INTERNAL') || die();
 define('ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA', 'submissions_onlinepoodll');
 define('ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT', 'assignsubmission_onlinepoodll');
 define('ASSIGNSUBMISSION_ONLINEPOODLL_TABLE', 'assignsubmission_onlinepoodl');
+define('ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA', 'onlinepoodll_backimage');
 
 
 //some constants for the type of online poodll assignment
@@ -70,7 +71,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
     }
 
 	    /**
-     * Get the default setting for file submission plugin
+     * Get the settings for Onbline PoodLLsubmission plugin form
      *
      * @global stdClass $CFG
      * @global stdClass $COURSE
@@ -81,6 +82,8 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
         global $CFG, $COURSE;
 
         $recordertype = $this->get_config('recordertype');
+		$boardsize = $this->get_config('boardsize');
+		$backimage = $this->get_config('backimage');
       
 
         $recorderoptions = array( OM_REPLYMP3VOICE => get_string("replymp3voice", "assignsubmission_onlinepoodll"), 
@@ -97,6 +100,36 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
         $mform->setDefault('assignsubmission_onlinepoodll_recordertype', $recordertype);
       //  $mform->disabledIf('assignsubmission_onlinepoodll_recordertype', 'assignsubmission_onlinepoodll_enabled', 'eq', 0);
 
+	  //these are for the whiteboard submission
+	  // added Justin 20121216 back image, and boardsizes, part of whiteboard response
+	
+		
+		//For the back image, we 
+		//(i) first have to load existing back image files into a draft area
+		// (ii) add a file manager element
+		//(iii) set the draft area info as the "default" value for the file manager
+		$itemid = 0;
+		$draftitemid = file_get_submitted_draft_itemid(ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA);
+		//$draftitemid = $backimage;
+		file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, 
+		$itemid,
+		array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
+		$mform->addElement('filemanager', 'backimage', get_string('backimage', 'assignsubmission_onlinepoodll'), null,array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
+		$mform->setDefault('backimage', $backimage);
+		
+		//board sizes
+		$boardsizes = array(
+			'320x320' => '320x320',
+			'400x600' => '400x600',
+			'500x500' => '500x500',
+			'600x400' => '600x400',
+			'600x800' => '600x800',
+			'800x600' => '800x600'
+			);
+		$mform->addElement('select', 'assignsubmission_onlinepoodll_boardsize',
+			get_string('boardsize', 'assignsubmission_onlinepoodll'), $boardsizes);
+		$mform->setDefault('assignsubmission_onlinepoodll_boardsize', $boardsize);
+		
 
     }
     
@@ -108,6 +141,24 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
      */
     public function save_settings(stdClass $data) {
         $this->set_config('recordertype', $data->assignsubmission_onlinepoodll_recordertype);
+		 $this->set_config('boardsize', $data->assignsubmission_onlinepoodll_boardsize);
+		// $this->set_config('backimage', $data->assignsubmission_onlinepoodll_backimage);
+		$itemid=0;
+		file_save_draft_area_files($data->assignsubmission_onlinepoodll_backimage, 
+							$this->assignment->get_context()->id, 
+							ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT,
+							ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, $itemid, 
+							array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
+	
+	/*
+		error_log(print_r($data,true));
+	$draftitemid = file_get_submitted_draft_itemid('assignsubmission_onlinepoodll_backimage');
+	file_prepare_draft_area($draftitemid, $this->context->id, ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, 
+		!empty($data->coursemodule) ? (int) $data->coursemodule : null,
+		array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
+		*/
+	$this->set_config('backimage', $data->backimage);
+
         return true;
     }
 
@@ -124,7 +175,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
     }
 
     /**
-     * Add form elements for settings
+     * Add form elements onlinepoodll submissions
      *
      * @param mixed $submission can be null
      * @param MoodleQuickForm $mform
@@ -150,46 +201,54 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		$mform->addElement('hidden', 'draftitemid', $draftitemid);
 		$mform->addElement('hidden', 'usercontextid', $usercontextid);	
 		$mform->addElement('hidden', FILENAMECONTROL, '',array('id' => FILENAMECONTROL));
-				
-
+	
 		
-		
-		//Do we need audio or text? or both?
-		//the customdata is info we passed in up around line 175 in the view method.
+		//fetch the required "recorder
 		switch($this->get_config('recordertype')){
 			
 			case OM_REPLYVOICE:
-				//$mediadata= fetchSimpleAudioRecorder('onlinemedia' . $this->_customdata['cm']->id , $USER->id);
-				//$mediadata= fetchSimpleAudioRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
 				$mediadata= fetchAudioRecorderForSubmission('swf','onlinepoodll',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid);
 				$mform->addElement('static', 'description', '',$mediadata);
 
 				break;
 				
 			case OM_REPLYMP3VOICE:
-				//$mediadata= fetchSimpleAudioRecorder('onlinemedia' . $this->_customdata['cm']->id , $USER->id);
-				//$mediadata= fetchSimpleAudioRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
 				$mediadata= fetchMP3RecorderForSubmission(FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,640,400);
 				$mform->addElement('static', 'description', '',$mediadata);
 				break;
 				
 			case OM_REPLYWHITEBOARD:
-				//$mediadata= fetchSimpleAudioRecorder('onlinemedia' . $this->_customdata['cm']->id , $USER->id);
-				//$mediadata= fetchSimpleAudioRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
-				$mediadata= fetchWhiteboardForSubmission(FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid);
+				//get board sizes
+				switch($this->get_config('boardsize')){
+					case "320x320": $width=320;$height=320;break;
+					case "400x600": $width=400;$height=600;break;
+					case "500x500": $width=500;$height=500;break;
+					case "600x400": $width=600;$height=400;break;
+					case "600x800": $width=600;$height=800;break;
+					case "800x600": $width=800;$height=600;break;
+				}
+
+				//Get Backimage, if we have one
+				// get file system handle for fetching url to submitted media prompt (if there is one) 
+				$fs = get_file_storage();
+				$itemid=0;
+				$files = $fs->get_area_files($contextid, ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, $itemid);
+				$imageurl="";
+				if($files && count($files)>0){
+					$file = array_pop($files);
+					$imageurl = $qa->rewrite_pluginfile_urls('@@PLUGINFILE@@/' . $file->get_filename(), $file->get_component(),$file->get_filearea() , $file->get_itemid());
+				}
+	
+				$mediadata= fetchWhiteboardForSubmission(FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid, $width, $height, $imageurl);
 				$mform->addElement('static', 'description', '',$mediadata);
 				break;
 			
 			case OM_REPLYSNAPSHOT:
-				//$mediadata= fetchSimpleAudioRecorder('onlinemedia' . $this->_customdata['cm']->id , $USER->id);
-				//$mediadata= fetchSimpleAudioRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
 				$mediadata= fetchSnapshotCameraForSubmission(FILENAMECONTROL,"snap.jpg" ,350,400,$usercontextid ,'user','draft',$draftitemid);
 				$mform->addElement('static', 'description', '',$mediadata);
 				break;
 
 			case OM_REPLYVIDEO:
-				
-			
 				$mediadata= fetchVideoRecorderForSubmission('swf','onlinepoodll',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid);
 				$mform->addElement('static', 'description', '',$mediadata);			
 									
