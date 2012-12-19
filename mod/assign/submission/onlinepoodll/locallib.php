@@ -36,6 +36,7 @@ defined('MOODLE_INTERNAL') || die();
  */
 define('ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA', 'submissions_onlinepoodll');
 define('ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT', 'assignsubmission_onlinepoodll');
+define('ASSIGNSUBMISSION_ONLINEPOODLL_CONFIG_COMPONENT', 'assignsubmission_onlinepoodll');
 define('ASSIGNSUBMISSION_ONLINEPOODLL_TABLE', 'assignsubmission_onlinepoodl');
 define('ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA', 'onlinepoodll_backimage');
 
@@ -108,10 +109,15 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		//(i) first have to load existing back image files into a draft area
 		// (ii) add a file manager element
 		//(iii) set the draft area info as the "default" value for the file manager
-		$itemid = 0;
+		//if ($this->assignment->get_instance) {
+		if(false){
+				$itemid = $this->assignment->instance->id;
+		}else{
+				$itemid = 0;
+		}
 		$draftitemid = file_get_submitted_draft_itemid(ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA);
 		//$draftitemid = $backimage;
-		file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, 
+		file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, ASSIGNSUBMISSION_ONLINEPOODLL_CONFIG_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, 
 		$itemid,
 		array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 		$mform->addElement('filemanager', 'backimage', get_string('backimage', 'assignsubmission_onlinepoodll'), null,array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
@@ -143,10 +149,15 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
         $this->set_config('recordertype', $data->assignsubmission_onlinepoodll_recordertype);
 		 $this->set_config('boardsize', $data->assignsubmission_onlinepoodll_boardsize);
 		// $this->set_config('backimage', $data->assignsubmission_onlinepoodll_backimage);
-		$itemid=0;
-		file_save_draft_area_files($data->assignsubmission_onlinepoodll_backimage, 
+		//error_log(print_r($this->assignment,true));
+		//error_log(print_r($data,true));
+		$itemid = $data->instance;
+		//error_log(print_r($this,true));
+		//$itemid = $this->id;
+		$itemid = 0;
+		file_save_draft_area_files($data->backimage, 
 							$this->assignment->get_context()->id, 
-							ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT,
+							ASSIGNSUBMISSION_ONLINEPOODLL_CONFIG_COMPONENT,
 							ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, $itemid, 
 							array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 	
@@ -227,16 +238,29 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 					case "600x800": $width=600;$height=800;break;
 					case "800x600": $width=800;$height=600;break;
 				}
+				
+				//compensation for borders and control panel
+				//the board size is the size of the drawing canvas, not the widget
+				$width = $width + 205;
+				$height = $height + 20;
 
 				//Get Backimage, if we have one
 				// get file system handle for fetching url to submitted media prompt (if there is one) 
 				$fs = get_file_storage();
 				$itemid=0;
-				$files = $fs->get_area_files($contextid, ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, $itemid);
+				$files = $fs->get_area_files($contextid, ASSIGNSUBMISSION_ONLINEPOODLL_CONFIG_COMPONENT, 
+								ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, 
+								$itemid);
 				$imageurl="";
 				if($files && count($files)>0){
 					$file = array_pop($files);
-					$imageurl = $qa->rewrite_pluginfile_urls('@@PLUGINFILE@@/' . $file->get_filename(), $file->get_component(),$file->get_filearea() , $file->get_itemid());
+					$imageurl = file_rewrite_pluginfile_urls('@@PLUGINFILE@@/' . $file->get_filename(), 
+								'pluginfile.php', 
+								$file->get_contextid(), 
+								$file->get_component(), 
+								$file->get_filearea(), 
+								$file->get_itemid());
+				
 				}
 	
 				$mediadata= fetchWhiteboardForSubmission(FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid, $width, $height, $imageurl);
