@@ -43,21 +43,26 @@ function assignsubmission_onlinepoodll_pluginfile($course, $cm, context $context
 
     require_login($course, false, $cm);
     $itemid = (int)array_shift($args);
-    $record = $DB->get_record('assign_submission', array('id'=>$itemid), 'userid, assignment', MUST_EXIST);
-    $userid = $record->userid;
+	
+	//back image is a special case
+	if(!($itemid==0 && $filearea="onlinepoodll_backimage")){
 
-    if (!$assign = $DB->get_record('assign', array('id'=>$cm->instance))) {
-        return false;
-    }
+		$record = $DB->get_record('assign_submission', array('id'=>$itemid), 'userid, assignment', MUST_EXIST);
+		$userid = $record->userid;
 
-    if ($assign->id != $record->assignment) {
-        return false;
-    }
+		if (!$assign = $DB->get_record('assign', array('id'=>$cm->instance))) {
+			return false;
+		}
 
-    // check is users submission or has grading permission
-    if ($USER->id != $userid and !has_capability('mod/assign:grade', $context)) {
-        return false;
-    }
+		if ($assign->id != $record->assignment) {
+			return false;
+		}
+
+		// check is users submission or has grading permission
+		if ($USER->id != $userid and !has_capability('mod/assign:grade', $context)) {
+			return false;
+		}
+	}
 
     $relativepath = implode('/', $args);
 
