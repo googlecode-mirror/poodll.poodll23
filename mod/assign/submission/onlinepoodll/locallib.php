@@ -85,6 +85,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
         $recordertype = $this->get_config('recordertype');
 		$boardsize = $this->get_config('boardsize');
 		$backimage = $this->get_config('backimage');
+		$timelimit = $this->get_config('timelimit');
       
 
         $recorderoptions = array( OM_REPLYMP3VOICE => get_string("replymp3voice", "assignsubmission_onlinepoodll"), 
@@ -97,31 +98,33 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		//OM_REPLYTALKBACK => get_string("replytalkback", "assignsubmission_onlinepoodll"));
         
 		$mform->addElement('select', 'assignsubmission_onlinepoodll_recordertype', get_string("recordertype", "assignsubmission_onlinepoodll"), $recorderoptions);
-        $mform->addHelpButton('assignsubmission_onlinepoodll_recordertype', 'defaultname', ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT);
+        //$mform->addHelpButton('assignsubmission_onlinepoodll_recordertype', get_string('onlinepoodll', ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT), ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT);
         $mform->setDefault('assignsubmission_onlinepoodll_recordertype', $recordertype);
-      //  $mform->disabledIf('assignsubmission_onlinepoodll_recordertype', 'assignsubmission_onlinepoodll_enabled', 'eq', 0);
+		$mform->disabledIf('assignsubmission_onlinepoodll_recordertype', 'assignsubmission_onlinepoodll_enabled', 'eq', 0);
 
+		//Add a place to set a maximum recording time.
+	   $mform->addElement('duration', 'assignsubmission_onlinepoodll_timelimit', get_string('timelimit', 'assignsubmission_onlinepoodll'));    
+       $mform->setDefault('assignsubmission_onlinepoodll_timelimit', $timelimit);
+		$mform->disabledIf('assignsubmission_onlinepoodll_timelimit', 'assignsubmission_onlinepoodll_enabled', 'eq', 0);
+		$mform->disabledIf('assignsubmission_onlinepoodll_timelimit', 'assignsubmission_onlinepoodll_recordertype', 'eq', OM_REPLYWHITEBOARD);
+		$mform->disabledIf('assignsubmission_onlinepoodll_timelimit', 'assignsubmission_onlinepoodll_recordertype', 'eq', OM_REPLYSNAPSHOT);
+	  
 	  //these are for the whiteboard submission
 	  // added Justin 20121216 back image, and boardsizes, part of whiteboard response
-	
-		
 		//For the back image, we 
 		//(i) first have to load existing back image files into a draft area
 		// (ii) add a file manager element
 		//(iii) set the draft area info as the "default" value for the file manager
-		//if ($this->assignment->get_instance) {
-		if(false){
-				$itemid = $this->assignment->instance->id;
-		}else{
-				$itemid = 0;
-		}
+		$itemid = 0;
 		$draftitemid = file_get_submitted_draft_itemid(ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA);
-		//$draftitemid = $backimage;
 		file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, ASSIGNSUBMISSION_ONLINEPOODLL_CONFIG_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, 
 		$itemid,
 		array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 		$mform->addElement('filemanager', 'backimage', get_string('backimage', 'assignsubmission_onlinepoodll'), null,array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 		$mform->setDefault('backimage', $backimage);
+		$mform->disabledIf('backimage', 'assignsubmission_onlinepoodll_enabled', 'eq', 0);
+		$mform->disabledIf('backimage', 'assignsubmission_onlinepoodll_recordertype', 'ne', OM_REPLYWHITEBOARD );
+
 		
 		//board sizes
 		$boardsizes = array(
@@ -135,6 +138,8 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		$mform->addElement('select', 'assignsubmission_onlinepoodll_boardsize',
 			get_string('boardsize', 'assignsubmission_onlinepoodll'), $boardsizes);
 		$mform->setDefault('assignsubmission_onlinepoodll_boardsize', $boardsize);
+		$mform->disabledIf('assignsubmission_onlinepoodll_boardsize', 'assignsubmission_onlinepoodll_enabled', 'eq', 0);
+		$mform->disabledIf('assignsubmission_onlinepoodll_boardsize', 'assignsubmission_onlinepoodll_recordertype', 'ne', OM_REPLYWHITEBOARD );
 		
 
     }
@@ -147,7 +152,8 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
      */
     public function save_settings(stdClass $data) {
         $this->set_config('recordertype', $data->assignsubmission_onlinepoodll_recordertype);
-		 $this->set_config('boardsize', $data->assignsubmission_onlinepoodll_boardsize);
+		$this->set_config('boardsize', $data->assignsubmission_onlinepoodll_boardsize);
+		$this->set_config('timelimit', $data->assignsubmission_onlinepoodll_timelimit);
 		// $this->set_config('backimage', $data->assignsubmission_onlinepoodll_backimage);
 		//error_log(print_r($this->assignment,true));
 		//error_log(print_r($data,true));
@@ -213,18 +219,20 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		$mform->addElement('hidden', 'usercontextid', $usercontextid);	
 		$mform->addElement('hidden', FILENAMECONTROL, '',array('id' => FILENAMECONTROL));
 	
+		//get timelimit for recorders if set
+		$timelimit = $this->get_config('timelimit');
 		
 		//fetch the required "recorder
 		switch($this->get_config('recordertype')){
 			
 			case OM_REPLYVOICE:
-				$mediadata= fetchAudioRecorderForSubmission('swf','onlinepoodll',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid);
+				$mediadata= fetchAudioRecorderForSubmission('swf','onlinepoodll',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,$timelimit);
 				$mform->addElement('static', 'description', '',$mediadata);
 
 				break;
 				
 			case OM_REPLYMP3VOICE:
-				$mediadata= fetchMP3RecorderForSubmission(FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,640,400);
+				$mediadata= fetchMP3RecorderForSubmission(FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,$timelimit);
 				$mform->addElement('static', 'description', '',$mediadata);
 				break;
 				
@@ -273,7 +281,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 				break;
 
 			case OM_REPLYVIDEO:
-				$mediadata= fetchVideoRecorderForSubmission('swf','onlinepoodll',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid);
+				$mediadata= fetchVideoRecorderForSubmission('swf','onlinepoodll',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,$timelimit);
 				$mform->addElement('static', 'description', '',$mediadata);			
 									
 				break;
