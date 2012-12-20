@@ -39,7 +39,7 @@ $string['replyvideo'] = 'Video Recorder';
 $string['replywhiteboard'] = 'Whiteboard';
 $string['replysnapshot'] = 'Snapshot';
 $string['replytalkback'] = 'Talkback';
-$string['backimage'] = 'Whiteboard Background';
-$string['boardsize'] = 'Board Size';
-$string['timelimit'] = 'Rec. Time Limit';
+$string['backimage'] = 'PoodLL Whiteboard Back';
+$string['boardsize'] = 'PoodLL WhiteBoard Size';
+$string['timelimit'] = 'PoodLL Rec. Time Limit';
 
