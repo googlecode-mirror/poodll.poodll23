@@ -699,7 +699,9 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
      * @return array - An array of fileareas (keys) and descriptions (values)
      */
     public function get_file_areas() {
-        return array(ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA=>$this->get_name());
+  
+        return array(ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA=>$this->get_name(),
+        	ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA=>$this->get_name . " whiteboard backimage");
     }
 
 }
