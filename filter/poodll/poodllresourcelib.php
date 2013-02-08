@@ -1761,7 +1761,7 @@ global $CFG,$PAGE;
 			<input type=\"file\" id=\"poodllfileselect\" name=\"poodllfileselect[]\" $acceptmedia />
 			<button type=\"button\" class=\"p_btn\">Take or Choose a Video</button>
 		</div>
-		<div id=\"p_progress\"></div>
+		<div id=\"p_progress\"><p></p></div>
 		<div id=\"p_messages\"></div>
 	";
 
