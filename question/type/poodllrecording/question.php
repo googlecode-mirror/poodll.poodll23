@@ -57,8 +57,14 @@ class qtype_poodllrecording_question extends question_with_responses {
 	*   to look for uploaded file URLs in the answer field
 	*/
     public function get_expected_data() {
-
-			$expecteddata = array('answer' => question_attempt::PARAM_CLEANHTML_FILES);
+		global $CFG;
+			//The API for this changed on this date 20120214 (possibly the previous release)
+			//I don't know how to find out. 2.2 branch I think unaffected. Dev unfriendly versions..2.4.1+ and 2.3.4+
+			if ($CFG->version < 2013021400){
+				$expecteddata = array('answer' => question_attempt::PARAM_CLEANHTML_FILES);
+			}else{
+				$expecteddata = array('answer' => question_attempt::PARAM_RAW_FILES);
+			}
 			$expecteddata['answerformat'] = PARAM_FORMAT;
 
         return $expecteddata;
