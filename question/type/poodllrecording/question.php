@@ -60,7 +60,7 @@ class qtype_poodllrecording_question extends question_with_responses {
 		global $CFG;
 			//The API for this changed on this date 20120214 (possibly the previous release)
 			//I don't know how to find out. 2.2 branch I think unaffected. Dev unfriendly versions..2.4.1+ and 2.3.4+
-			if ($CFG->version < 2013021400){
+			if ($CFG->build < 2013021400 || $CFG->version < 2012062500){
 				$expecteddata = array('answer' => question_attempt::PARAM_CLEANHTML_FILES);
 			}else{
 				$expecteddata = array('answer' => question_attempt::PARAM_RAW_FILES);
