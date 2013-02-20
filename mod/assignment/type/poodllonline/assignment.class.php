@@ -400,7 +400,7 @@ class assignment_poodllonline extends assignment_base {
         $DB->update_record('assignment_submissions', $update);
         $submission = $this->get_submission($USER->id);
         $this->update_grade($submission);
-        return true;
+        return $submission;
     }
 
 	  /**
