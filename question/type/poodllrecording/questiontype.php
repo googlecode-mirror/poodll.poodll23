@@ -64,16 +64,20 @@ class qtype_poodllrecording extends question_type {
 	//the filemanager doesn't produce this, so need to use file save draft area directly
 	//$options->backimage = $this->import_or_save_files($formdata->backimage,
 	// $context, 'qtype_poodllrecording', 'backimage', $formdata->id);
+	if (isset($formdata->backimage)){
+		file_save_draft_area_files($formdata->backimage, $context->id, 'qtype_poodllrecording',
+		'backimage', $formdata->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
+		
+		//save the itemid of the backimage filearea
+		$options->backimage = $formdata->backimage;
+	}
 	
-	file_save_draft_area_files($formdata->backimage, $context->id, 'qtype_poodllrecording',
-	'backimage', $formdata->id, array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
-	
-	//save the itemid of the backimage filearea
-	$options->backimage = $formdata->backimage;
 
 	//save the selected board size
-	$options->boardsize=$formdata->boardsize;
-    
+	if (isset($formdata->boardsize)){
+		$options->boardsize=$formdata->boardsize;
+    }
+	
         $options->responseformat = $formdata->responseformat;
 		$options->graderinfo = $this->import_or_save_files($formdata->graderinfo,
                 $context, 'qtype_poodllrecording', 'graderinfo', $formdata->id);
