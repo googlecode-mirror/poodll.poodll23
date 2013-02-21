@@ -796,7 +796,10 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 				$mform->addElement('hidden', 'draftitemid', $draftitemid);
 				$mform->addElement('hidden', 'usercontextid', $usercontextid);	
 		
-		
+				//timelimit
+				//we have not enabled this for 2.3 assignment 
+				$timelimit = 0;
+				
 				//Do we need audio or text? or both?
 				//the customdata is info we passed in up around line 175 in the view method.
 				switch($this->_customdata['assignment']->var3){
@@ -804,7 +807,7 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 					case OM_REPLYVOICEONLY:
 						//$mediadata= fetchSimpleAudioRecorder('onlinemedia' . $this->_customdata['cm']->id , $USER->id);
 						//$mediadata= fetchSimpleAudioRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
-						$mediadata= fetchAudioRecorderForSubmission('swf','poodllonline',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid);
+						$mediadata= fetchAudioRecorderForSubmission('swf','poodllonline',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,$timelimit);
 						$mform->addElement('static', 'description', '',$mediadata);
 
 						break;
@@ -812,7 +815,7 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 					case OM_REPLYMP3VOICE:
 						//$mediadata= fetchSimpleAudioRecorder('onlinemedia' . $this->_customdata['cm']->id , $USER->id);
 						//$mediadata= fetchSimpleAudioRecorder('assignment/' . $this->_customdata['assignment']->id , $USER->id);
-						$mediadata= fetchMP3RecorderForSubmission(FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,640,400);
+						$mediadata= fetchMP3RecorderForSubmission(FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,$timelimit);
 						$mform->addElement('static', 'description', '',$mediadata);
 						break;
 						
@@ -826,7 +829,7 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 					case OM_REPLYVIDEOONLY:
 						
 					
-						$mediadata= fetchVideoRecorderForSubmission('swf','poodllonline',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid);
+						$mediadata= fetchVideoRecorderForSubmission('swf','poodllonline',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,$timelimit);
 						$mform->addElement('static', 'description', '',$mediadata);			
 											
 						break;
@@ -834,7 +837,7 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 					case OM_REPLYVOICETHENTEXT:
 						//if we have no audio, we force user to make audio before text
 						if(empty($this->_customdata['mediapath'])){	
-							$mediadata= fetchAudioRecorderForSubmission('swf','poodllonline',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid);
+							$mediadata= fetchAudioRecorderForSubmission('swf','poodllonline',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,$timelimit);
 							$mform->addElement('static', 'description', '',$mediadata);
 						}
 						break;
@@ -842,7 +845,7 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 					case OM_REPLYVIDEOTHENTEXT:
 						//if we have no video, we force user to make video before text
 						if(empty($this->_customdata['mediapath'])){	
-							$mediadata= fetchVideoRecorderForSubmission('swf','poodllonline',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid);
+							$mediadata= fetchVideoRecorderForSubmission('swf','poodllonline',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,$timelimit);
 							$mform->addElement('static', 'description', '',$mediadata);	
 						}
 						break;

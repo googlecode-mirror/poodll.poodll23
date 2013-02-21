@@ -22,7 +22,7 @@
  * @copyright  2012 Justin Hunt 
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$plugin->version   = 2013021900;
+$plugin->version   = 2013022100;
 $plugin->requires  = 2011070100.00;        // Requires this Moodle version
 $plugin->component = 'assignment_poodllonline'; 
 $plugin->maturity  = MATURITY_BETA;
