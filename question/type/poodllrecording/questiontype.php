@@ -70,13 +70,17 @@ class qtype_poodllrecording extends question_type {
 		
 		//save the itemid of the backimage filearea
 		$options->backimage = $formdata->backimage;
+	}else{
+		$options->backimage = null;
 	}
 	
 
 	//save the selected board size
 	if (isset($formdata->boardsize)){
 		$options->boardsize=$formdata->boardsize;
-    }
+    }else{
+		$options->boardsize="320x320";
+	}
 	
         $options->responseformat = $formdata->responseformat;
 		$options->graderinfo = $this->import_or_save_files($formdata->graderinfo,
