@@ -117,7 +117,8 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		//(iii) set the draft area info as the "default" value for the file manager
 		$itemid = 0;
 		$draftitemid = file_get_submitted_draft_itemid(ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA);
-		file_prepare_draft_area($draftitemid, $this->assignment->get_context()->id, ASSIGNSUBMISSION_ONLINEPOODLL_CONFIG_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, 
+		$contextid = $this->assignment->get_context()->id;
+		file_prepare_draft_area($draftitemid, $contextid, ASSIGNSUBMISSION_ONLINEPOODLL_CONFIG_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, 
 		$itemid,
 		array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 		$mform->addElement('filemanager', 'backimage', get_string('backimage', 'assignsubmission_onlinepoodll'), null,array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
@@ -152,8 +153,21 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
      */
     public function save_settings(stdClass $data) {
         $this->set_config('recordertype', $data->assignsubmission_onlinepoodll_recordertype);
-		$this->set_config('boardsize', $data->assignsubmission_onlinepoodll_boardsize);
-		$this->set_config('timelimit', $data->assignsubmission_onlinepoodll_timelimit);
+		//if we have a board size, set it
+		if(isset($data->assignsubmission_onlinepoodll_boardsize)){
+			$this->set_config('boardsize', $data->assignsubmission_onlinepoodll_boardsize);
+		}else{
+			$this->set_config('boardsize', '320x320');
+		}
+		
+		//if we have a time limit, set it
+		if(isset($data->assignsubmission_onlinepoodll_timelimit)){
+			$this->set_config('timelimit', $data->assignsubmission_onlinepoodll_timelimit);
+		}else{
+			$this->set_config('timelimit', 0);
+		}
+		
+		
 		// $this->set_config('backimage', $data->assignsubmission_onlinepoodll_backimage);
 		//error_log(print_r($this->assignment,true));
 		//error_log(print_r($data,true));
@@ -161,11 +175,16 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		//error_log(print_r($this,true));
 		//$itemid = $this->id;
 		$itemid = 0;
-		file_save_draft_area_files($data->backimage, 
-							$this->assignment->get_context()->id, 
-							ASSIGNSUBMISSION_ONLINEPOODLL_CONFIG_COMPONENT,
-							ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, $itemid, 
-							array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
+		if(isset($data->backimage)){
+			file_save_draft_area_files($data->backimage, 
+								$this->assignment->get_context()->id, 
+								ASSIGNSUBMISSION_ONLINEPOODLL_CONFIG_COMPONENT,
+								ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, $itemid, 
+								array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
+			$this->set_config('backimage', $data->backimage);
+		}else{
+			$this->set_config('backimage',null);
+		}
 	
 	/*
 		error_log(print_r($data,true));
@@ -174,7 +193,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		!empty($data->coursemodule) ? (int) $data->coursemodule : null,
 		array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 		*/
-	$this->set_config('backimage', $data->backimage);
+	
 
         return true;
     }
