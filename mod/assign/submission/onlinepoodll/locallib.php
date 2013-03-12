@@ -117,7 +117,12 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		//(iii) set the draft area info as the "default" value for the file manager
 		$itemid = 0;
 		$draftitemid = file_get_submitted_draft_itemid(ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA);
-		$contextid = $this->assignment->get_context()->id;
+		$context =  $this->assignment->get_context();
+		if($context) {
+			$contextid = $context->get_context()->id;
+		}else{
+			$contextid = 0;
+		}
 		file_prepare_draft_area($draftitemid, $contextid, ASSIGNSUBMISSION_ONLINEPOODLL_CONFIG_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, 
 		$itemid,
 		array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
@@ -500,7 +505,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
      * @param stdClass $submission The submission
      * @return array - return an array of files indexed by filename
      */
-    public function get_files(stdClass $submission) {
+    public function get_files(stdClass $submission, stdClass $user=null) {
         $result = array();
         $fs = get_file_storage();
 
