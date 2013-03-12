@@ -119,7 +119,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		$draftitemid = file_get_submitted_draft_itemid(ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA);
 		$context =  $this->assignment->get_context();
 		if($context) {
-			$contextid = $context->get_context()->id;
+			$contextid = $context->id;
 		}else{
 			$contextid = 0;
 		}
