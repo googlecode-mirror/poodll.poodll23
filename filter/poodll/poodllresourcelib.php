@@ -3132,7 +3132,7 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 
 	global $CFG, $PAGE, $FPLAYERJSLOADED;
 	
-	$playerid = "flowplayer_" . rand(100000, 999999);
+	$playerid = "flowplayer_" . $path;
 	$playerpath = $CFG->wwwroot . "/filter/poodll/flowplayer/flowplayer-3.2.10.swf";
 	$playerclass = "flowplayer_poodll";
 	
@@ -3144,7 +3144,7 @@ function fetchFlowPlayerCode($width,$height,$path,$playertype="audio",$ismobile=
 	$embedtype = $CFG->filter_poodll_fp_embedtype;
 	
 	
-	$jscontrolsid = "flowplayer_js_" . rand(100000, 999999); 
+	$jscontrolsid = "flowplayer_js_" . $playlisturlstring; 
 	
 	$defaultcontrolsheight = $CFG->filter_poodll_audioheight;
 	
