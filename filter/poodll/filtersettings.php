@@ -88,6 +88,7 @@ $options = array('never' => 'Never use HTML5','mobile' => 'Mobile devices', 'web
 $items[] = new admin_setting_configselect('filter_poodll_html5rec', get_string('html5rec', 'filter_poodll'), '', 'mobile', $options);
 $items[] = new admin_setting_configselect('filter_poodll_html5play', get_string('html5play', 'filter_poodll'), '', 'mobile', $options);
 $items[] = new admin_setting_configselect('filter_poodll_html5widgets', get_string('html5widgets', 'filter_poodll'), '', 'mobile', $options);
+$items[] = new admin_setting_configcheckbox('filter_poodll_html5fancybutton', get_string('html5fancybutton', 'filter_poodll'), '', 1);
 
 /*
 //File Conversions
