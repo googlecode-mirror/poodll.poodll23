@@ -3035,12 +3035,13 @@ function fetchSWFObjectWidgetCode($widget,$flashvarsArray,$width,$height,$bgcolo
 //on Firefox on Android doesn't support it currently, so we hard code that to false 
 //(2013/03/05)
 function showFancyButton($browser){
+	global $CFG;
 
 	if($browser->getPlatform() == Browser::PLATFORM_ANDROID &&
 		$browser->getBrowser() == Browser::BROWSER_FIREFOX){
 				return false;
 	}else{
-				return true;
+				return $CFG->filter_poodll_html5fancybutton;
 	}
 }
 
