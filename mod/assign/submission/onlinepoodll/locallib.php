@@ -415,8 +415,8 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
         global $DB;
 
 
-		//Move recorded files from draft to the correct area
-		$this->shift_draft_file($submission);
+	//Move recorded files from draft to the correct area
+	$this->shift_draft_file($submission);
 
         $onlinepoodllsubmission = $this->get_onlinepoodll_submission($submission->id);
         if ($onlinepoodllsubmission) {
@@ -436,10 +436,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
     
     
     function shift_draft_file($submission) {
-        global $CFG, $USER, $DB,$COURSE;
-
-
-		
+        global $CFG, $USER, $DB,$COURSE;	
  
 		//When we add the recorder via the poodll filter, it adds a hidden form field of the name FILENAMECONTROL
 		//the recorder updates that field with the filename of the audio/video it recorded. We pick up that filename here.
@@ -479,8 +476,6 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 
 	}//end of shift_draft_file
     
-
-
 
     /**
      * Display the list of files  in the submission status table
@@ -544,7 +539,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
     }
 	
 	
-	    /**
+/**
      * Produces a list of portfolio links to the file recorded byuser
      *
      * @param $submissionid this submission's id
