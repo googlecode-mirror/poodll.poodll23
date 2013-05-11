@@ -21,6 +21,9 @@ Using the PoodLL Online assignment type you can collect these kind of submission
 3) MP3 Recording (doesn't require Red5)
 4) Whiteboard (draw pictures)
 
+Moodle caching can affect audio/video playback reliability. To turn off text filter caching:  
+Go to: Site Administration -> Plugins -> Filters ->Common Filter Settings
+There set "Text Cache Lifetime" to "no"
 
 *Please be aware that the PoodLL Online assignment relies on the PoodLL Filter being installed, and won't work properly otherwise*
 

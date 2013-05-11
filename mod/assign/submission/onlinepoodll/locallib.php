@@ -42,15 +42,15 @@ define('ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA', 'onlinepoodll_backimage');
 
 
 //some constants for the type of online poodll assignment
-define('OM_REPLYMP3VOICE',0);
-define('OM_REPLYVOICE',1);
-define('OM_REPLYVIDEO',2);
-define('OM_REPLYWHITEBOARD',3);
-define('OM_REPLYSNAPSHOT',4);
-define('OM_REPLYTALKBACK',5);
+define('OP_REPLYMP3VOICE',0);
+define('OP_REPLYVOICE',1);
+define('OP_REPLYVIDEO',2);
+define('OP_REPLYWHITEBOARD',3);
+define('OP_REPLYSNAPSHOT',4);
+define('OP_REPLYTALKBACK',5);
 
 
-define('FILENAMECONTROL','onlinepoodll');
+define('OP_FILENAMECONTROL','onlinepoodll');
 
 
 
@@ -88,14 +88,14 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		$timelimit = $this->get_config('timelimit');
       
 
-        $recorderoptions = array( OM_REPLYMP3VOICE => get_string("replymp3voice", "assignsubmission_onlinepoodll"), 
-				OM_REPLYVOICE => get_string("replyvoice", "assignsubmission_onlinepoodll"), 
-				OM_REPLYVIDEO => get_string("replyvideo", "assignsubmission_onlinepoodll"),
-				OM_REPLYWHITEBOARD => get_string("replywhiteboard", "assignsubmission_onlinepoodll"),
-				OM_REPLYSNAPSHOT => get_string("replysnapshot", "assignsubmission_onlinepoodll"));
+        $recorderoptions = array( OP_REPLYMP3VOICE => get_string("replymp3voice", "assignsubmission_onlinepoodll"), 
+				OP_REPLYVOICE => get_string("replyvoice", "assignsubmission_onlinepoodll"), 
+				OP_REPLYVIDEO => get_string("replyvideo", "assignsubmission_onlinepoodll"),
+				OP_REPLYWHITEBOARD => get_string("replywhiteboard", "assignsubmission_onlinepoodll"),
+				OP_REPLYSNAPSHOT => get_string("replysnapshot", "assignsubmission_onlinepoodll"));
 		
 		//we don't support talkback yet
-		//OM_REPLYTALKBACK => get_string("replytalkback", "assignsubmission_onlinepoodll"));
+		//OP_REPLYTALKBACK => get_string("replytalkback", "assignsubmission_onlinepoodll"));
         
 		$mform->addElement('select', 'assignsubmission_onlinepoodll_recordertype', get_string("recordertype", "assignsubmission_onlinepoodll"), $recorderoptions);
         //$mform->addHelpButton('assignsubmission_onlinepoodll_recordertype', get_string('onlinepoodll', ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT), ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT);
@@ -106,8 +106,8 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 	   $mform->addElement('duration', 'assignsubmission_onlinepoodll_timelimit', get_string('timelimit', 'assignsubmission_onlinepoodll'));    
        $mform->setDefault('assignsubmission_onlinepoodll_timelimit', $timelimit);
 		$mform->disabledIf('assignsubmission_onlinepoodll_timelimit', 'assignsubmission_onlinepoodll_enabled', 'eq', 0);
-		$mform->disabledIf('assignsubmission_onlinepoodll_timelimit', 'assignsubmission_onlinepoodll_recordertype', 'eq', OM_REPLYWHITEBOARD);
-		$mform->disabledIf('assignsubmission_onlinepoodll_timelimit', 'assignsubmission_onlinepoodll_recordertype', 'eq', OM_REPLYSNAPSHOT);
+		$mform->disabledIf('assignsubmission_onlinepoodll_timelimit', 'assignsubmission_onlinepoodll_recordertype', 'eq', OP_REPLYWHITEBOARD);
+		$mform->disabledIf('assignsubmission_onlinepoodll_timelimit', 'assignsubmission_onlinepoodll_recordertype', 'eq', OP_REPLYSNAPSHOT);
 	  
 	  //these are for the whiteboard submission
 	  // added Justin 20121216 back image, and boardsizes, part of whiteboard response
@@ -129,7 +129,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		$mform->addElement('filemanager', 'backimage', get_string('backimage', 'assignsubmission_onlinepoodll'), null,array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 		$mform->setDefault('backimage', $backimage);
 		$mform->disabledIf('backimage', 'assignsubmission_onlinepoodll_enabled', 'eq', 0);
-		$mform->disabledIf('backimage', 'assignsubmission_onlinepoodll_recordertype', 'ne', OM_REPLYWHITEBOARD );
+		$mform->disabledIf('backimage', 'assignsubmission_onlinepoodll_recordertype', 'ne', OP_REPLYWHITEBOARD );
 
 		
 		//board sizes
@@ -145,7 +145,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 			get_string('boardsize', 'assignsubmission_onlinepoodll'), $boardsizes);
 		$mform->setDefault('assignsubmission_onlinepoodll_boardsize', $boardsize);
 		$mform->disabledIf('assignsubmission_onlinepoodll_boardsize', 'assignsubmission_onlinepoodll_enabled', 'eq', 0);
-		$mform->disabledIf('assignsubmission_onlinepoodll_boardsize', 'assignsubmission_onlinepoodll_recordertype', 'ne', OM_REPLYWHITEBOARD );
+		$mform->disabledIf('assignsubmission_onlinepoodll_boardsize', 'assignsubmission_onlinepoodll_recordertype', 'ne', OP_REPLYWHITEBOARD );
 		
 
     }
@@ -232,16 +232,24 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 
         if ($submission) {
             $onlinepoodllsubmission = $this->get_onlinepoodll_submission($submission->id);
+			//show the previous submission in a player or whatever
+			$mform->addElement('static', 'currentsubmission', 
+				get_string('currentsubmission', 'assignsubmission_onlinepoodll') ,
+				$this->fetchResponses($submission->id,false,false));
+			
         }
 
 		//We prepare our form here and fetch/save data in SAVE method
 		$usercontextid=get_context_instance(CONTEXT_USER, $USER->id)->id;
-		$draftitemid = file_get_submitted_draft_itemid(FILENAMECONTROL);
+		$draftitemid = file_get_submitted_draft_itemid(OP_FILENAMECONTROL);
 		$contextid=$this->assignment->get_context()->id;
 		file_prepare_draft_area($draftitemid, $contextid, ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA, $submissionid, null,null);
 		$mform->addElement('hidden', 'draftitemid', $draftitemid);
 		$mform->addElement('hidden', 'usercontextid', $usercontextid);	
-		$mform->addElement('hidden', FILENAMECONTROL, '',array('id' => FILENAMECONTROL));
+		$mform->addElement('hidden', OP_FILENAMECONTROL, '',array('id' => OP_FILENAMECONTROL));
+		$mform->setType('draftitemid', PARAM_INT);
+		$mform->setType('usercontextid', PARAM_INT); 
+		$mform->setType(OP_FILENAMECONTROL, PARAM_TEXT); 
 	
 		//get timelimit for recorders if set
 		$timelimit = $this->get_config('timelimit');
@@ -249,18 +257,18 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		//fetch the required "recorder
 		switch($this->get_config('recordertype')){
 			
-			case OM_REPLYVOICE:
-				$mediadata= fetchAudioRecorderForSubmission('swf','onlinepoodll',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,$timelimit);
+			case OP_REPLYVOICE:
+				$mediadata= fetchAudioRecorderForSubmission('swf','onlinepoodll',OP_FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,$timelimit);
 				$mform->addElement('static', 'description', '',$mediadata);
 
 				break;
 				
-			case OM_REPLYMP3VOICE:
-				$mediadata= fetchMP3RecorderForSubmission(FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,$timelimit);
+			case OP_REPLYMP3VOICE:
+				$mediadata= fetchMP3RecorderForSubmission(OP_FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,$timelimit);
 				$mform->addElement('static', 'description', '',$mediadata);
 				break;
 				
-			case OM_REPLYWHITEBOARD:
+			case OP_REPLYWHITEBOARD:
 				//get board sizes
 				switch($this->get_config('boardsize')){
 					case "320x320": $width=320;$height=320;break;
@@ -295,17 +303,17 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 				
 				}
 	
-				$mediadata= fetchWhiteboardForSubmission(FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid, $width, $height, $imageurl);
+				$mediadata= fetchWhiteboardForSubmission(OP_FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid, $width, $height, $imageurl);
 				$mform->addElement('static', 'description', '',$mediadata);
 				break;
 			
-			case OM_REPLYSNAPSHOT:
-				$mediadata= fetchSnapshotCameraForSubmission(FILENAMECONTROL,"snap.jpg" ,350,400,$usercontextid ,'user','draft',$draftitemid);
+			case OP_REPLYSNAPSHOT:
+				$mediadata= fetchSnapshotCameraForSubmission(OP_FILENAMECONTROL,"snap.jpg" ,350,400,$usercontextid ,'user','draft',$draftitemid);
 				$mform->addElement('static', 'description', '',$mediadata);
 				break;
 
-			case OM_REPLYVIDEO:
-				$mediadata= fetchVideoRecorderForSubmission('swf','onlinepoodll',FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,$timelimit);
+			case OP_REPLYVIDEO:
+				$mediadata= fetchVideoRecorderForSubmission('swf','onlinepoodll',OP_FILENAMECONTROL, $usercontextid ,'user','draft',$draftitemid,$timelimit);
 				$mform->addElement('static', 'description', '',$mediadata);			
 									
 				break;
@@ -332,26 +340,22 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		
 		$responsestring = "";
 		
-		//if we are showing a list of files we want to use text links not players
-		//a whole page of players can crash a browser.
-		
-		//modify Justin 20120525 lists of flowplayers/jw players will break if embedded and 
-		// flowplayers should have splash screens to defer loading anyway
-		if($CFG->filter_poodll_defaultplayer == 'pd' && $embed == 'true'){
-			$embed = 'true';
-			$embedstring = get_string('clicktoplay', 'assignment_poodllonline');
-		}else{
-			$embedstring = 'clicktoplay';
-			$embed='false';
-		}
+		 //modify Justin 20120525 lists of flowplayers/jw players will break if embedded and 
+        // flowplayers should have splash screens to defer loading anyway
+        $embedstring = 'clicktoplay';
+        $embed='false';
 		
 		
 		//get filename, from the filearea for this submission. 
 		//there should be only one.
 		$fs = get_file_storage();
 		$filename="";
-        $files = $fs->get_area_files($this->assignment->get_context()->id, ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA, $submissionid, "id", false);
-        if (!empty($files)) {
+        $files = $fs->get_area_files($this->assignment->get_context()->id, 
+			ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, 
+			ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA, 
+			$submissionid, "id", false);
+        
+		if (!empty($files)) {
             foreach ($files as $file) {
                 $filename = $file->get_filename();
 				break;
@@ -361,6 +365,11 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		//if this is a playback area, for teacher, show a string if no file
 		if ($checkfordata  && empty($filename)){ 
 					$responsestring .= "No submission found";
+					
+		//if the student is viewing and there is no file , just show an empty area
+		}elseif(empty($filename)){
+				$responsestring .= "";
+				
 		}else{	
 			//The path to any media file we should play
 			$mediapath = $CFG->wwwroot.'/pluginfile.php/'.$this->assignment->get_context()->id.'/assignsubmission_onlinepoodll/' . ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA  . '/'.$submissionid.'/'.$filename;
@@ -369,22 +378,22 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 			//prepare our response string, which will parsed and replaced with the necessary player
 			switch($this->get_config('recordertype')){
 							
-				case OM_REPLYVOICE:
-				case OM_REPLYMP3VOICE:
-				case OM_REPLYTALKBACK:
+				case OP_REPLYVOICE:
+				case OP_REPLYMP3VOICE:
+				case OP_REPLYTALKBACK:
 						$responsestring .= format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http,embed=' . $embed . ',embedstring='. $embedstring .'}', FORMAT_HTML);
 						//$responsestring .= "hello" . fetchSimpleAudioPlayer('auto', $mediapath, 'http',700,25);
 						break;						
 					
-				case OM_REPLYVIDEO:
+				case OP_REPLYVIDEO:
 						$responsestring .= format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http,embed=' . $embed . ',embedstring='. $embedstring .'}', FORMAT_HTML);
 						break;
 
-				case OM_REPLYWHITEBOARD:
+				case OP_REPLYWHITEBOARD:
 					$responsestring .= "<img alt=\"submittedimage\" width=\"" . $CFG->filter_poodll_videowidth . "\" src=\"" . urldecode($mediapath) . "\" />";
 					break;
 					
-				case OM_REPLYSNAPSHOT:
+				case OP_REPLYSNAPSHOT:
 					$responsestring .= "<img alt=\"submittedimage\" width=\"" . $CFG->filter_poodll_videowidth . "\" src=\"" . urldecode($mediapath) . "\" />";
 					break;
 					
@@ -438,15 +447,18 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
     function shift_draft_file($submission) {
         global $CFG, $USER, $DB,$COURSE;
 
-
-		
- 
-		//When we add the recorder via the poodll filter, it adds a hidden form field of the name FILENAMECONTROL
+		//When we add the recorder via the poodll filter, it adds a hidden form field of the name OP_FILENAMECONTROL
 		//the recorder updates that field with the filename of the audio/video it recorded. We pick up that filename here.
 
-		$filename = optional_param(FILENAMECONTROL, '', PARAM_RAW);
+		$filename = optional_param(OP_FILENAMECONTROL, '', PARAM_RAW);
 		$draftitemid = optional_param('draftitemid', '', PARAM_RAW);
 		$usercontextid = optional_param('usercontextid', '', PARAM_RAW);
+		
+		//Don't do anything in the case that the filename is empty
+		//possibly the user is just updating something else on the page(eg an online text submission)
+		//if we overwrite here, we might trash their existing poodll submission file
+		if($filename==''){return;}
+		
 		 $fs = get_file_storage();
 		 $browser = get_file_browser();
          $fs->delete_area_files($this->assignment->get_context()->id, ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT,ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA , $submission->id);
@@ -621,20 +633,20 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 			case 0:
 			case 1:
 			case 2:
-				$this->set_config('recordertype',  OM_REPLYVOICE);
+				$this->set_config('recordertype',  OP_REPLYVOICE);
 				break;
 			case 7:
-				$this->set_config('recordertype',  OM_REPLYMP3VOICE);
+				$this->set_config('recordertype',  OP_REPLYMP3VOICE);
 				break;
 			case 3:
 			case 4:
-				$this->set_config('recordertype',  OM_REPLYVIDEO);
+				$this->set_config('recordertype',  OP_REPLYVIDEO);
 				break;
 			case 5:
-				$this->set_config('recordertype',  OM_REPLYTALKBACK);
+				$this->set_config('recordertype',  OP_REPLYTALKBACK);
 				break;
 			case 6:
-				$this->set_config('recordertype',  OM_REPLYWHITEBOARD);
+				$this->set_config('recordertype',  OP_REPLYWHITEBOARD);
 				break;
 		}
 

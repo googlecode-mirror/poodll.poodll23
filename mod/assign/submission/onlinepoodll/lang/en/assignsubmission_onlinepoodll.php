@@ -26,7 +26,7 @@ $string['allowonlinepoodllsubmissions'] = 'Enabled';
 $string['default'] = 'Enabled by default';
 $string['default_help'] = 'If set, this submission method will be enabled by default for all new assignments.';
 $string['enabled'] = 'Online PoodLL';
-$string['enabled_help'] = 'If enabled, students are able to type rich text directly into an editor field for their submission.';
+$string['enabled_help'] = 'If enabled, students are able to record audio/video, snap pictures, or use a whiteboard as per the PoodLL submission settings for this assignment.';
 $string['nosubmission'] = 'Nothing has been submitted for this assignment';
 $string['onlinepoodll'] = 'Online PoodLL';
 $string['onlinepoodllfilename'] = 'onlinepoodll.html';
@@ -42,4 +42,5 @@ $string['replytalkback'] = 'Talkback';
 $string['backimage'] = 'PoodLL Whiteboard Back';
 $string['boardsize'] = 'PoodLL WhiteBoard Size';
 $string['timelimit'] = 'PoodLL Rec. Time Limit';
+$string['currentsubmission'] = 'Current Submission:';
 

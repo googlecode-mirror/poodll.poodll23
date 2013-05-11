@@ -11,18 +11,31 @@
 	<target name="init"  description="Initialize environment">
 		<property name="path.dist" value="dist"/>
 		<property name="dist.datafield" value="poodlldatafield"/>
+		<property name="dist.feedback" value="poodllfeedback"/>
 		<property name="dist.filter" value="poodllfilter"/>
 		<property name="dist.filterxjs" value="poodllfilterxjs"/>
 		<property name="dist.repo" value="poodllrepository"/>
 		<property name="dist.assig" value="poodllonline"/>
 		<property name="dist.assig23" value="onlinepoodll"/>
 		<property name="dist.question" value="poodllrecording"/>
-		<property name="dist.all" value="poodllall"/>
-		<property name="dist.version" value="2013032200"/>
+		<property name="dist.all" value="poodllkaboodle"/>
+		<property name="dist.version" value="2013050900"/>
+		<property name="dist.year" value="2013"/>
+		<property name="dist.month" value="05"/>
 	</target>
 	
 	<!-- Make All PoodLL package for this version -->
-	<target name="makeall" depends="init,zip-filter,zip-filter-xjs,zip-repo,zip-assig,zip-question,zip-datafield,zip-assig23,zip-all" description="Creates distros for PoodLL 2 Online Question" />
+	<target name="makeall" depends="init,zip-filter,zip-filter-xjs,zip-repo,zip-assig,zip-question,zip-datafield,zip-feedback,zip-assig23,zip-all" description="Creates distros for PoodLL 2.x" />
+	
+	<!-- The PoodLL Feedback package -->
+	<target name="zip-feedback" depends="init" description="Creates distro for PoodLL 2 feedback">
+		<delete>
+	            <fileset dir="${path.dist}" includes="${dist.feedback}_${dist.version}.zip"/>
+	    </delete>
+		<zip destfile="${path.dist}/${dist.feedback}_${dist.version}.zip" whenempty="fail">
+			<zipfileset dir="mod/assign/feedback/poodll" excludes="**/.git**" prefix="poodll"/>
+		</zip>
+	</target>
 	
 	<!-- The PoodLL Database Activity Field package -->
 	<target name="zip-datafield" depends="init" description="Creates distro for PoodLL 2 Database activity field">
@@ -106,9 +119,17 @@
 				<zipfileset dir="mod/assign/submission/onlinepoodll" prefix="${dist.all}_${dist.version}/mod/assign/submission/onlinepoodll"/>
 				<zipfileset dir="question/type/poodllrecording" prefix="${dist.all}_${dist.version}/question/type/poodllrecording"/>
 				<zipfileset dir="mod/data/field/poodll" prefix="${dist.all}_${dist.version}/mod/data/field/poodll"/>
+				<zipfileset dir="mod/assign/feedback/poodll" excludes="**/.git**" prefix="${dist.all}_${dist.version}/mod/assign/feedback/poodll"/>
 				<zipfileset dir="readmes" prefix="${dist.all}_${dist.version}" includes="README.${dist.all}.txt" />
 	        </zip>
 		
+	</target>
+	
+	<!-- Copy it all to wordpress uploads -->
+	<target name="copy-all" depends="zip-all" description="copy all zips to wordpress uploads/year/month">
+		<copy todir="/var/www/blog/wp-content/uploads/${dist.year}/${dist.month}">
+			<fileset dir="${path.dist}" />
+		</copy>
 	</target>
 
 </project>

@@ -10,6 +10,7 @@ require_once($CFG->dirroot . '/filter/poodll/poodllresourcelib.php');
 require_once($CFG->dirroot . '/filter/poodll/poodllfilelib.php');
 //require_once('lib.php');
 
+if(!defined('OM_REPLYVOICEONLY')){
 
 //some constants for the type of online poodll assignment
 define('OM_REPLYTEXTONLY',0);
@@ -27,6 +28,7 @@ define('HTML_FORMAT',1);
 define('TCPPDF_OLD',0);
 
 define('FILENAMECONTROL','saveflvvoice');
+}
 
 /**
  * Extend the base assignment class to allow PoodLL recording assignments
