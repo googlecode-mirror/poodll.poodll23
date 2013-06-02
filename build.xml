@@ -18,14 +18,15 @@
 		<property name="dist.assig" value="poodllonline"/>
 		<property name="dist.assig23" value="onlinepoodll"/>
 		<property name="dist.question" value="poodllrecording"/>
+		<property name="dist.youtubesub" value="youtubesubmission"/>
 		<property name="dist.all" value="poodllkaboodle"/>
-		<property name="dist.version" value="2013050900"/>
+		<property name="dist.version" value="2013051100"/>
 		<property name="dist.year" value="2013"/>
 		<property name="dist.month" value="05"/>
 	</target>
 	
 	<!-- Make All PoodLL package for this version -->
-	<target name="makeall" depends="init,zip-filter,zip-filter-xjs,zip-repo,zip-assig,zip-question,zip-datafield,zip-feedback,zip-assig23,zip-all" description="Creates distros for PoodLL 2.x" />
+	<target name="makeall" depends="init,zip-filter,zip-filter-xjs,zip-repo,zip-assig,zip-question,zip-datafield,zip-youtubesub,zip-feedback,zip-assig23,zip-all" description="Creates distros for PoodLL 2.x" />
 	
 	<!-- The PoodLL Feedback package -->
 	<target name="zip-feedback" depends="init" description="Creates distro for PoodLL 2 feedback">
@@ -34,6 +35,16 @@
 	    </delete>
 		<zip destfile="${path.dist}/${dist.feedback}_${dist.version}.zip" whenempty="fail">
 			<zipfileset dir="mod/assign/feedback/poodll" excludes="**/.git**" prefix="poodll"/>
+		</zip>
+	</target>
+	
+	<!-- The YouTube Submission package -->
+	<target name="zip-youtubesub" depends="init" description="Creates distro for Youtube Assig Submission">
+		<delete>
+	            <fileset dir="${path.dist}" includes="${dist.youtubesub}_${dist.version}.zip"/>
+	    </delete>
+		<zip destfile="${path.dist}/${dist.youtubesub}_${dist.version}.zip" whenempty="fail">
+			<zipfileset dir="mod/assign/submission/youtube" excludes="**/.git**" prefix="youtube"/>
 		</zip>
 	</target>
 	
