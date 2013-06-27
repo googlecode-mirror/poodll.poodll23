@@ -372,21 +372,31 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 				
 		}else{	
 			//The path to any media file we should play
-			$mediapath = $CFG->wwwroot.'/pluginfile.php/'.$this->assignment->get_context()->id.'/assignsubmission_onlinepoodll/' . ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA  . '/'.$submissionid.'/'.$filename;
-			$mediapath = urlencode($mediapath);
+			$rawmediapath = $CFG->wwwroot.'/pluginfile.php/'.$this->assignment->get_context()->id.'/assignsubmission_onlinepoodll/' . ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA  . '/'.$submissionid.'/'.$filename;
+			$mediapath = urlencode($rawmediapath);
 		
 			//prepare our response string, which will parsed and replaced with the necessary player
 			switch($this->get_config('recordertype')){
 							
 				case OP_REPLYVOICE:
-				case OP_REPLYMP3VOICE:
 				case OP_REPLYTALKBACK:
+					//if we are using red5 recorder, flv files need to be shown in audio player, so we force poodll type audio
+					if(stripos($filename,'.mp3')){
+						$responsestring .= format_text("<a href=\"$rawmediapath\">$filename</a>", FORMAT_HTML);
+					}else{
 						$responsestring .= format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http,embed=' . $embed . ',embedstring='. $embedstring .'}', FORMAT_HTML);
-						//$responsestring .= "hello" . fetchSimpleAudioPlayer('auto', $mediapath, 'http',700,25);
+					}
+					break;
+					
+				case OP_REPLYMP3VOICE:
+						//originally tried to force poodll, but best to default to whatever
+						//$responsestring .= format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http,embed=' . $embed . ',embedstring='. $embedstring .'}', FORMAT_HTML);
+						$responsestring .= format_text("<a href=\"$rawmediapath\">$filename</a>", FORMAT_HTML);
 						break;						
 					
 				case OP_REPLYVIDEO:
-						$responsestring .= format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http,embed=' . $embed . ',embedstring='. $embedstring .'}', FORMAT_HTML);
+						$responsestring .= format_text("<a href=\"$rawmediapath\">$filename</a>", FORMAT_HTML);
+						//$responsestring .= format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http,embed=' . $embed . ',embedstring='. $embedstring .'}', FORMAT_HTML);
 						break;
 
 				case OP_REPLYWHITEBOARD:
@@ -398,8 +408,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 					break;
 					
 				default:
-					$responsestring .= format_text('{POODLL:type=audio,path='.	$mediapath .',protocol=http,embed=' . $embed . ',embedstring='. $embedstring .'}', FORMAT_HTML);
-					//$responsestring .= "hello" . fetchSimpleAudioPlayer('auto', $mediapath, 'http',700,25);
+					$responsestring .= format_text("<a href=\"$rawmediapath\">$filename</a>", FORMAT_HTML);
 					break;	
 				
 			}//end of switch
