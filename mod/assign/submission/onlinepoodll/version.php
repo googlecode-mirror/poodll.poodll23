@@ -23,9 +23,9 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-$plugin->version   = 2013051100;
+$plugin->version   = 2013062800;
 $plugin->requires  = 2012062500;
 $plugin->component = 'assignsubmission_onlinepoodll'; 
 $plugin->maturity  = MATURITY_STABLE;
-$plugin->release   = '1.5.1 (Build 2013051100)';
+$plugin->release   = '1.5.2 (Build 2013062800)';
 $plugin->dependencies = array('filter_poodll' => 2012122000);
