@@ -87,12 +87,35 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		$backimage = $this->get_config('backimage');
 		$timelimit = $this->get_config('timelimit');
       
-
+      
+       //get allowed recorders from admin settings
+		$allowed_recorders = get_config('assignsubmission_onlinepoodll', 'allowedrecorders');
+		$allowed_recorders  = explode(',',$allowed_recorders);
+		$recorderoptions = array();
+		if(array_search(OP_REPLYMP3VOICE,$allowed_recorders)!==false){
+			$recorderoptions[OP_REPLYMP3VOICE] = get_string("replymp3voice", "assignsubmission_onlinepoodll");
+		}
+		if(array_search(OP_REPLYVOICE,$allowed_recorders)!==false){
+			$recorderoptions[OP_REPLYVOICE] = get_string("replyvoice", "assignsubmission_onlinepoodll");
+		}
+		if(array_search(OP_REPLYVIDEO ,$allowed_recorders)!==false){
+			$recorderoptions[OP_REPLYVIDEO ] = get_string("replyvideo", "assignsubmission_onlinepoodll");
+		}
+		if(array_search(OP_REPLYWHITEBOARD,$allowed_recorders)!==false){
+			$recorderoptions[OP_REPLYWHITEBOARD ] = get_string("replywhiteboard", "assignsubmission_onlinepoodll");
+		}
+		if(array_search(OP_REPLYSNAPSHOT,$allowed_recorders)!==false){
+			$recorderoptions[OP_REPLYSNAPSHOT] = get_string("replysnapshot", "assignsubmission_onlinepoodll");
+		}
+      
+      
+	/*
         $recorderoptions = array( OP_REPLYMP3VOICE => get_string("replymp3voice", "assignsubmission_onlinepoodll"), 
 				OP_REPLYVOICE => get_string("replyvoice", "assignsubmission_onlinepoodll"), 
 				OP_REPLYVIDEO => get_string("replyvideo", "assignsubmission_onlinepoodll"),
 				OP_REPLYWHITEBOARD => get_string("replywhiteboard", "assignsubmission_onlinepoodll"),
 				OP_REPLYSNAPSHOT => get_string("replysnapshot", "assignsubmission_onlinepoodll"));
+	*/
 		
 		//we don't support talkback yet
 		//OP_REPLYTALKBACK => get_string("replytalkback", "assignsubmission_onlinepoodll"));
@@ -115,38 +138,45 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		//(i) first have to load existing back image files into a draft area
 		// (ii) add a file manager element
 		//(iii) set the draft area info as the "default" value for the file manager
-		$itemid = 0;
-		$draftitemid = file_get_submitted_draft_itemid(ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA);
-		$context =  $this->assignment->get_context();
-		if($context) {
-			$contextid = $context->id;
+		if(array_search(OP_REPLYWHITEBOARD,$allowed_recorders)!==false){
+			$itemid = 0;
+			$draftitemid = file_get_submitted_draft_itemid(ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA);
+			$context =  $this->assignment->get_context();
+			if($context) {
+				$contextid = $context->id;
+			}else{
+				$contextid = 0;
+			}
+			file_prepare_draft_area($draftitemid, $contextid, ASSIGNSUBMISSION_ONLINEPOODLL_CONFIG_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, 
+			$itemid,
+			array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
+			$mform->addElement('filemanager', 'backimage', get_string('backimage', 'assignsubmission_onlinepoodll'), null,array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
+			$mform->setDefault('backimage', $backimage);
+			$mform->disabledIf('backimage', 'assignsubmission_onlinepoodll_enabled', 'eq', 0);
+			$mform->disabledIf('backimage', 'assignsubmission_onlinepoodll_recordertype', 'ne', OP_REPLYWHITEBOARD );
 		}else{
-			$contextid = 0;
+			$mform->addElement('hidden', 'backimage',$backimage);
 		}
-		file_prepare_draft_area($draftitemid, $contextid, ASSIGNSUBMISSION_ONLINEPOODLL_CONFIG_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA, 
-		$itemid,
-		array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
-		$mform->addElement('filemanager', 'backimage', get_string('backimage', 'assignsubmission_onlinepoodll'), null,array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
-		$mform->setDefault('backimage', $backimage);
-		$mform->disabledIf('backimage', 'assignsubmission_onlinepoodll_enabled', 'eq', 0);
-		$mform->disabledIf('backimage', 'assignsubmission_onlinepoodll_recordertype', 'ne', OP_REPLYWHITEBOARD );
 
 		
 		//board sizes
-		$boardsizes = array(
-			'320x320' => '320x320',
-			'400x600' => '400x600',
-			'500x500' => '500x500',
-			'600x400' => '600x400',
-			'600x800' => '600x800',
-			'800x600' => '800x600'
-			);
-		$mform->addElement('select', 'assignsubmission_onlinepoodll_boardsize',
-			get_string('boardsize', 'assignsubmission_onlinepoodll'), $boardsizes);
-		$mform->setDefault('assignsubmission_onlinepoodll_boardsize', $boardsize);
-		$mform->disabledIf('assignsubmission_onlinepoodll_boardsize', 'assignsubmission_onlinepoodll_enabled', 'eq', 0);
-		$mform->disabledIf('assignsubmission_onlinepoodll_boardsize', 'assignsubmission_onlinepoodll_recordertype', 'ne', OP_REPLYWHITEBOARD );
-		
+		if(array_search(OP_REPLYWHITEBOARD,$allowed_recorders)!==false){
+			$boardsizes = array(
+				'320x320' => '320x320',
+				'400x600' => '400x600',
+				'500x500' => '500x500',
+				'600x400' => '600x400',
+				'600x800' => '600x800',
+				'800x600' => '800x600'
+				);
+			$mform->addElement('select', 'assignsubmission_onlinepoodll_boardsize',
+				get_string('boardsize', 'assignsubmission_onlinepoodll'), $boardsizes);
+			$mform->setDefault('assignsubmission_onlinepoodll_boardsize', $boardsize);
+			$mform->disabledIf('assignsubmission_onlinepoodll_boardsize', 'assignsubmission_onlinepoodll_enabled', 'eq', 0);
+			$mform->disabledIf('assignsubmission_onlinepoodll_boardsize', 'assignsubmission_onlinepoodll_recordertype', 'ne', OP_REPLYWHITEBOARD );
+		}else{
+			$mform->addElement('hidden', 'assignsubmission_onlinepoodll_boardsize',$boardsize);
+		}
 
     }
     
@@ -230,8 +260,10 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 
         $submissionid = $submission ? $submission->id : 0;
 
-        if ($submission) {
+
+        if ($submission && get_config('assignsubmission_onlinepoodll', 'showcurrentsubmission')) {
             $onlinepoodllsubmission = $this->get_onlinepoodll_submission($submission->id);
+            $size=get_config('assignsubmission_onlinepoodll', 'displaysize_single');
 			//show the previous submission in a player or whatever
 			$mform->addElement('static', 'currentsubmission', 
 				get_string('currentsubmission', 'assignsubmission_onlinepoodll') ,
@@ -335,7 +367,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 	*
 	*
 	*/
-	function fetchResponses($submissionid, $checkfordata=false, $embed=false){
+	function fetchResponses($submissionid, $checkfordata=false, $embed=false, $size=320){
 		global $CFG;
 		
 		$responsestring = "";
@@ -395,7 +427,23 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 						break;						
 					
 				case OP_REPLYVIDEO:
-						$responsestring .= format_text("<a href=\"$rawmediapath\">$filename</a>", FORMAT_HTML);
+						if($size==0){
+							$responsestring=get_string('videoplaceholder','assignsubmission_onlinepoodll');
+							break;
+						}
+						
+						//get our size profile
+						switch($size){
+							case "0": $width=320;$height=240;break;
+							case "160": $width=160;$height=120;break;
+							case "320": $width=320;$height=240;break;
+							case "480": $width=480;$height=360;break;
+							case "640": $width=640;$height=480;break;
+							case "800": $width=800;$height=600;break;
+							case "1024": $width=1024;$height=768;break;
+							default:$width=320;$height=240;
+						}
+						$responsestring .= format_text("<a href=\"$rawmediapath?d=" . $width . "x" . $height . "\">$filename</a>", FORMAT_HTML);
 						//$responsestring .= format_text('{POODLL:type=video,path='.	$mediapath .',protocol=http,embed=' . $embed . ',embedstring='. $embedstring .'}', FORMAT_HTML);
 						break;
 
@@ -512,9 +560,12 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
      */
     public function view_summary(stdClass $submission, & $showviewlink) {
     	$showviewlink = false;
+    	
+    	//fetch video size for video list display pages
+        $size = get_config('assignsubmission_onlinepoodll', 'displaysize_list');
 
 		//our response, this will output a player/image, and optionally a portfolio export link
-		return $this->fetchResponses($submission->id) . $this->get_p_links($submission->id) ;
+		return $this->fetchResponses($submission->id,false,false,$size) . $this->get_p_links($submission->id) ;
 
 		//the default return method, this just produces a link.
       // return $this->assignment->render_area_files(ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA, $submission->id);
@@ -548,13 +599,15 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
         $result = '';
 
         $onlinepoodllsubmission = $this->get_onlinepoodll_submission($submission->id);
+        //fetch video size for single video display pages
+        $size = get_config('assignsubmission_onlinepoodll', 'displaysize_single');
 
 
         if ($onlinepoodllsubmission) {
 
 
             // show our responses in a player
-			$result = $this->fetchResponses($submission->id);
+			$result = $this->fetchResponses($submission->id,false,false,$size);
 		
 			//the default render method. Only shows a link
 			// return $this->assignment->render_area_files(ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, ASSIGN_FILEAREA_SUBMISSION_ONLINEPOODLL, $submission->id);

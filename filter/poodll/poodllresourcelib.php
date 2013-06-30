@@ -2263,7 +2263,9 @@ $useplayer=$CFG->filter_poodll_defaultplayer;
 								$params,$width,$height,'#FFFFFF');
 				}
 				
-				if($CFG->filter_poodll_download_media_ok){
+				$context = get_context_instance(CONTEXT_COURSE, $COURSE->id);
+				$has_permission = has_capability('filter/poodll:candownloadmedia', $context);
+				if($CFG->filter_poodll_download_media_ok && $has_permission){
 					$returnString .=  "<a href='" . urldecode($rtmp_file) . "'>" 
 													. "&nbsp;<img src='" . $CFG->{'wwwroot'} . "/filter/poodll/pix/download.gif' alt='download' />" 
 													."</a>";
@@ -2470,7 +2472,9 @@ $ismobile=isMobile($CFG->filter_poodll_html5play);
 								$params,$width,$height,'#FFFFFF');
 				}
 				
-				if($CFG->filter_poodll_download_media_ok){
+				$context = get_context_instance(CONTEXT_COURSE, $COURSE->id);
+				$has_permission = has_capability('filter/poodll:candownloadmedia', $context);
+				if($CFG->filter_poodll_download_media_ok && $has_permission){
 					$returnString .=  "<a href='" . urldecode($rtmp_file) . "'>" 
 													. "&nbsp;<img src='" . $CFG->{'wwwroot'} . "/filter/poodll/pix/download.gif' alt='download' />" 
 													."</a>";
