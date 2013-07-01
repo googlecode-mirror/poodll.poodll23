@@ -2263,6 +2263,7 @@ $useplayer=$CFG->filter_poodll_defaultplayer;
 								$params,$width,$height,'#FFFFFF');
 				}
 				
+				//regardless of swf player, add a download icon if appropriate
 				$context = get_context_instance(CONTEXT_COURSE, $COURSE->id);
 				$has_permission = has_capability('filter/poodll:candownloadmedia', $context);
 				if($CFG->filter_poodll_download_media_ok && $has_permission){
@@ -2358,7 +2359,8 @@ $ismobile=isMobile($CFG->filter_poodll_html5play);
 	//this does screw up updating the entry on the page,
 	//which is seen after marking a single audio/vide assignment and returning to the list
 	//poodllonline assignment
-	if ($embed){
+	//if ($embed){
+	if (false){
 		$lzid = "lzapp_videoplayer_" . rand(100000, 999999) ;
 		$returnString="		
 	  <div id='$lzid' class='player'>
