@@ -799,7 +799,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
     public function get_file_areas() {
   
         return array(ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA=>$this->get_name(),
-        	ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA=>$this->get_name . " whiteboard backimage");
+        	ASSIGNSUBMISSION_ONLINEPOODLL_WB_FILEAREA=>$this->get_name() . " whiteboard backimage");
     }
 
 }
