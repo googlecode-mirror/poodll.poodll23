@@ -377,9 +377,9 @@ function convert_with_ffmpeg($filerecord, $tempdir, $tempfilename, $convfilename
 
 global $CFG;
 
-$CFG->filter_poodll_ffmpeg_mp4opts
-
-
+		//init our fs object
+		$fs = get_file_storage();
+		
 		//init our fs object
 		$fs = get_file_storage();
 		
