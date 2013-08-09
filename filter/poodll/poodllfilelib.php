@@ -377,12 +377,28 @@ function convert_with_ffmpeg($filerecord, $tempdir, $tempfilename, $convfilename
 
 global $CFG;
 
+$CFG->filter_poodll_ffmpeg_mp4opts
+
+
 		//init our fs object
 		$fs = get_file_storage();
 		
 		//if use ffmpeg, then attempt to convert mp3 or mp4
 		$convfilename = $convfilenamebase . $convext;
-		shell_exec("ffmpeg -i " . $tempdir . $tempfilename . " " . $tempdir . $convfilename . " >/dev/null 2>/dev/null ");
+		//work out the options we pass to ffmpeg. diff versions supp. dioff switches
+		//has to be this way really.
+		switch ($convext){
+			case '.mp4':
+				$ffmpegopts = "-c:v libx264 -profile:v baseline";
+				$ffmpegopts = $CFG->filter_poodll_ffmpeg_mp4opts;
+				break;
+			case '.mp3':
+				$ffmpegopts = $CFG->filter_poodll_ffmpeg_mp3opts;
+				break;
+			default:
+				$ffmpegopts = "";
+		}
+		shell_exec("ffmpeg -i " . $tempdir . $tempfilename . " " . $ffmpegopts . " " . $tempdir . $convfilename . " >/dev/null 2>/dev/null ");
 		/* About FFMPEG conv
 		it would be better to do the conversion in the background not here.
 		in that case you would place an ampersand at the end .. like this ...
