@@ -3516,13 +3516,12 @@ $relpath=str_replace("?forcedownload=1","", $relpath);
 	$filename = $file->get_filename();
 	if(strlen($filename)<5){
 		return false;
-		//return "bad filename ";
 	}
 	
-	//if name is not numeric, it is not a video file we made, it wont be on our red5 server
-	if(!is_numeric(substr($filename,0,strlen($filename)-4))){
+	//if we are NOT using FFMPEG, we can only take snaps from Red5, so ...
+	//if name is not numeric, it is not a video file we recorded on red5.it wont be there
+	if(!$CFG->filter_poodll_ffmpeg && !is_numeric(substr($filename,0,strlen($filename)-4))){
 		return false;
-		//return "not nuimeric filename";
 	}
 	
 	//check if we have an image file here already, if so return that URL
@@ -3531,10 +3530,24 @@ $relpath=str_replace("?forcedownload=1","", $relpath);
 	$imagefilename = substr($filename,0,strlen($filename)-3) . 'png';
 	if ($imagefile = $fs->get_file_by_hash(sha1($relimagepath))) {
             return $fullimagepath;
+    }
+
+	//from this point on we will need our file handling functions
+	require_once($CFG->dirroot . '/filter/poodll/poodllfilelib.php');
 	
-	//if we don't have that image lets get it from tokyopoodll and return it
+	//if we are using FFMPEG, try to get the splash image
+	if($CFG->filter_poodll_ffmpeg){
+
+		$imagefile = get_splash_ffmpeg($file, $imagefilename);
+		if($imagefile){
+			return $fullimagepath;
+		}else{
+			return false;
+		}
+	
+	//if not FFMPEG pick it up from Red5 server
 	}else{
-		require_once($CFG->dirroot . '/filter/poodll/poodllfilelib.php');
+
 		$result = instance_remotedownload($file->get_contextid(),
 					$imagefilename, 
 					$file->get_component(),
@@ -3549,12 +3562,8 @@ $relpath=str_replace("?forcedownload=1","", $relpath);
 		}else{
 			return false;
 		}
-	}
-	
-	
-	
-	
-}
+	}//end of if ffmpeg
+}//end of fetchVideoSplash
 
 function fetchJSWidgetCode($widget,$paramsArray,$width,$height, $bgcolor="#FFFFFF", $usemastersprite="false"){
 	global $CFG, $PAGE;
