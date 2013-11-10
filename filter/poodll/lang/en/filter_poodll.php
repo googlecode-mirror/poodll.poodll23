@@ -1,6 +1,8 @@
 <?PHP // $Id: filter_poodll.php ,v 1.3 2012/05/16 12:47:13 Justin Hunt Exp $ 
       // PoodLl Filter
 $string['filtername'] = 'PoodLL Filter';
+//officially its not needed, but "new version available" email doesn't know to look for filtername
+$string['pluginname'] = 'PoodLL Filter';
 
 $string['settings'] = 'PoodLL Filter Settings';
 $string['activate'] = 'Activate PoodLL?';
