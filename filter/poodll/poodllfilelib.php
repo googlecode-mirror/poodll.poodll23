@@ -352,7 +352,7 @@ function uploadfile($filedata,  $fileextension, $mediatype, $actionid,$contextid
 */
 function get_splash_ffmpeg($videofile, $newfilename){
 
-global $CFG;
+global $CFG, $USER;
 
 		//determine the temp directory
 		if (isset($CFG->tempdir)){
@@ -371,7 +371,10 @@ global $CFG;
 		$ok = $videofile->copy_content_to($tempvideofilepath);
 		
 		//call on ffmpeg to create the snapshot
-		$ffmpegopts = "-vframes 1 -an ";
+		//$ffmpegopts = "-vframes 1 -an ";
+		//this takes the frame after 1 s
+		$ffmpegopts = "-ss 00:00:01 -vframes 1 -an ";
+		
 		shell_exec("ffmpeg -i " . $tempvideofilepath . " " . $ffmpegopts . " " . $tempsplashfilepath . " >/dev/null 2>/dev/null ");
 
 		//add the play button
@@ -379,7 +382,7 @@ global $CFG;
 		if(is_readable(realpath($tempsplashfilepath))){	
 			$bg = imagecreatefrompng($tempsplashfilepath);
 			$btn = imagecreatefrompng($CFG->wwwroot . '/filter/poodll/pix/playbutton.png');
-			imagealphablending($bng, 1);
+			imagealphablending($bg, 1);
 			imagealphablending($btn, 1);
 			imagecopy($bg, $btn, (imagesx($bg)-imagesx($btn)) / 2, (imagesy($bg)-imagesy($btn)) / 2, 0 , 0,imagesx($btn) , imagesy($btn));			
 			$btnok = imagepng($bg, $tempsplashfilepath, 7);

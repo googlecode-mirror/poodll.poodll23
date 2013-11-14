@@ -859,14 +859,184 @@ $params = array();
 
 }
 
+/*
+* The literally canvas whiteboard
+*
+*/
+function fetchLiterallyCanvasForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$width=0,$height=0,$backimage=""){
+global $CFG, $USER, $COURSE,$PAGE;
+
+	//javascript upload handler
+	$opts =Array();
+	if($backimage !=''){
+		$opts['bgimage'] = $backimage;
+	}
+	if($CFG->filter_poodll_autosavewhiteboard){
+		$opts['autosave'] = $CFG->filter_poodll_autosavewhiteboard;
+	}
+	$PAGE->requires->js_init_call('M.filter_poodll.loadliterallycanvas', array($opts),false);
+
+	//removed from params to make way for moodle 2 filesystem params Justin 20120213
+	if($width==0){ $width="640";}
+	if($height==0){$height="500";}
+	$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
+
+
+	//the control to put the filename of our picture
+	if ($updatecontrol == "saveflvvoice"){
+		$savecontrol = "<input name='saveflvvoice' type='hidden' value='' id='saveflvvoice' />";
+	}else{
+		$savecontrol = "";
+	}
+	
+	//set media type
+	$mediatype ="image";
+	
+	//include jquery
+	if($CFG->version < 2013051400){
+		$PAGE->requires->js("/filter/poodll/js/literallycanvas.js/js/jquery-1.8.2.js");
+	}else{
+		$PAGE->requires->jquery();
+	}
+	
+	//include other needed libraries
+	$PAGE->requires->js("/filter/poodll/js/literallycanvas.js/js/underscore-1.4.2.js");
+	$PAGE->requires->js("/filter/poodll/js/literallycanvas.js/js/literallycanvas.js");
+
+
+	//save button 
+	$savebutton = "<input type=\"hidden\" id=\"p_updatecontrol\" value=\"$updatecontrol\" />";
+	$savebutton .= "<input type=\"hidden\" id=\"p_contextid\" value=\"$contextid\" />";
+	$savebutton .= "<input type=\"hidden\" id=\"p_component\" value=\"$component\" />";
+	$savebutton .= "<input type=\"hidden\" id=\"p_mediatype\" value=\"$mediatype\" />";
+	$savebutton .= "<input type=\"hidden\" id=\"p_filearea\" value=\"$filearea\" />";
+	$savebutton .= "<input type=\"hidden\" id=\"p_itemid\" value=\"$itemid\" />";
+	$savebutton .= "<input type=\"hidden\" id=\"p_fileliburl\" value=\"$poodllfilelib\" />";
+	$buttonclass="p_btn";
+	$savebutton .= "<button type=\"button\" id=\"p_btn_upload_whiteboard\" class=\"$buttonclass\">" 
+				. get_string('whiteboardsave', 'filter_poodll'). 
+				"</button>";
+	
+	
+	//message container
+	$progresscontrols ="<div id=\"p_messages\"></div>";
+
+		
+	//container of whiteboard and other controls
+	$lcOpen = "<div class='whiteboard-wrapper' style='width:".$width."px; height:" . $height ."px;'>
+		<div class='fs-container' style='width:".$width."px; height:" . $height ."px;'>
+		<div class='literally'><canvas></canvas></div></div>";
+	$lcClose = "</div>";
+
+	//add save control and return string
+	$returnString = $lcOpen;
+	$returnString .= $savebutton;	
+    $returnString .= $savecontrol;	
+	$returnString .= $progresscontrols;	
+	$returnString .= $lcClose;
+	
+    return $returnString ;
+
+}
+
+/*
+* The literally canvas whiteboard
+*
+*/
+function fetchDrawingBoardForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$width=0,$height=0,$backimage=""){
+global $CFG, $USER, $COURSE,$PAGE;
+
+	//javascript upload handler
+	$opts =Array();
+	if($backimage !=''){
+		$opts['bgimage'] = $backimage;
+	}
+	if($CFG->filter_poodll_autosavewhiteboard){
+		$opts['autosave'] = $CFG->filter_poodll_autosavewhiteboard;
+	}
+	$PAGE->requires->js_init_call('M.filter_poodll.loaddrawingboard', array($opts),false);
+
+	//removed from params to make way for moodle 2 filesystem params Justin 20120213
+	if($width==0){ $width="640";}
+	if($height==0){$height="500";}
+	$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
+
+
+	//the control to put the filename of our picture
+	if ($updatecontrol == "saveflvvoice"){
+		$savecontrol = "<input name='saveflvvoice' type='hidden' value='' id='saveflvvoice' />";
+	}else{
+		$savecontrol = "";
+	}
+
+	//set media type
+	$mediatype ="image";
+	
+	//include jquery 
+	if($CFG->version < 2013051400){
+		//(this should be bundled in the component folder of drawingboard.js, but it is not
+		$PAGE->requires->js("/filter/poodll/js/drawingboard.js/dist/jquery-1.8.2.js");
+	}else{
+		$PAGE->requires->jquery();
+	}
+	
+	//include other needed libraries
+	$PAGE->requires->js("/filter/poodll/js/drawingboard.js/dist/drawingboard.min.js");
+
+
+	//save button 
+	$savebutton = "<input type=\"hidden\" id=\"p_updatecontrol\" value=\"$updatecontrol\" />";
+	$savebutton .= "<input type=\"hidden\" id=\"p_contextid\" value=\"$contextid\" />";
+	$savebutton .= "<input type=\"hidden\" id=\"p_component\" value=\"$component\" />";
+	$savebutton .= "<input type=\"hidden\" id=\"p_mediatype\" value=\"$mediatype\" />";
+	$savebutton .= "<input type=\"hidden\" id=\"p_filearea\" value=\"$filearea\" />";
+	$savebutton .= "<input type=\"hidden\" id=\"p_itemid\" value=\"$itemid\" />";
+	$savebutton .= "<input type=\"hidden\" id=\"p_fileliburl\" value=\"$poodllfilelib\" />";
+	if($opts['autosave']){
+		$buttonclass="w_btn";
+	}else{
+		$buttonclass="p_btn";
+	}
+	$savebutton .= "<button type=\"button\" id=\"p_btn_upload_whiteboard\" class=\"$buttonclass\">" 
+				. get_string('whiteboardsave', 'filter_poodll'). 
+				"</button>";
+	
+	//message container		
+	$progresscontrols = "<div id=\"p_messages\"></div>";
+
+	//init return string with container of whiteboard	
+	$dbOpen = "<div class='whiteboard-wrapper' style='width:".$width."px; height:" . $height ."px;'>
+		<div class='board drawing-board' id='drawing-board-id' style='width:".$width."px; height:" . $height ."px;'></div>";
+	$dbClose ="</div>";
+		
+	//add save control and return string
+	$returnString .= $dbOpen;
+    $returnString .= $savecontrol;	
+    $returnString .= $savebutton;	
+	$returnString .= $progresscontrols;	
+	$returnString .= $dbClose;
+    return $returnString ;
+
+}
+
+
+
 function fetchWhiteboardForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$width=0,$height=0,$backimage=""){
 global $CFG, $USER, $COURSE;
-   
- //Set the servername 
-///$flvserver = $CFG->poodll_media_server;
+
+//head off to the correct whiteboard as defined in config
+switch($CFG->filter_poodll_defaultwhiteboard){
+	case 'literallycanvas':
+		return fetchLiterallyCanvasForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$width,$height,$backimage);
+		break;
+	case 'drawingboard':
+		return fetchDrawingBoardForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$width,$height,$backimage); 
+		break;
+	default:
+}
+
 
 //head off to HTML5 logic if mobile
-
 if(isMobile($CFG->filter_poodll_html5widgets)){
 	if(!canDoUpload()){
 		$ret ="<div class='mobile_os_version_warning'>" . get_string('mobile_os_version_warning', 'filter_poodll') . "</div>";

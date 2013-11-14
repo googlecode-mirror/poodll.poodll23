@@ -140,4 +140,9 @@ $string['mobile_os_version_warning'] ='<p>Your OS Version is too low</p>
 		<p>Android requires version 4 or greater.</p>
 		<p>iOS requires version 6 or greater.</p>';
 
+$string['defaultwhiteboard'] = 'Default whiteboard';
+$string['autosavewhiteboard'] = 'Autosave whiteboard';
+$string['whiteboardsave'] = 'Save Picture';
+		
+
 ?>
