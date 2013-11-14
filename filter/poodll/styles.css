@@ -1,3 +1,6 @@
+@import url("/filter/poodll/js/literallycanvas.js/css/literally.css");
+@import url("/filter/poodll/js/drawingboard.js/dist/drawingboard.min.css");
+
 /* playlist style */
 div.poodllplaylist {
     width:397px;
@@ -212,6 +215,10 @@ div.poodllplaylist a em {
 	background: #c00 none 0 0 no-repeat;
 }
 
+#p_messages 
+{
+	float: left;
+}
 
 .p_btn {
 display: inline-block;
@@ -227,7 +234,14 @@ border: 0;
 border-radius: 4px;
 }
 
+.w_btn {
+display: inline-block;
+float: right;
+}
 
+.whiteboard-wrapper .p_btn {
+float: right;
+}
 
 .p_btn_wrapper {
 display: inline-block;
@@ -285,4 +299,12 @@ left: -50%;
 	font-size:14px; 
 	font-weight:bold; 
 	margin:10px; 
+}
+.fs-container {
+	margin: auto;
+	margin-top: 8px;
+}
+.literally {
+    width: 100%;
+    height: 100%;
 }
