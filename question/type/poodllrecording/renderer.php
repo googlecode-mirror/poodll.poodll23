@@ -441,10 +441,6 @@ class qtype_poodllrecording_format_picture_renderer extends qtype_poodllrecordin
     }//end of function
     
     private function prepareWhiteboard($updatecontrol, $contextid,$component,$filearea,$itemid,$width=0,$height=0,$backimage=""){
-    	//compensation for borders and control panel
-    	//the board size is the size of the drawing canvas, not the widget
-    	$width = $width + 205;
-    	$height = $height + 20;
     	$whiteboardString = fetchWhiteboardForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$width,$height,$backimage);
     	return $whiteboardString;
     }

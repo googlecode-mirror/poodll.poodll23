@@ -483,12 +483,27 @@ if ($CFG->filter_poodll_usecourseid){
 
 
 
-function fetch_whiteboard($runtime, $boardname, $imageurl="", $slave=false,$rooms="", $width=600,$height=350, $mode='normal',$standalone='false'){
+function fetch_whiteboard($runtime, $boardname, $imageurl="", $slave=false,$rooms="", $width=0,$height=0, $mode='normal',$standalone='false'){
 global $CFG, $USER,$COURSE;
+
+//head off to the correct whiteboard as defined in config
+switch($CFG->filter_poodll_defaultwhiteboard){
+	case 'literallycanvas':
+		$forsubmission = false;
+		return fetchLiterallyCanvas($forsubmission,$width,$height,$imageurl,$updatecontrol, $contextid,$component,$filearea,$itemid);
+		break;
+	case 'drawingboard':
+		$forsubmission = false;
+		return fetchDrawingBoard($forsubmission,$width,$height,$imageurl,$updatecontrol, $contextid,$component,$filearea,$itemid); 
+		break;
+	default:
+}
+//set default size if necessary
+if($width==0){ $width=$CFG->filter_poodll_whiteboardwidth;}
+if($height==0){$height=$CFG->filter_poodll_whiteboardheight;}
 
 //Set the servername 
 $flvserver = $CFG->poodll_media_server;
-
 
 
 //If standalone, then lets standalonify it
@@ -516,12 +531,20 @@ $mename=$USER->username;
 
 		//Are  we merely a slave to the admin whiteboard ?
 		if ($slave){
+			//adjust size for borders and control panel
+			//the board size is the size of the drawing canvas, not the widget
+			$width = $width + 20;
+			$height = $height + 20;
 			$widgetstring=  fetchSWFWidgetCode('scribbleslave.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
 		}else{
 			//normal mode is a standard scribble with a cpanel
 			//simple mode has a simple double click popup menu
 			if ($mode=='normal'){
+					//adjust size for borders and control panel
+					//the board size is the size of the drawing canvas, not the widget
+					$width = $width + 205;
+					$height = $height + 20;
 					if($runtime=='js'){
 						$widgetstring=  fetchJSWidgetCode('scribbler.lzx.js',
 									$params,$width,$height,'#FFFFFF'); 
@@ -533,6 +556,10 @@ $mename=$USER->username;
     						$params,$width,$height,'#FFFFFF');
 					}
 			}else{
+					//adjust size for borders and control panel
+					//the board size is the size of the drawing canvas, not the widget
+					$width = $width + 20;
+					$height = $height + 20;
 					if($runtime=='js'){
 						$widgetstring=  fetchJSWidgetCode('simplescribble.lzx.js',
 									$params,$width,$height,'#FFFFFF'); 
@@ -863,7 +890,7 @@ $params = array();
 * The literally canvas whiteboard
 *
 */
-function fetchLiterallyCanvasForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$width=0,$height=0,$backimage=""){
+function fetchLiterallyCanvas($forsubmission=true,$width=0,$height=0,$backimage="",$updatecontrol="", $contextid=0,$component="",$filearea="",$itemid=0){
 global $CFG, $USER, $COURSE,$PAGE;
 
 	//javascript upload handler
@@ -871,15 +898,18 @@ global $CFG, $USER, $COURSE,$PAGE;
 	if($backimage !=''){
 		$opts['bgimage'] = $backimage;
 	}
-	if($CFG->filter_poodll_autosavewhiteboard){
+	if($CFG->filter_poodll_autosavewhiteboard && $forsubmission){
 		$opts['autosave'] = $CFG->filter_poodll_autosavewhiteboard;
 	}
 	$PAGE->requires->js_init_call('M.filter_poodll.loadliterallycanvas', array($opts),false);
 
 	//removed from params to make way for moodle 2 filesystem params Justin 20120213
-	if($width==0){ $width="640";}
-	if($height==0){$height="500";}
+	if($width==0){ $width=$CFG->filter_poodll_whiteboardwidth;}
+	if($height==0){$height=$CFG->filter_poodll_whiteboardheight;}
 	$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
+	
+	//add the height of the control area, so that the user spec dimensions are the canvas size
+	$height=$height + 61;
 
 
 	//the control to put the filename of our picture
@@ -930,9 +960,11 @@ global $CFG, $USER, $COURSE,$PAGE;
 
 	//add save control and return string
 	$returnString = $lcOpen;
-	$returnString .= $savebutton;	
-    $returnString .= $savecontrol;	
-	$returnString .= $progresscontrols;	
+	if($forsubmission){
+		$returnString .= $savebutton;	
+		$returnString .= $savecontrol;	
+		$returnString .= $progresscontrols;	
+	}
 	$returnString .= $lcClose;
 	
     return $returnString ;
@@ -943,7 +975,7 @@ global $CFG, $USER, $COURSE,$PAGE;
 * The literally canvas whiteboard
 *
 */
-function fetchDrawingBoardForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$width=0,$height=0,$backimage=""){
+function fetchDrawingBoard($forsubmission=true,$width=0,$height=0,$backimage="",$updatecontrol="", $contextid=0,$component="",$filearea="",$itemid=0){
 global $CFG, $USER, $COURSE,$PAGE;
 
 	//javascript upload handler
@@ -951,14 +983,14 @@ global $CFG, $USER, $COURSE,$PAGE;
 	if($backimage !=''){
 		$opts['bgimage'] = $backimage;
 	}
-	if($CFG->filter_poodll_autosavewhiteboard){
+	if($CFG->filter_poodll_autosavewhiteboard && $forsubmission){
 		$opts['autosave'] = $CFG->filter_poodll_autosavewhiteboard;
 	}
 	$PAGE->requires->js_init_call('M.filter_poodll.loaddrawingboard', array($opts),false);
 
 	//removed from params to make way for moodle 2 filesystem params Justin 20120213
-	if($width==0){ $width="640";}
-	if($height==0){$height="500";}
+	if($width==0){ $width=$CFG->filter_poodll_whiteboardwidth;}
+	if($height==0){$height=$CFG->filter_poodll_whiteboardheight;}
 	$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
 
 
@@ -972,9 +1004,10 @@ global $CFG, $USER, $COURSE,$PAGE;
 	//set media type
 	$mediatype ="image";
 	
-	//include jquery 
-	if($CFG->version < 2013051400){
-		//(this should be bundled in the component folder of drawingboard.js, but it is not
+	//include jquery , should be available in 2.5 but this fails ..?
+	//so we load it
+	//if($CFG->version < 2013051400){
+	if(true){
 		$PAGE->requires->js("/filter/poodll/js/drawingboard.js/dist/jquery-1.8.2.js");
 	}else{
 		$PAGE->requires->jquery();
@@ -1011,9 +1044,11 @@ global $CFG, $USER, $COURSE,$PAGE;
 		
 	//add save control and return string
 	$returnString .= $dbOpen;
-    $returnString .= $savecontrol;	
-    $returnString .= $savebutton;	
-	$returnString .= $progresscontrols;	
+	if($forsubmission){
+		$returnString .= $savecontrol;	
+		$returnString .= $savebutton;	
+		$returnString .= $progresscontrols;	
+	}
 	$returnString .= $dbClose;
     return $returnString ;
 
@@ -1021,16 +1056,24 @@ global $CFG, $USER, $COURSE,$PAGE;
 
 
 
-function fetchWhiteboardForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$width=0,$height=0,$backimage=""){
+function fetchWhiteboardForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$width=0,$height=0,$backimage="",$prefboard=""){
 global $CFG, $USER, $COURSE;
 
 //head off to the correct whiteboard as defined in config
-switch($CFG->filter_poodll_defaultwhiteboard){
+if($prefboard==""){
+	$useboard = $CFG->filter_poodll_defaultwhiteboard;
+}else{
+	$useboard = $prefboard;
+}	
+
+switch($useboard){
 	case 'literallycanvas':
-		return fetchLiterallyCanvasForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$width,$height,$backimage);
+		$forsubmission = true;
+		return fetchLiterallyCanvas($forsubmission,$width,$height,$backimage,$updatecontrol, $contextid,$component,$filearea,$itemid);
 		break;
 	case 'drawingboard':
-		return fetchDrawingBoardForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$width,$height,$backimage); 
+		$forsubmission = true;
+		return fetchDrawingBoard($forsubmission,$width,$height,$backimage,$updatecontrol, $contextid,$component,$filearea,$itemid); 
 		break;
 	default:
 }
@@ -1047,6 +1090,7 @@ if(isMobile($CFG->filter_poodll_html5widgets)){
 
 }
 
+
 //If standalone submission will always be standalone ... or will it ...
 //pair submissions could be interesting ..
 $boardname="solo";
@@ -1055,9 +1099,14 @@ $mode="normal";
 //$mename=$USER->username;		
 
 	//removed from params to make way for moodle 2 filesystem params Justin 20120213
-	if($width==0){ $width="640";}
-	if($height==0){$height="500";}
+	if($width==0){ $width=$CFG->filter_poodll_whiteboardwidth;}
+	if($height==0){$height=$CFG->filter_poodll_whiteboardheight;}
 	$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
+	
+//adjust size for borders and control panel
+//the board size is the size of the drawing canvas, not the widget
+$width = $width + 205;
+$height = $height + 20;
 
 
 	//the control to put the filename of our picture

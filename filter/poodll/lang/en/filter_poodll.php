@@ -86,8 +86,8 @@ $string['smallgallheight'] = 'Vid. Gallery (small) Height';
 $string['newpairwidth'] = 'Pairwork Widget Width ';
 $string['newpairheight'] = 'Pairwork Widget Height';
 
-$string['wboardwidth'] = 'Whiteboard Width ';
-$string['wboardheight'] = 'Whiteboard Height';
+$string['wboardwidth'] = 'Whiteboard Default Width ';
+$string['wboardheight'] = 'Whiteboard Default Height';
 
 //video capture settings
 $string['capturewidth'] = 'Video Recorder Capture Size';

@@ -239,6 +239,7 @@ M.filter_poodll.loaddrawingboard = function(Y,opts) {
 							'Navigation'
 						],
 				webStorage: false,
+				enlargeYourContainer: true,
 				eraserColor: erasercolor
 			});
 			
