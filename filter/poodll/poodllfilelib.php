@@ -422,7 +422,6 @@ global $CFG, $USER;
 	
 		//delete the temp file we made, regardless
 		}else{
-			error_log("new file loc: unreadable" );	
 			if(is_readable(realpath($tempvideofile))){
 				unlink(realpath($tempvideofile));
 			}
@@ -448,9 +447,10 @@ global $CFG;
 		$convfilename = $convfilenamebase . $convext;
 		//work out the options we pass to ffmpeg. diff versions supp. dioff switches
 		//has to be this way really.
+
 		switch ($convext){
 			case '.mp4':
-				$ffmpegopts = "-c:v libx264 -profile:v baseline";
+				//$ffmpegopts = "-c:v libx264 -profile:v baseline";
 				$ffmpegopts = $CFG->filter_poodll_ffmpeg_mp4opts;
 				break;
 			case '.mp3':
@@ -460,6 +460,7 @@ global $CFG;
 				$ffmpegopts = "";
 		}
 		shell_exec("ffmpeg -i " . $tempdir . $tempfilename . " " . $ffmpegopts . " " . $tempdir . $convfilename . " >/dev/null 2>/dev/null ");
+		
 		/* About FFMPEG conv
 		it would be better to do the conversion in the background not here.
 		in that case you would place an ampersand at the end .. like this ...
@@ -480,7 +481,6 @@ global $CFG;
 				unlink(realpath($tempdir . $tempfilename));
 			}
 			$filename = $convfilename;
-			
 		//if failed, set return value to FALSE
 		//and delete the temp file we made
 		}else{
@@ -920,7 +920,7 @@ $return=fetchReturnArray(true);
 	$ext = substr($filename,-4);
 	$filenamebase = substr($filename,0,-4); 	
 	switch($ext){
-		
+	
 		case ".mp4":
 				if ($CFG->filter_poodll_ffmpeg){
 					$convertlocally=true;
@@ -931,7 +931,7 @@ $return=fetchReturnArray(true);
 				break;
 				
 		case ".mp3":
-				if ($CFG->filter_poodll_ffmpeg){
+				if ($CFG->filter_poodll_ffmpeg){	
 					$convertlocally=true;
 					$downloadfilename = $filenamebase . ".flv";
 				}else{
@@ -1006,7 +1006,6 @@ $return=fetchReturnArray(true);
 	$red5_fileurl= "http://" . $CFG->filter_poodll_servername . 
 						":"  .  $CFG->filter_poodll_serverhttpport . "/poodll/" . $jsp . "?poodllserverid=" . 
 						$CFG->filter_poodll_serverid . "&filename=" . $downloadfilename . "&caller=" . urlencode($CFG->wwwroot);
-	error_log($red5_fileurl);
 	//download options
 	$options = array();
 	$options['headers']=null;
@@ -1035,12 +1034,10 @@ $return=fetchReturnArray(true);
 		}
 		//actually make the file on disk so FFMPEG can get it
 		$mediastring = file_get_contents($red5_fileurl);
-		$ret = file_put_contents($tempdir . $filename, $mediastring);
-		
+		$ret = file_put_contents($tempdir . $downloadfilename, $mediastring);
 		//if successfully saved to disk, convert
 		if($ret){
-		
-			$stored_file = convert_with_ffmpeg($file_record,$tempdir,$filename,$filenamebase, $ext );
+			$stored_file = convert_with_ffmpeg($file_record,$tempdir,$downloadfilename,$filenamebase, $ext );
 			if($stored_file){
 				$filename=$stored_file->get_filename();
 				
