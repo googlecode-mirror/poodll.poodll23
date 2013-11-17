@@ -303,7 +303,7 @@ left: -50%;
 .colorpicker-saturation {
   width: 200px;
   height: 200px;
-  background-image: url(../img/saturation.png);
+  background-image: url(/filter/poodll/js/literallycanvas.js/img/saturation.png);
   cursor: crosshair;
   float: left; }
 
@@ -351,10 +351,10 @@ left: -50%;
   margin-top: -1px; }
 
 .colorpicker-hue {
-  background-image: url(../img/hue.png); }
+  background-image: url(/filter/poodll/js/literallycanvas.js/img/hue.png); }
 
 .colorpicker-alpha {
-  background-image: url(../img/alpha.png);
+  background-image: url(/filter/poodll/js/literallycanvas.js/img/alpha.png);
   display: none; }
 
 .colorpicker {
