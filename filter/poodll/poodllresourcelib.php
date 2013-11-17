@@ -1025,7 +1025,7 @@ global $CFG, $USER, $COURSE,$PAGE;
 	$savebutton .= "<input type=\"hidden\" id=\"p_filearea\" value=\"$filearea\" />";
 	$savebutton .= "<input type=\"hidden\" id=\"p_itemid\" value=\"$itemid\" />";
 	$savebutton .= "<input type=\"hidden\" id=\"p_fileliburl\" value=\"$poodllfilelib\" />";
-	if($opts['autosave']){
+	if(array_key_exists('autosave',$opts)){
 		$buttonclass="w_btn";
 	}else{
 		$buttonclass="p_btn";
@@ -1043,7 +1043,7 @@ global $CFG, $USER, $COURSE,$PAGE;
 	$dbClose ="</div>";
 		
 	//add save control and return string
-	$returnString .= $dbOpen;
+	$returnString = $dbOpen;
 	if($forsubmission){
 		$returnString .= $savecontrol;	
 		$returnString .= $savebutton;	
