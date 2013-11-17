@@ -923,7 +923,8 @@ global $CFG, $USER, $COURSE,$PAGE;
 	$mediatype ="image";
 	
 	//include jquery
-	if($CFG->version < 2013051400){
+	//if($CFG->version < 2013051400){
+	if(true){
 		$PAGE->requires->js("/filter/poodll/js/literallycanvas.js/js/jquery-1.8.2.js");
 	}else{
 		$PAGE->requires->jquery();
