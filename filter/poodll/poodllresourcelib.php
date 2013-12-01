@@ -3754,7 +3754,8 @@ function fetchVideoSplash($src){
 	
 	//check if we have an image file here already, if so return that URL
 	$relimagepath = substr($relpath,0,strlen($relpath)-3) . 'png';
-	$fullimagepath = substr($src,0,strlen($src)-3) . 'png';
+	$trimsrc = str_replace("?forcedownload=1","", $src);
+	$fullimagepath = substr($trimsrc,0,strlen($trimsrc)-3) . 'png';
 	$imagefilename = substr($filename,0,strlen($filename)-3) . 'png';
 	if ($imagefile = $fs->get_file_by_hash(sha1($relimagepath))) {
             return $fullimagepath;
