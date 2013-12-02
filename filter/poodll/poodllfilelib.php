@@ -375,7 +375,15 @@ global $CFG, $USER;
 		//this takes the frame after 1 s
 		$ffmpegopts = "-ss 00:00:01 -vframes 1 -an ";
 		
-		shell_exec("ffmpeg -i " . $tempvideofilepath . " " . $ffmpegopts . " " . $tempsplashfilepath . " >/dev/null 2>/dev/null ");
+		//if there is a version in poodll filter dir, use that
+		//else use ffmpeg version on path
+		if(file_exists($CFG->dirroot . '/filter/poodll/ffmpeg')){
+			$ffmpegpath = $CFG->dirroot . '/filter/poodll/ffmpeg';
+		}else{
+			$ffmpegpath = 'ffmpeg';
+		}
+		
+		shell_exec($ffmpegpath . " -i " . $tempvideofilepath . " " . $ffmpegopts . " " . $tempsplashfilepath . " >/dev/null 2>/dev/null ");
 
 		//add the play button
 		//this can be done from ffmpeg, but probably not on all installs, so we do in php
@@ -459,7 +467,15 @@ global $CFG;
 			default:
 				$ffmpegopts = "";
 		}
-		shell_exec("ffmpeg -i " . $tempdir . $tempfilename . " " . $ffmpegopts . " " . $tempdir . $convfilename . " >/dev/null 2>/dev/null ");
+		
+		//if there is a version in poodll filter dir, use that
+		//else use ffmpeg version on path
+		if(file_exists($CFG->dirroot . '/filter/poodll/ffmpeg')){
+			$ffmpegpath = $CFG->dirroot . '/filter/poodll/ffmpeg';
+		}else{
+			$ffmpegpath = 'ffmpeg';
+		}
+		shell_exec($ffmpegpath . " -i " . $tempdir . $tempfilename . " " . $ffmpegopts . " " . $tempdir . $convfilename . " >/dev/null 2>/dev/null ");
 		
 		/* About FFMPEG conv
 		it would be better to do the conversion in the background not here.
