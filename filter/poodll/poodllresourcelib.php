@@ -1082,14 +1082,22 @@ switch($useboard){
 }
 
 
+
 //head off to HTML5 logic if mobile
 if(isMobile($CFG->filter_poodll_html5widgets)){
+	
+	$forsubmission = true;
+	return fetchDrawingBoard($forsubmission,$width,$height,$backimage,$updatecontrol, $contextid,$component,$filearea,$itemid); 
+	//the old logic follows but using drawingboard.js is probably better.
+	//if the sky falls in, we will revert though. Justin 20131202
+	/*	
 	if(!canDoUpload()){
 		$ret ="<div class='mobile_os_version_warning'>" . get_string('mobile_os_version_warning', 'filter_poodll') . "</div>";
 	}else{	
 		$ret = fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "image");
 	}
 	return $ret;
+	*/
 
 }
 
