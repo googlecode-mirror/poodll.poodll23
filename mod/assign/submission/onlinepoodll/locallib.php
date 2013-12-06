@@ -368,8 +368,8 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		
 		$responsestring = "";
 		
-		 //modify Justin 20120525 lists of flowplayers/jw players will break if embedded and 
-        // flowplayers should have splash screens to defer loading anyway
+		 //This is old code for poodll players(obselete) 
+		 //needs to be checked but probably safe to delete
         $embedstring = 'clicktoplay';
         $embed='false';
 		
@@ -382,13 +382,23 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 			ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, 
 			ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA, 
 			$submissionid, "id", false);
-        
+			
+        //if we have files, lets get them ready
 		if (!empty($files)) {
-            foreach ($files as $file) {
-                $filename = $file->get_filename();
-				break;
+			//if the filename property exists, and is filled, use that to fetch the file
+			$onlinepoodllsubmission = $this->get_onlinepoodll_submission($submissionid);
+			if(isset($onlinepoodllsubmission->filename) && !empty($onlinepoodllsubmission->filename)){
+				$filename =  $onlinepoodllsubmission->filename;
+				
+			//if no filename property just take the first file. That is how we used to do it	
+			}else{
+				foreach ($files as $file) {
+					$filename = $file->get_filename();
+					break;
+				}
 			}
 		}
+	
 		
 		//if this is a playback area, for teacher, show a string if no file
 		if ($checkfordata  && empty($filename)){ 
@@ -478,18 +488,20 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 
 
 		//Move recorded files from draft to the correct area
-		$this->shift_draft_file($submission);
-
+		//if filename is false, no update. possibly used changed something else on page
+		$filename = $this->shift_draft_file($submission);
+		if(!$filename){return;}
+		
         $onlinepoodllsubmission = $this->get_onlinepoodll_submission($submission->id);
         if ($onlinepoodllsubmission) {
+			$onlinepoodllsubmission->filename = $filename;
             return $DB->update_record(ASSIGNSUBMISSION_ONLINEPOODLL_TABLE, $onlinepoodllsubmission);
         } else {
-
             $onlinepoodllsubmission = new stdClass();
-
             $onlinepoodllsubmission->submission = $submission->id;
             $onlinepoodllsubmission->assignment = $this->assignment->get_instance()->id;
             $onlinepoodllsubmission->recorder = $this->get_config('recordertype');
+			$onlinepoodllsubmission->filename = $filename;
             return $DB->insert_record(ASSIGNSUBMISSION_ONLINEPOODLL_TABLE, $onlinepoodllsubmission) > 0;
         }
 
@@ -510,7 +522,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		//Don't do anything in the case that the filename is empty
 		//possibly the user is just updating something else on the page(eg an online text submission)
 		//if we overwrite here, we might trash their existing poodll submission file
-		if($filename==''){return;}
+		if($filename==''){return false;}
 		
 		 $fs = get_file_storage();
 		 $browser = get_file_browser();
@@ -541,6 +553,8 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 			$ret = $draft_fileinfo->copy_to_storage($file_record);
 			
 		}//end of if $draft_fileinfo
+		
+		return $filename;
 
 	}//end of shift_draft_file
     

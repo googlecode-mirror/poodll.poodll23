@@ -152,17 +152,20 @@ class qtype_poodllrecording_format_audio_renderer extends plugin_renderer_base {
     		global $CFG;
    			//fetch file from storage and figure out URL
 			$pathtofile="";
+			$tempstuff="";
     		$storedfiles=$qa->get_last_qt_files($name,$context->id);
     		foreach ($storedfiles as $sf){
-    			$pathtofile=$qa->get_response_file_url($sf);
-    			break;
+				//when we find the file that matches the filename in $step, use that
+				$usefilename = strip_tags($step->get_qt_var($name));
+				$storedfilename = strip_tags($sf->get_filename());
+				if($usefilename === $storedfilename){
+					$pathtofile=$qa->get_response_file_url($sf);
+					break;
+				}
     		}
-			
-			//$pathtofile= $this->prepare_response($name, $qa, $step, $context);
-			//return "path:" . $pathtofile ;
-			//return "path:" . $pathtofile . "<br />" . fetchSimpleAudioPlayer('swf',$pathtofile,"http",400,25);
+			//return player or empty string
 			if($pathtofile!=""){
-				 $files = fetchSimpleAudioPlayer('auto',$pathtofile,"http",400,25);
+				 $files =  fetchSimpleAudioPlayer('auto',$pathtofile,"http",400,25);
 			}else{
 				$files = "";
 			}
@@ -282,9 +285,15 @@ class qtype_poodllrecording_format_video_renderer extends qtype_poodllrecording_
 			
 			//fetch file from storage and figure out URL
     		$storedfiles=$qa->get_last_qt_files($name,$context->id);
+			
     		foreach ($storedfiles as $sf){
-    			$pathtofile=$qa->get_response_file_url($sf);
-    			break;
+				//when we find the file that matches the filename in $step, use that
+				$usefilename = strip_tags($step->get_qt_var($name));
+				$storedfilename = strip_tags($sf->get_filename());
+				if($usefilename === $storedfilename){
+					$pathtofile=$qa->get_response_file_url($sf);
+					break;
+				}
     		}
 			
 			//if we do not have a file submission, return an empty string
@@ -352,8 +361,13 @@ class qtype_poodllrecording_format_picture_renderer extends qtype_poodllrecordin
 			//fetch file from storage and figure out URL
     		$storedfiles=$qa->get_last_qt_files($name,$context->id);
     		foreach ($storedfiles as $sf){
-    			$pathtofile=$qa->get_response_file_url($sf);
-    			break;
+    			//when we find the file that matches the filename in $step, use that
+				$usefilename = strip_tags($step->get_qt_var($name));
+				$storedfilename = strip_tags($sf->get_filename());
+				if($usefilename === $storedfilename){
+					$pathtofile=$qa->get_response_file_url($sf);
+					break;
+				}
     		}
 			
 			//if we do not have a file submission, return an empty string

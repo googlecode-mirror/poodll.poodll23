@@ -501,8 +501,8 @@ global $CFG;
 		//and delete the temp file we made
 		}else{
 			$stored_file = false;
-			if(is_readable(realpath($tempdir . $filename))){
-				unlink(realpath($tempdir . $filename));
+			if(is_readable(realpath($tempdir . $tempfilename))){
+				unlink(realpath($tempdir . $tempfilename));
 			}
 		}		
 		return $stored_file;
