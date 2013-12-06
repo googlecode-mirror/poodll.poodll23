@@ -48,6 +48,18 @@ function xmldb_assignsubmission_onlinepoodll_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2012112000, 'assignsubmission', 'onlinepoodll');
     
     }
+	
+	//add filename field.
+    if ($oldversion < 2013120500) {
+    	$table = new xmldb_table('assignsubmission_onlinepoodl');	
+		$table->add_field('filename', XMLDB_TYPE_TEXT, 'small', null,
+                null, null, null);
+
+		
+		 // online PoodLL savepoint reached
+        upgrade_plugin_savepoint(true, 2013120500, 'assignsubmission', 'onlinepoodll');
+    
+    }
 
     return true;
 }
