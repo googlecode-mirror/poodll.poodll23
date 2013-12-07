@@ -175,7 +175,7 @@ class qtype_poodllrecording_format_audio_renderer extends plugin_renderer_base {
 
     public function response_area_input($name, $qa, $step, $lines, $context) {
     	global $USER;
-    	$usercontextid=get_context_instance(CONTEXT_USER, $USER->id)->id;
+    	$usercontextid=context_user::instance($USER->id)->id;
     	
 		//prepare a draft file id for use
 		list($draftitemid, $response) = $this->prepare_response_for_editing( $name, $step, $context);
@@ -228,7 +228,7 @@ class qtype_poodllrecording_format_mp3_renderer extends qtype_poodllrecording_fo
 
     public function response_area_input($name, $qa, $step, $lines, $context) {
     	global $USER;
-    	$usercontextid=get_context_instance(CONTEXT_USER, $USER->id)->id;
+    	$usercontextid=context_user::instance($USER->id)->id;
     	
 		//prepare a draft file id for use
 		list($draftitemid, $response) = $this->prepare_response_for_editing( $name, $step, $context);
@@ -307,7 +307,7 @@ class qtype_poodllrecording_format_video_renderer extends qtype_poodllrecording_
 
     public function response_area_input($name, $qa, $step, $lines, $context) {
     	global $USER;
-    	$usercontextid=get_context_instance(CONTEXT_USER, $USER->id)->id;
+    	$usercontextid=context_user::instance($USER->id)->id;
     	
 		//prepare a draft file id for use
 		list($draftitemid, $response) = $this->prepare_response_for_editing( $name, $step, $context);
@@ -382,7 +382,7 @@ class qtype_poodllrecording_format_picture_renderer extends qtype_poodllrecordin
 
     public function response_area_input($name, $qa, $step, $lines, $context) {
     	global $USER;
-    	$usercontextid=get_context_instance(CONTEXT_USER, $USER->id)->id;
+    	$usercontextid=context_user::instance($USER->id)->id;
     	
 		//prepare a draft file id for use
 		list($draftitemid, $response) = $this->prepare_response_for_editing( $name, $step, $context);

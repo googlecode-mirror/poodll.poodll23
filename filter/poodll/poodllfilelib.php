@@ -769,7 +769,7 @@ function fetch_instancedir_contents($thedir, &$thecontext, $recursive=false){
 //we can try if it works but it might not.
 function fetch_legacydirlist($courseid){
 
-$thiscontext = get_context_instance(CONTEXT_COURSE, $courseid);
+$thiscontext = context_course::instance($courseid); //get_context_instance(CONTEXT_COURSE, $courseid);
 $contextid = $thiscontext->id;
     
     $fs = get_file_storage();
@@ -826,7 +826,7 @@ global $CFG, $DB;
 	
 
 	//get a handle on the module context
-	$thiscontext = get_context_instance(CONTEXT_MODULE,$moduleid);
+	$thiscontext = context_module::instance($moduleid); //get_context_instance(CONTEXT_MODULE,$moduleid);
 	$contextid = $thiscontext->id;
 	
 	//fetch a list of files in this area, and sort them alphabetically
@@ -1093,7 +1093,7 @@ $return=fetchReturnArray(true);
 		}else{
 			// echo "yay:" . $red5_fileurl;
 				 //get a file object if successful
-				 $thecontext = get_context_instance_by_id($contextid);
+				 $thecontext = context::instance_by_id($contextid);//get_context_instance_by_id($contextid);
 				 $fileinfo = $browser->get_file_info($thecontext, $component,$filearea, $itemid, $filepath, $filename);
 			
 				//if we could get a fileinfo object, return the url of the object
@@ -1218,7 +1218,7 @@ function bogus_instance_deletefile_internal($f){
 
 			//fetch our info object
 			$browser = get_file_browser();
-			$thecontext = get_context_instance_by_id($f->get_contextid());
+			$thecontext = context::instance_by_id($f->get_contextid());//get_context_instance_by_id($f->get_contextid());
 			$fileinfo = $browser->get_file_info($thecontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
 	
 			//if we don't have permission to delete, exit
@@ -1266,7 +1266,7 @@ function bogus_instance_deletedircontents($sfdir){
 		
 		foreach($files as $f){
 		
-			$thecontext = get_context_instance_by_id($f->get_contextid());
+			$thecontext = context::instance_by_id($f->get_contextid());
 			$fileinfo = $browser->get_file_info($thecontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
 			//if we have insuff permissions to delete. Exit.
 			//if(!$fileinfo){
@@ -1311,7 +1311,7 @@ function instance_deletefile_internal($f){
 
 			//fetch our info object
 			$browser = get_file_browser();
-			$thecontext = get_context_instance_by_id($f->get_contextid());
+			$thecontext = context::instance_by_id($f->get_contextid());//get_context_instance_by_id($f->get_contextid());
 			$fileinfo = $browser->get_file_info($thecontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
 	
 			//if we don't have permission to delete, or the file cant be info'd exit
@@ -1360,7 +1360,7 @@ function instance_deletedircontents($sfdir){
 		
 		foreach($files as $singlefile){
 		
-			$thecontext = get_context_instance_by_id($singlefile->get_contextid());
+			$thecontext = context::instance_by_id($singlefile->get_contextid());//get_context_instance_by_id($singlefile->get_contextid());
 			$fileinfo = $browser->get_file_info($thecontext, $singlefile->get_component(),$singlefile->get_filearea(), $singlefile->get_itemid(), $singlefile->get_filepath(), $singlefile->get_filename());
 			
 			//if the file cant be info'd, exit.
@@ -1439,7 +1439,7 @@ function do_createdir($moduleid, $courseid, $itemid, $filearea, $newdir){
 	$component = "mod_" . $cm->modname;
 	
 	//get a handle on the module context
-	$thiscontext = get_context_instance(CONTEXT_MODULE,$moduleid);
+	$thiscontext = context_module::instance($moduleid);//get_context_instance(CONTEXT_MODULE,$moduleid);
 	$contextid = $thiscontext->id;
 
 	//get filehandling objects
@@ -1507,7 +1507,7 @@ function do_copyfilein($moduleid, $courseid, $itemid, $filearea, $filepath,$newp
 	$component = "mod_" . $cm->modname;
 	
 	//get a handle on the module context
-	$thiscontext = get_context_instance(CONTEXT_MODULE,$moduleid);
+	$thiscontext = context_module::instance($moduleid);//get_context_instance(CONTEXT_MODULE,$moduleid);
 	$contextid = $thiscontext->id;
 	
 	//get filehandling objects
@@ -1730,7 +1730,7 @@ function instance_duplicatefilecontents($f, $moduleid, $courseid, $itemid, $file
 	$component = "mod_" . $cm->modname;
 	
 	//get a handle on the module context
-	$thiscontext = get_context_instance(CONTEXT_MODULE,$moduleid);
+	$thiscontext = context_module::instance($moduleid);//get_context_instance(CONTEXT_MODULE,$moduleid);
 	$contextid = $thiscontext->id;
 	
 	
@@ -1788,7 +1788,7 @@ function instance_duplicatefilecontents($f, $moduleid, $courseid, $itemid, $file
 		}
 		
 		//fetch the file info object for our original file
-		$original_context = get_context_instance_by_id($f->get_contextid());
+		$original_context = context::instance_by_id($f->get_contextid());//get_context_instance_by_id($f->get_contextid());
 		$original_fileinfo = $browser->get_file_info($original_context, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
 	
 		//perform the copy	
@@ -1886,7 +1886,7 @@ function xinstance_renamefile($moduleid, $courseid, $itemid, $filearea,  $filepa
 	$component = "mod_" . $cm->modname;
 	
 	//get a handle on the module context
-	$thiscontext = get_context_instance(CONTEXT_MODULE,$moduleid);
+	$thiscontext = context_module::instance($moduleid); //get_context_instance(CONTEXT_MODULE,$moduleid);
 	$contextid = $thiscontext->id;
 	
 
@@ -1983,7 +1983,7 @@ function fetchRealUrl($moduleid,$courseid, $itemid, $filearea, $filepath, $reque
 	
 	//get module context
 	//may be able to avoid useing moduleid, by using PAGE global
-	$thecontext = get_context_instance(CONTEXT_MODULE,$moduleid);
+	$thecontext = context_module::instance($moduleid); //get_context_instance(CONTEXT_MODULE,$moduleid);
 	//$thecontext=$PAGE->context;
 
 	
@@ -2168,7 +2168,7 @@ function fileIsWritable($f){
 	//get the file brower object
 	
 	$browser = get_file_browser();
-	$thecontext = get_context_instance_by_id($f->get_contextid());
+	$thecontext = context::instance_by_id($f->get_contextid());//get_context_instance_by_id($f->get_contextid());
 	$fileinfo = $browser->get_file_info($thecontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
 	//if we have insuff permissions to delete. Exit.
 	if(!$fileinfo || !$fileinfo->is_writable()){
@@ -2183,7 +2183,7 @@ function fileIsWritable($f){
 function fileIsReadable($f){
 	//get the file brower object
 	$browser = get_file_browser();
-	$thecontext = get_context_instance_by_id($f->get_contextid());
+	$thecontext = context::instance_by_id($f->get_contextid());//get_context_instance_by_id($f->get_contextid());
 	$fileinfo = $browser->get_file_info($thecontext, $f->get_component(),$f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename());
 	//if we have insuff permissions to delete. Exit.
 	if(!$fileinfo || !$fileinfo->is_readable()){
@@ -2201,7 +2201,7 @@ function pathIsWritable($moduleid, $courseid, $itemid, $filearea,$filepath=DIREC
 
 
 	//get a handle on the module context
-	$thiscontext = get_context_instance(CONTEXT_MODULE,$moduleid);
+	$thiscontext = context_module::instance($moduleid);//get_context_instance(CONTEXT_MODULE,$moduleid);
 	
 	//fetch info and ids about the module calling this data
 	$course = $DB->get_record('course', array('id'=>$courseid));
