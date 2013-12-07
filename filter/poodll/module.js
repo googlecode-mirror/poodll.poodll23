@@ -300,14 +300,27 @@ M.filter_poodll.loadliterallycanvas = function(Y,opts) {
           }
         });
         */
+        
 
-       // load the whiteboard and save the canvas reference
-       var lc =  $('.literally').literallycanvas({imageURLPrefix: opts['imageurlprefix']});
-	   M.filter_poodll.getwhiteboardcanvas = function(){ return lc.canvasForExport();};
-	   
-	   //loads a background image .. but LC ignores in redrawing stack :(
-	  // setCanvasBackgroundImage(opts['bgimage']);
-	  
+        // load the whiteboard and save the canvas reference
+    	//logic a bit diff if we have a background image
+    	if(opts['bgimage']){
+    		var bgimg = new Image();
+			bgimg.src = opts['bgimage'];
+		}else{
+			var bgimg = null;
+		}
+		
+		//init the whiteboard	
+		var lc =  $('.literally').literallycanvas({imageURLPrefix: opts['imageurlprefix'], 
+		backgroundColor: 'whiteSmoke', 
+		watermarkImage: bgimg,
+		 onInit: function(lc) {
+				M.filter_poodll.getwhiteboardcanvas = function(){ return lc.canvasForExport();};
+			}
+		});
+
+
 	//autosave if we have to. We get no events from LC so we make it 5 seconds
 	if(opts['autosave']){	
 		setInterval(WhiteboardUploadHandlerLC,10000);
@@ -320,23 +333,6 @@ M.filter_poodll.loadliterallycanvas = function(Y,opts) {
 	}
 }
 
-	/**
-	 * Image method: Force a background image, LC ignores when redrawing
-	 */
-	function setCanvasBackgroundImage (src) {
-		var cvs = M.filter_poodll.getwhiteboardcanvas();
-		var ctx = cvs && cvs.getContext && cvs.getContext('2d') ? cvs.getContext('2d') : null;
-		var img = new Image();
-		var oldGCO = ctx.globalCompositeOperation;
-		img.onload = function() {
-			ctx.globalCompositeOperation = "source-over";
-			ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.width);
-			ctx.drawImage(img, 0, 0);
-			ctx.globalCompositeOperation = oldGCO;
-		};
-		img.src = src;
-		console.log("set bg image:" + src);
-	}
 /*
 	 * Image methods: To download an image to desktop
 	 */

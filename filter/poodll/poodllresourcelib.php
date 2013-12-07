@@ -933,8 +933,9 @@ global $CFG, $USER, $COURSE,$PAGE;
 	}
 	
 	//include other needed libraries
-	$PAGE->requires->js("/filter/poodll/js/literallycanvas.js/js/underscore-1.4.2.js");
 	$PAGE->requires->js("/filter/poodll/js/literallycanvas.js/js/literallycanvas.js");
+	$PAGE->requires->js("/filter/poodll/js/literallycanvas.js/js/literallycanvas.jquery.min.js");
+	
 
 
 	//save button 
