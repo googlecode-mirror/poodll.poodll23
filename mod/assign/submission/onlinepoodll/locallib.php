@@ -272,7 +272,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
         }
 
 		//We prepare our form here and fetch/save data in SAVE method
-		$usercontextid=get_context_instance(CONTEXT_USER, $USER->id)->id;
+		$usercontextid=context_user::instance($USER->id)->id;
 		$draftitemid = file_get_submitted_draft_itemid(OP_FILENAMECONTROL);
 		$contextid=$this->assignment->get_context()->id;
 		file_prepare_draft_area($draftitemid, $contextid, ASSIGNSUBMISSION_ONLINEPOODLL_COMPONENT, ASSIGNSUBMISSION_ONLINEPOODLL_FILEAREA, $submissionid, null,null);
@@ -530,7 +530,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 
 		
 		//fetch the file info object for our original file
-		$original_context = get_context_instance_by_id($usercontextid);
+		$original_context = context::instance_by_id($usercontextid);
 		$draft_fileinfo = $browser->get_file_info($original_context, 'user','draft', $draftitemid, '/', $filename);
 	
 		//perform the copy	

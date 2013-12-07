@@ -155,7 +155,7 @@ function fetch_poodllconsole($runtime ){
 	
 	//Show the buttons window if we are admin
 	//Also won't receive messages intended for students if we are admin. Be aware.
-	if (has_capability('mod/quiz:preview', get_context_instance(CONTEXT_COURSE, $COURSE->id))){		
+	if (has_capability('mod/quiz:preview', context_course::instance($courseid))){		
 		$am="admin";
 	}else{
 		$am="0";
@@ -211,7 +211,7 @@ function fetch_poodllheader($runtime){
 	
 	//Show the buttons window if we are admin
 	//Also won't receive messages intended for students if we are admin. Be aware.
-	if (has_capability('mod/quiz:preview', get_context_instance(CONTEXT_COURSE, $COURSE->id))){		
+	if (has_capability('mod/quiz:preview', context_course::instance($COURSE->id))){		
 		$am="admin";
 	}else{
 		$am="0";
@@ -513,7 +513,7 @@ if($standalone == 'true'){
 
 
 //Determine if we are admin, if necessary , for slave/master mode
-	if ($slave && has_capability('mod/quiz:preview', get_context_instance(CONTEXT_COURSE, $COURSE->id))){		
+	if ($slave && has_capability('mod/quiz:preview', context_course::instance($COURSE->id))){		
 		$slave=false;
 	}
 
@@ -1279,7 +1279,7 @@ $userid = $USER->username;
 
 	
 	//Determine if we are admin, if necessary , for slave/master mode
-	if (has_capability('mod/quiz:preview', get_context_instance(CONTEXT_COURSE, $COURSE->id))){		
+	if (has_capability('mod/quiz:preview', context_course::instance($COURSE->id))){		
 		$isadmin=true;
 	}else{
 		$isadmin=false;
@@ -1469,7 +1469,7 @@ $userid = $USER->username;
 
 	
 	//Determine if we are admin, if necessary , for slave/master mode
-	if (has_capability('mod/quiz:preview', get_context_instance(CONTEXT_COURSE, $COURSE->id))){		
+	if (has_capability('mod/quiz:preview', context_course::instance($COURSE->id))){		
 		$isadmin=true;
 	}else{
 		$isadmin=false;
@@ -2523,7 +2523,7 @@ $useplayer=$CFG->filter_poodll_defaultplayer;
 				}
 				
 				//regardless of swf player, add a download icon if appropriate
-				$context = get_context_instance(CONTEXT_COURSE, $COURSE->id);
+				$context = context_course::instance($COURSE->id);
 				$has_permission = has_capability('filter/poodll:candownloadmedia', $context);
 				if($CFG->filter_poodll_download_media_ok && $has_permission){
 					$returnString .=  "<a href='" . urldecode($rtmp_file) . "'>" 
@@ -2563,7 +2563,7 @@ $ismobile=isMobile($CFG->filter_poodll_html5play);
 	$rtmp_file = str_replace( "@@username@@",$USER->username,$rtmp_file);
 	
 	//Determine if we are admin, admins can always fullscreen
-	if (has_capability('mod/quiz:preview', get_context_instance(CONTEXT_COURSE, $COURSE->id))){		
+	if (has_capability('mod/quiz:preview', context_course::instance($COURSE->id))){		
 		$permitfullscreen='true';
 	}
 
@@ -2733,7 +2733,7 @@ $ismobile=isMobile($CFG->filter_poodll_html5play);
 								$params,$width,$height,'#FFFFFF');
 				}
 				
-				$context = get_context_instance(CONTEXT_COURSE, $COURSE->id);
+				$context = context_course::instance($COURSE->id);
 				$has_permission = has_capability('filter/poodll:candownloadmedia', $context);
 				if($CFG->filter_poodll_download_media_ok && $has_permission){
 					$returnString .=  "<a href='" . urldecode($rtmp_file) . "'>" 
@@ -2768,7 +2768,7 @@ if ($width==''){$width=$CFG->filter_poodll_smallgallwidth;}
 if ($height==''){$height=$CFG->filter_poodll_smallgallheight;}
 
 //Determine if we are admin, admins can always fullscreen
-	if (has_capability('mod/quiz:preview', get_context_instance(CONTEXT_COURSE, $COURSE->id))){		
+	if (has_capability('mod/quiz:preview', context_course::instance($COURSE->id))){		
 		$permitfullscreen='true';
 	}
 
@@ -3039,7 +3039,7 @@ global $CFG, $DB, $COURSE;
 	$fs = get_file_storage();
 
 	//get a handle on the module context
-	$thiscontext = get_context_instance(CONTEXT_MODULE,$moduleid);
+	$thiscontext = context_module::instance($moduleid);
 	$contextid = $thiscontext->id;
 	
 	//fetch a list of files in this area, and sort them alphabetically

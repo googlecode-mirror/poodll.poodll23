@@ -54,7 +54,7 @@ class assignment_poodllonline extends assignment_base {
         $saved = optional_param('saved', 0, PARAM_BOOL);
 		$print  = optional_param('print', 0, PARAM_BOOL);
 		
-        $context = get_context_instance(CONTEXT_MODULE, $this->cm->id);
+        $context = context_module::instance($this->cm->id);
         require_capability('mod/assignment:view', $context);
 
         $submission = $this->get_submission();
@@ -351,7 +351,7 @@ class assignment_poodllonline extends assignment_base {
 
 		
 		//fetch the file info object for our original file
-		$original_context = get_context_instance_by_id($usercontextid);
+		$original_context = context::instance_by_id($usercontextid);
 		$draft_fileinfo = $browser->get_file_info($original_context, 'user','draft', $draftitemid, '/', $filename);
 	
 		//perform the copy	
@@ -793,7 +793,7 @@ class mod_assignment_poodllonline_edit_form extends moodleform {
 				$contextid=$this->_customdata['editoroptions']['context']->id;
 				$submissionid=$this->_customdata['data']->sid;
     			file_prepare_draft_area($draftitemid, $contextid, 'mod_assignment', 'submission', $submissionid, null,null);
-				$usercontextid=get_context_instance(CONTEXT_USER, $USER->id)->id;
+				$usercontextid=context_user::instance($USER->id)->id;
 		
 				$mform->addElement('hidden', 'draftitemid', $draftitemid);
 				$mform->addElement('hidden', 'usercontextid', $usercontextid);	
