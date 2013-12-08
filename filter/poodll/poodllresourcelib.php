@@ -933,8 +933,8 @@ global $CFG, $USER, $COURSE,$PAGE;
 	}
 	
 	//include other needed libraries
-	$PAGE->requires->js("/filter/poodll/js/literallycanvas.js/js/literallycanvas.js");
-	$PAGE->requires->js("/filter/poodll/js/literallycanvas.js/js/literallycanvas.jquery.min.js");
+	//$PAGE->requires->js("/filter/poodll/js/literallycanvas.js/js/literallycanvas.js");
+	$PAGE->requires->js("/filter/poodll/js/literallycanvas.js/js/literallycanvas.jquery.js");
 	
 
 
