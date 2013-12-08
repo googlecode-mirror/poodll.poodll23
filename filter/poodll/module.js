@@ -348,7 +348,7 @@ M.filter_poodll.loadliterallycanvas = function(Y,opts) {
 	
 	function startSaveCountdown(){
 		clearTimeout(M.filter_poodll.timeouthandle);
-		M.filter_poodll.timeouthandle = setTimeout(WhiteboardUploadHandler,3000);
+		M.filter_poodll.timeouthandle = setTimeout(WhiteboardUploadHandler,2000);
 	}
 
 /*
