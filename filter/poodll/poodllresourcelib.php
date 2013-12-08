@@ -946,7 +946,11 @@ global $CFG, $USER, $COURSE,$PAGE;
 	$savebutton .= "<input type=\"hidden\" id=\"p_filearea\" value=\"$filearea\" />";
 	$savebutton .= "<input type=\"hidden\" id=\"p_itemid\" value=\"$itemid\" />";
 	$savebutton .= "<input type=\"hidden\" id=\"p_fileliburl\" value=\"$poodllfilelib\" />";
-	$buttonclass="p_btn";
+	if(array_key_exists('autosave',$opts)){
+		$buttonclass="w_btn";
+	}else{
+		$buttonclass="p_btn";
+	}
 	$savebutton .= "<button type=\"button\" id=\"p_btn_upload_whiteboard\" class=\"$buttonclass\">" 
 				. get_string('whiteboardsave', 'filter_poodll'). 
 				"</button>";
