@@ -908,7 +908,7 @@ global $CFG, $USER, $COURSE,$PAGE;
 	//removed from params to make way for moodle 2 filesystem params Justin 20120213
 	if($width==0){ $width=$CFG->filter_poodll_whiteboardwidth;}
 	if($height==0){$height=$CFG->filter_poodll_whiteboardheight;}
-	$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
+	$poodllfilelib= $CFG->httpswwwroot . '/filter/poodll/poodllfilelib.php';
 	
 	//add the height of the control area, so that the user spec dimensions are the canvas size
 	$height=$height + 61;
@@ -999,7 +999,7 @@ global $CFG, $USER, $COURSE,$PAGE;
 	//removed from params to make way for moodle 2 filesystem params Justin 20120213
 	if($width==0){ $width=$CFG->filter_poodll_whiteboardwidth;}
 	if($height==0){$height=$CFG->filter_poodll_whiteboardheight;}
-	$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
+	$poodllfilelib= $CFG->httpswwwroot . '/filter/poodll/poodllfilelib.php';
 
 
 	//the control to put the filename of our picture
@@ -1117,7 +1117,7 @@ $mode="normal";
 	//removed from params to make way for moodle 2 filesystem params Justin 20120213
 	if($width==0){ $width=$CFG->filter_poodll_whiteboardwidth;}
 	if($height==0){$height=$CFG->filter_poodll_whiteboardheight;}
-	$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
+	$poodllfilelib= $CFG->httpswwwroot. '/filter/poodll/poodllfilelib.php';
 	
 //adjust size for borders and control panel
 //the board size is the size of the drawing canvas, not the widget
