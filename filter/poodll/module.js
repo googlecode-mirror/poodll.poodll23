@@ -331,24 +331,33 @@ M.filter_poodll.loadliterallycanvas = function(Y,opts) {
 
 	function setUnsavedWarning(){
 		var m = $id('p_messages');
-		m.innerHTML = 'File has not been saved.';
+		if(m){
+			m.innerHTML = 'File has not been saved.';
+		}
 	}
 	
 	function stopSaveCountdown(){
 		// update messages
 		var m = $id('p_messages');
-		m.innerHTML = 'File has not been saved.';
+		if(m){
+			m.innerHTML = 'File has not been saved.';
 		
-		var savebutton = $id('p_btn_upload_whiteboard');
-		savebutton.disabled=false;
+			var savebutton = $id('p_btn_upload_whiteboard');
+			savebutton.disabled=false;
 		
-		clearTimeout(M.filter_poodll.timeouthandle);
+			clearTimeout(M.filter_poodll.timeouthandle);
+		}
 	
 	}
 	
 	function startSaveCountdown(){
-		clearTimeout(M.filter_poodll.timeouthandle);
-		M.filter_poodll.timeouthandle = setTimeout(WhiteboardUploadHandler,2000);
+		// we use the presence of p_messages to check if this is a 
+		//submittable whiteboard, or just a static one.
+		var m = $id('p_messages');
+		if(m){
+			clearTimeout(M.filter_poodll.timeouthandle);
+			M.filter_poodll.timeouthandle = setTimeout(WhiteboardUploadHandler,2000);
+		}
 	}
 
 /*
