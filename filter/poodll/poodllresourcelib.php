@@ -3141,38 +3141,24 @@ global $CFG, $PAGE;
 //embed a quizlet iframe
 function fetch_quizlet($quizletid, $quizlettitle="", $mode="flashcards", $width="100%",$height=""){
 
-//massage mode, other options are as is "learn" or "scatter"	
-if($mode=="flashcards")$mode="familiarize";
+	//massage mode, other options are as is "learn" or "scatter"	
+	if($mode=="")$mode="flashcards";
 
-//set default heights
-$fa="310";
-$sc="410";
-$le="315";
-
-//height changes depending on mode
-	switch($mode){
-		case 'familiarize': if($height==''){$height=$fa;}else{$fa=$height;} break;
-		case 'scatter': if($height==''){$height=$sc;}else{$sc=$height;} break;
-		case 'learn': if($height==''){$height=$le;}else{$le=$height;} break;
+	//set default heights
+	$dh = "410";
+	if($height==''){$height=$dh;}
+	
+	//only do scrolling for test
+	if ($mode == "test"){
+		$scroll="yes";
+	}else{
+		$scroll="no";
 	}
 
-		
-$ret=	"<div style=\"background:#fff;padding:3px\">
-		<iframe src=\"http://quizlet.com/$quizletid/$mode/embed/?hideLinks\" height=\"$height\" width=\"$width\" style=\"border:0;\" scrolling=\"no\"></iframe>
-		<select style=\"float:right;margin-right:3px\" onchange=\"var quizlet_s=this.options[this.selectedIndex].value;var quizlet_f=this;while(quizlet_f.nodeName.toLowerCase()!='iframe')quizlet_f=quizlet_f.previousSibling;quizlet_f.src=quizlet_s.slice(0,-3);quizlet_f.height=quizlet_s.slice(-3);this.value=0\">
-			<option value=\"0\" selected=\"selected\">Choose a Study Mode</option>
-			<option value=\"http://quizlet.com/$quizletid/scatter/embed/?hideLinks&height=$sc\">Scatter</option>
-			<option value=\"http://quizlet.com/$quizletid/learn/embed/?hideLinks&height=$le\">Learn</option>
-			<option value=\"http://quizlet.com/$quizletid/familiarize/embed/?hideLinks&height=$fa\">Flashcards</option>
-		</select>
-		<div style=\"float:left;font-size:11px;padding-top:2px\">
-			<a style=\"float: left;margin: -2px 6px 0pt 2px;\" href=\"http://quizlet.com/\">
-				<img src=\"http://quizlet.com/a/i/quizlet-embed-logo.PQQ2.png\" border=\"0\" title=\"Quizlet.com, home of free online educational games\" alt=\"Quizlet.com, home of free online educational games\" /></a>
-			<a href=\"http://quizlet.com/$quizletid/$quizlettitle/\">Study these flash cards</a>
-		</div>
-		<div style=\"clear:both\"></div>
-	</div>";
-
+	//return iframe	
+	$ret=	"<div style=\"background:#fff;padding:3px\">
+			<iframe src=\"//quizlet.com/$quizletid/$mode/embedv2/?hideLinks\" height=\"$height\" width=\"$width\" style=\"border:0;\" scrolling=\"$scroll\"></iframe>
+			</div>";
 	return $ret;
 
 }
