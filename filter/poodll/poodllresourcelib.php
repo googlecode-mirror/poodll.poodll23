@@ -490,11 +490,11 @@ global $CFG, $USER,$COURSE;
 switch($CFG->filter_poodll_defaultwhiteboard){
 	case 'literallycanvas':
 		$forsubmission = false;
-		return fetchLiterallyCanvas($forsubmission,$width,$height,$imageurl,$updatecontrol, $contextid,$component,$filearea,$itemid);
+		return fetchLiterallyCanvas($forsubmission,$width,$height,$imageurl);
 		break;
 	case 'drawingboard':
 		$forsubmission = false;
-		return fetchDrawingBoard($forsubmission,$width,$height,$imageurl,$updatecontrol, $contextid,$component,$filearea,$itemid); 
+		return fetchDrawingBoard($forsubmission,$width,$height,$imageurl); 
 		break;
 	default:
 }
@@ -811,7 +811,7 @@ $params = array();
 
 }
 */
-function fetchMP3RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$timelimit="0"){
+function fetchMP3RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$timelimit="0",$callbackjs=false){
 global $CFG, $USER, $COURSE;
 
 //get our HTML5 Uploader if we have a mobile device
@@ -819,7 +819,7 @@ if(isMobile($CFG->filter_poodll_html5rec)){
 	if(!canDoUpload()){
 		$ret ="<div class='mobile_os_version_warning'>" . get_string('mobile_os_version_warning', 'filter_poodll') . "</div>";
 	}else{	
-		$ret = fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "audio");
+		$ret = fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "audio",false,$callbackjs);
 	}
 	return $ret;
 
@@ -876,6 +876,11 @@ $params = array();
 		$params['itemid'] = $itemid;
 		$params['autosubmit'] = $autosubmit;
 		$params['timelimit'] = $timelimit;
+		
+		//callbackjs
+		if($callbackjs){
+			$params['callbackjs'] = $callbackjs;
+		}
 	
     	$returnString=  fetchSWFWidgetCode('PoodLLMP3Recorder.lzx.swf10.swf',
     						$params,$width,$height,'#CFCFCF');
@@ -890,7 +895,7 @@ $params = array();
 * The literally canvas whiteboard
 *
 */
-function fetchLiterallyCanvas($forsubmission=true,$width=0,$height=0,$backimage="",$updatecontrol="", $contextid=0,$component="",$filearea="",$itemid=0){
+function fetchLiterallyCanvas($forsubmission=true,$width=0,$height=0,$backimage="",$updatecontrol="", $contextid=0,$component="",$filearea="",$itemid=0,$callbackjs=false){
 global $CFG, $USER, $COURSE,$PAGE;
 
 	//javascript upload handler
@@ -903,12 +908,15 @@ global $CFG, $USER, $COURSE,$PAGE;
 	}
 	//imageurlprefix, that LC requires
 	$opts['imageurlprefix']= $CFG->httpswwwroot . '/filter/poodll/js/literallycanvas.js/img';
+	$opts['recorderid']= 'literallycanvas_01';
+	$opts['callbackjs']= $callbackjs;
+	$opts['updatecontrol']= $updatecontrol;
 	$PAGE->requires->js_init_call('M.filter_poodll.loadliterallycanvas', array($opts),false);
 
 	//removed from params to make way for moodle 2 filesystem params Justin 20120213
 	if($width==0){ $width=$CFG->filter_poodll_whiteboardwidth;}
 	if($height==0){$height=$CFG->filter_poodll_whiteboardheight;}
-	$poodllfilelib= $CFG->httpswwwroot . '/filter/poodll/poodllfilelib.php';
+	$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
 	
 	//add the height of the control area, so that the user spec dimensions are the canvas size
 	$height=$height + 61;
@@ -983,11 +991,14 @@ global $CFG, $USER, $COURSE,$PAGE;
 * The literally canvas whiteboard
 *
 */
-function fetchDrawingBoard($forsubmission=true,$width=0,$height=0,$backimage="",$updatecontrol="", $contextid=0,$component="",$filearea="",$itemid=0){
+function fetchDrawingBoard($forsubmission=true,$width=0,$height=0,$backimage="",$updatecontrol="", $contextid=0,$component="",$filearea="",$itemid=0,$callbackjs=false){
 global $CFG, $USER, $COURSE,$PAGE;
 
 	//javascript upload handler
 	$opts =Array();
+	$opts['recorderid']= 'drawingboard_01';
+	$opts['callbackjs']= $callbackjs;
+	$opts['updatecontrol']= $updatecontrol;
 	if($backimage !=''){
 		$opts['bgimage'] = $backimage;
 	}
@@ -999,7 +1010,7 @@ global $CFG, $USER, $COURSE,$PAGE;
 	//removed from params to make way for moodle 2 filesystem params Justin 20120213
 	if($width==0){ $width=$CFG->filter_poodll_whiteboardwidth;}
 	if($height==0){$height=$CFG->filter_poodll_whiteboardheight;}
-	$poodllfilelib= $CFG->httpswwwroot . '/filter/poodll/poodllfilelib.php';
+	$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
 
 
 	//the control to put the filename of our picture
@@ -1064,7 +1075,7 @@ global $CFG, $USER, $COURSE,$PAGE;
 
 
 
-function fetchWhiteboardForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$width=0,$height=0,$backimage="",$prefboard=""){
+function fetchWhiteboardForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid,$width=0,$height=0,$backimage="",$prefboard="",$callbackjs=false){
 global $CFG, $USER, $COURSE;
 
 //head off to the correct whiteboard as defined in config
@@ -1077,11 +1088,11 @@ if($prefboard==""){
 switch($useboard){
 	case 'literallycanvas':
 		$forsubmission = true;
-		return fetchLiterallyCanvas($forsubmission,$width,$height,$backimage,$updatecontrol, $contextid,$component,$filearea,$itemid);
+		return fetchLiterallyCanvas($forsubmission,$width,$height,$backimage,$updatecontrol, $contextid,$component,$filearea,$itemid,$callbackjs);
 		break;
 	case 'drawingboard':
 		$forsubmission = true;
-		return fetchDrawingBoard($forsubmission,$width,$height,$backimage,$updatecontrol, $contextid,$component,$filearea,$itemid); 
+		return fetchDrawingBoard($forsubmission,$width,$height,$backimage,$updatecontrol, $contextid,$component,$filearea,$itemid,$callbackjs); 
 		break;
 	default:
 }
@@ -1092,7 +1103,7 @@ switch($useboard){
 if(isMobile($CFG->filter_poodll_html5widgets)){
 	
 	$forsubmission = true;
-	return fetchDrawingBoard($forsubmission,$width,$height,$backimage,$updatecontrol, $contextid,$component,$filearea,$itemid); 
+	return fetchDrawingBoard($forsubmission,$width,$height,$backimage,$updatecontrol, $contextid,$component,$filearea,$itemid,$callbackjs); 
 	//the old logic follows but using drawingboard.js is probably better.
 	//if the sky falls in, we will revert though. Justin 20131202
 	/*	
@@ -1111,13 +1122,12 @@ if(isMobile($CFG->filter_poodll_html5widgets)){
 //pair submissions could be interesting ..
 $boardname="solo";
 $mode="normal";
-//whats my name...? my name goddamit, I can't remember  N A mm eeeE
-//$mename=$USER->username;		
+	
 
 	//removed from params to make way for moodle 2 filesystem params Justin 20120213
 	if($width==0){ $width=$CFG->filter_poodll_whiteboardwidth;}
 	if($height==0){$height=$CFG->filter_poodll_whiteboardheight;}
-	$poodllfilelib= $CFG->httpswwwroot. '/filter/poodll/poodllfilelib.php';
+	$poodllfilelib= $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
 	
 //adjust size for borders and control panel
 //the board size is the size of the drawing canvas, not the widget
@@ -1145,9 +1155,16 @@ $height = $height + 20;
 		$params['component'] = $component;
 		$params['filearea'] = $filearea;
 		$params['itemid'] = $itemid;
+		if($callbackjs){
+			$params['callbackjs'] = $callbackjs;
+		}
+		if($CFG->filter_poodll_autosavewhiteboard ){
+			$params['autosave'] = 'true';
+		}
 		
 		//normal mode is a standard scribble with a cpanel
-		//simple mode has a simple double click popup menu
+		//simple mode has a simple double click popup menu, but not submit feature
+		//all submit is via normal mode, for now.
 		if ($mode=='normal'){
 			$returnString =  fetchSWFWidgetCode('scribblesubmit.lzx.swf9.swf',
 				$params,$width,$height,'#FFFFFF');	
@@ -1164,7 +1181,7 @@ $height = $height + 20;
 
 }
 
-function fetchAudioRecorderForSubmission($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid,$timelimit="0"){
+function fetchAudioRecorderForSubmission($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid,$timelimit="0",$callbackjs=false){
 global $CFG, $USER, $COURSE;
 
 //get our HTML5 Uploader if we have a mobile device
@@ -1172,7 +1189,7 @@ if(isMobile($CFG->filter_poodll_html5rec)){
 	if(!canDoUpload()){
 		$ret ="<div class='mobile_os_version_warning'>" . get_string('mobile_os_version_warning', 'filter_poodll') . "</div>";
 	}else{	
-		$ret = fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "audio");
+		$ret = fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "audio",false,$callbackjs);
 	}
 	return $ret;
 
@@ -1252,6 +1269,9 @@ $params = array();
 		$params['itemid'] = $itemid;
 		$params['timelimit'] = $timelimit;
 		$params['autotryports'] = $autotryports;
+		if($callbackjs){
+			$params['callbackjs']=$callbackjs;
+		}
 	
     	$returnString=  fetchSWFWidgetCode('PoodLLAudioRecorder.lzx.swf9.swf',
     						$params,$width,$height,'#CFCFCF');
@@ -1667,7 +1687,7 @@ $params = array();
 
 }
 
-function fetchSnapshotCameraForSubmission($updatecontrol="filename", $filename="apic.jpg", $width="350",$height="400",$contextid,$component,$filearea,$itemid){
+function fetchSnapshotCameraForSubmission($updatecontrol="filename", $filename="apic.jpg", $width="350",$height="400",$contextid,$component,$filearea,$itemid,$callbackjs=false){
 global $CFG, $USER, $COURSE;
 
 //get our HTML5 Uploader if we have a mobile device
@@ -1675,7 +1695,7 @@ if(isMobile($CFG->filter_poodll_html5widgets)){
 	if(!canDoUpload()){
 		$ret ="<div class='mobile_os_version_warning'>" . get_string('mobile_os_version_warning', 'filter_poodll') . "</div>";
 	}else{	
-		$ret = fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "image");
+		$ret = fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "image",false,$callbackjs);
 	}
 	return $ret;
 }
@@ -1713,6 +1733,12 @@ $params = array();
 		
 		//set to auto submit
 		$params['autosubmit'] = 'true';
+		
+		//callbackjs
+		if($callbackjs){
+			$params['callbackjs'] = $callbackjs;
+		}
+	
 	
     	$returnString=  fetchSWFWidgetCode('PoodLLSnapshot.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
@@ -1874,7 +1900,7 @@ $params = array();
 
 }
 
-function fetchVideoRecorderForSubmission($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid,$timelimit="0"){
+function fetchVideoRecorderForSubmission($runtime, $assigname, $updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid,$timelimit="0",$callbackjs=false){
 global $CFG, $USER, $COURSE;
 
 //head off to HTML5 logic if mobile
@@ -1882,7 +1908,7 @@ if (isMobile($CFG->filter_poodll_html5rec)){
 	if(!canDoUpload()){
 		$ret ="<div class='mobile_os_version_warning'>" . get_string('mobile_os_version_warning', 'filter_poodll') . "</div>";
 	}else{	
-		$ret = fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "video");
+		$ret = fetch_HTML5RecorderForSubmission($updatecontrol, $contextid,$component,$filearea,$itemid, "video",false,$callbackjs);
 	}
 	return $ret;
 }
@@ -1972,6 +1998,11 @@ $params = array();
 		$params['itemid'] = $itemid;
 		$params['timelimit'] = $timelimit;
 		$params['autotryports'] = $autotryports;
+		
+		//callbackjs
+		if($callbackjs){
+			$params['callbackjs'] = $callbackjs;
+		}
 	
     	$returnString=  fetchSWFWidgetCode('PoodLLVideoRecorder.lzx.swf9.swf',
     						$params,$width,$height,'#FFFFFF');
@@ -1983,7 +2014,7 @@ $params = array();
 
 }
 
-function fetch_HTML5RecorderForSubmission($updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid, $mediatype="image",$fromrepo=false){
+function fetch_HTML5RecorderForSubmission($updatecontrol="saveflvvoice", $contextid,$component,$filearea,$itemid, $mediatype="image",$fromrepo=false, $callbackjs=false){
 global $CFG,$PAGE;
 
 	//Get our browser object for determining HTML5 options
@@ -1992,6 +2023,9 @@ global $CFG,$PAGE;
 	//configure our options array for the JS Call
 	$fileliburl = $CFG->wwwroot . '/filter/poodll/poodllfilelib.php';
 	$opts = array();
+	$opts['recorderid']=$mediatype .'recorder_01';
+	$opts['callbackjs']=$callbackjs;
+	$opts['updatecontrol']=$updatecontrol;
 		
 	//setup our JS call
 	if(!$fromrepo){
