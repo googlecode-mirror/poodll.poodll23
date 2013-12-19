@@ -3759,6 +3759,13 @@ function fetchVideoSplash($src){
 					array_splice($relarray, 4, 0, '0');
 					$relpath = implode('/',$relarray);
 					break;
+					
+				default:
+					//if we have no itemid, zero is assumed
+					if(count($relarray)==5){
+						$relpath = '/' . $relarray[1] . '/' . $relarray[2] . '/' . $relarray[3];
+						$relpath .= '/0/' . $relarray[4];
+					 }
 			}
 			
 			
