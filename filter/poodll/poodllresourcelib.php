@@ -487,17 +487,20 @@ function fetch_whiteboard($runtime, $boardname, $imageurl="", $slave=false,$room
 global $CFG, $USER,$COURSE;
 
 //head off to the correct whiteboard as defined in config
-switch($CFG->filter_poodll_defaultwhiteboard){
-	case 'literallycanvas':
-		$forsubmission = false;
-		return fetchLiterallyCanvas($forsubmission,$width,$height,$imageurl);
-		break;
-	case 'drawingboard':
-		$forsubmission = false;
-		return fetchDrawingBoard($forsubmission,$width,$height,$imageurl); 
-		break;
-	default:
+if(!isOldIE()){
+	switch($CFG->filter_poodll_defaultwhiteboard){
+		case 'literallycanvas':
+			$forsubmission = false;
+			return fetchLiterallyCanvas($forsubmission,$width,$height,$imageurl);
+			break;
+		case 'drawingboard':
+			$forsubmission = false;
+			return fetchDrawingBoard($forsubmission,$width,$height,$imageurl); 
+			break;
+		default:
+	}
 }
+
 //set default size if necessary
 if($width==0){ $width=$CFG->filter_poodll_whiteboardwidth;}
 if($height==0){$height=$CFG->filter_poodll_whiteboardheight;}
@@ -1079,6 +1082,8 @@ function fetchWhiteboardForSubmission($updatecontrol, $contextid,$component,$fil
 global $CFG, $USER, $COURSE;
 
 //head off to the correct whiteboard as defined in config
+//we override prefboard if they couldn't use it anyway(ie old IE)
+if(isOldIE()){$prefboard='poodll';}
 if($prefboard==""){
 	$useboard = $CFG->filter_poodll_defaultwhiteboard;
 }else{
@@ -3429,6 +3434,16 @@ function canDoUpload(){
 		
 				
 	}//end of function
+	
+function isOldIE(){
+	$browser = new Browser();
+
+	 if($browser->getBrowser() == Browser::BROWSER_IE && $browser->getVersion() < 10){
+		return true;
+	}else{
+		return false;
+	}
+}
 
 //Here we try to detect if this is a mobile device or not
 //this is used to determine whther to return a JS or SWF widget

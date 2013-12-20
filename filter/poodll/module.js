@@ -373,7 +373,7 @@ M.filter_poodll.loadliterallycanvas = function(Y,opts) {
 		var m = $id('p_messages');
 		if(m){
 			clearTimeout(M.filter_poodll.timeouthandle);
-			M.filter_poodll.timeouthandle = setTimeout(WhiteboardUploadHandler,2000);
+			M.filter_poodll.timeouthandle = setTimeout(WhiteboardUploadHandler,1200);
 		}
 	}
 
