@@ -1008,9 +1008,11 @@ $return=fetchReturnArray(true);
 
 		//one condition of using this function is that only one file can be here,
 		//attachment limits
+		/*
 		if($filearea=='draft'){
 			$fs->delete_area_files($contextid,$component,$filearea,$itemid);
 		}
+		*/
 		
 		//if file already exists, delete it
 		//we could use fileinfo, but it don&'t work
