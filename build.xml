@@ -20,7 +20,7 @@
 		<property name="dist.question" value="poodllrecording"/>
 		<property name="dist.youtubesub" value="youtubesubmission"/>
 		<property name="dist.all" value="poodllkaboodle"/>
-		<property name="dist.version" value="2013122000"/>
+		<property name="dist.version" value="2013122600"/>
 		<property name="dist.year" value="2013"/>
 		<property name="dist.month" value="12"/>
 	</target>
@@ -64,7 +64,7 @@
 	            <fileset dir="${path.dist}" includes="${dist.filter}_${dist.version}.zip"/>
 	    </delete>
 		<zip destfile="${path.dist}/${dist.filter}_${dist.version}.zip" whenempty="fail">
-			<zipfileset dir="filter/poodll" prefix="poodll"/>
+			<zipfileset dir="filter/poodll" prefix="poodll" excludes="ffmpeg" />
 		</zip>
 	</target>
 	
@@ -124,7 +124,7 @@
 	            <fileset dir="${path.dist}" includes="${dist.all}_${dist.version}.zip"/>
 	        </delete>
 	        <zip destfile="${path.dist}/${dist.all}_${dist.version}.zip" whenempty="fail">
-				<zipfileset dir="filter/poodll" prefix="${dist.all}_${dist.version}/filter/poodll"/>
+				<zipfileset dir="filter/poodll" prefix="${dist.all}_${dist.version}/filter/poodll" excludes="ffmpeg" />
 				<zipfileset dir="repository/poodll" prefix="${dist.all}_${dist.version}/repository/poodll"/>
 				<zipfileset dir="mod/assignment/type/poodllonline" prefix="${dist.all}_${dist.version}/mod/assignment/type/poodllonline"/>
 				<zipfileset dir="mod/assign/submission/onlinepoodll" prefix="${dist.all}_${dist.version}/mod/assign/submission/onlinepoodll"/>
