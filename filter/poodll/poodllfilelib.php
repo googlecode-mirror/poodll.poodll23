@@ -1102,6 +1102,7 @@ $return=fetchReturnArray(true);
 				//if we could get a fileinfo object, return the url of the object
 				 if($fileinfo){
 						//$returnfilepath  = $fileinfo->get_url();
+						//echo "boo:" . $red5_fileurl;
 						$returnfilepath = $filename;
 						array_push($return['messages'],$returnfilepath );
 				}else{
