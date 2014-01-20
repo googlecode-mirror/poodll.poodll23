@@ -152,8 +152,9 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 			array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 			$mform->addElement('filemanager', 'backimage', get_string('backimage', 'assignsubmission_onlinepoodll'), null,array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 1));
 			$mform->setDefault('backimage', $backimage);
-			$mform->disabledIf('backimage', 'assignsubmission_onlinepoodll_enabled', 'eq', 0);
-			$mform->disabledIf('backimage', 'assignsubmission_onlinepoodll_recordertype', 'ne', OP_REPLYWHITEBOARD );
+			//commented 20130120 bcause was broken with moodle 2.6. Errors saying "must attach no more than one file" when tried to save, empty, disabled
+			//$mform->disabledIf('backimage', 'assignsubmission_onlinepoodll_enabled', 'eq', 0);
+			//$mform->disabledIf('backimage', 'assignsubmission_onlinepoodll_recordertype', 'ne', OP_REPLYWHITEBOARD );
 		}else{
 			$mform->addElement('hidden', 'backimage',$backimage);
 		}
