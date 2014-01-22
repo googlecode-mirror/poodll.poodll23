@@ -20,7 +20,7 @@
 		<property name="dist.question" value="poodllrecording"/>
 		<property name="dist.youtubesub" value="youtubesubmission"/>
 		<property name="dist.all" value="poodllkaboodle"/>
-		<property name="dist.version" value="2014011500"/>
+		<property name="dist.version" value="2014012000"/>
 		<property name="dist.year" value="2014"/>
 		<property name="dist.month" value="01"/>
 	</target>
