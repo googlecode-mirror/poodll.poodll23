@@ -2270,7 +2270,7 @@ $moduleid = optional_param('id', 0, PARAM_INT);    // The ID of the current modu
 $flvserver = $CFG->poodll_media_server;
 
 ////if usepoodlldata, then set that to filearea
-if($usepoodlldata){$filearea="poodlldata"};
+if($usepoodlldata){$filearea="poodlldata";}
 
 
 //determine which of, automated or manual playlists to use
