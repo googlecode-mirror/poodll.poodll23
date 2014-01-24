@@ -2299,8 +2299,6 @@ if(strlen($playlist) > 4 && substr($playlist,-4)==".xml"){
     						
     	return $returnString;
 
-
-	
 }
 
 //Audio playlist player with defaults, for use with directories of audio files
