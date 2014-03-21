@@ -491,7 +491,7 @@ class assign_submission_onlinepoodll extends assign_submission_plugin {
 		//Move recorded files from draft to the correct area
 		//if filename is false, no update. possibly used changed something else on page
 		$filename = $this->shift_draft_file($submission);
-		if(!$filename){return;}
+		if(!$filename){return true;}
 		
         $onlinepoodllsubmission = $this->get_onlinepoodll_submission($submission->id);
         if ($onlinepoodllsubmission) {
