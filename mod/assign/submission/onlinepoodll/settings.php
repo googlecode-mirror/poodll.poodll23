@@ -34,7 +34,7 @@ if(!defined('OP_REPLYVOICE')){
 	//enable by default
 	$settings->add(new admin_setting_configcheckbox('assignsubmission_onlinepoodll/default',
                    new lang_string('default', 'assignsubmission_onlinepoodll'),
-                   new lang_string('default_help', 'assignsubmission_onlinepoodll'), 1));
+                   new lang_string('default_help', 'assignsubmission_onlinepoodll'), 0));
                    
 
 	//Recorders
